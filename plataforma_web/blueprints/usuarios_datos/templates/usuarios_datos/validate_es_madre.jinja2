@@ -16,13 +16,7 @@
         {{ detail.label_value('Por CURP su género es', genero_curp) }}
         {{ detail.label_value('Archivo adjunto') }}
         {% if archivo %}
-            {% if tipo_archivo == "PDF" %}
-            <object data="{{ archivo }}" type="application/pdf" width="100%" height="600"></object>
-            {% elif tipo_archivo == "IMG" %}
-                <img src="{{ archivo }}" />
-            {% else %}
-                <p class="lead">Tipo de Archivo no disponible para su visualización</p>
-            {% endif %}
+            <object data="{{ url_for('usuarios_datos.download_file', usuario_dato_id=usuario_dato.id, usuario_documento_id=usuario_dato.adjunto_acta_nacimiento_hijo_id) }}" type="application/pdf" width="100%" height="600"></object>
         {% endif %}
     {% endcall %}
 

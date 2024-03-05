@@ -1125,15 +1125,8 @@ def validate_acta_nacimiento(usuario_dato_id):
                 flash("Ha rechazado el acta de nacimiento", "success")
 
         return redirect(url_for("usuarios_datos.detail", usuario_dato_id=usuario_dato.id))
-    # Definir el tipo de archivo adjunto: Imagen o PDF.
-    tipo_archivo = None
-    if archivo_prev:
-        if archivo_prev.endswith(".jpg") or archivo_prev.endswith(".jpeg") or archivo_prev.endswith(".png"):
-            tipo_archivo = "IMG"
-        elif archivo_prev.endswith(".pdf"):
-            tipo_archivo = "PDF"
     # Renderiza la página de validación
-    return render_template("usuarios_datos/validate_acta_nacimiento.jinja2", form=form, usuario_dato=usuario_dato, archivo=archivo_prev, tipo_archivo=tipo_archivo)
+    return render_template("usuarios_datos/validate_acta_nacimiento.jinja2", form=form, usuario_dato=usuario_dato, archivo=archivo_prev)
 
 
 @usuarios_datos.route("/usuarios_datos/validar/domicilio/<int:usuario_dato_id>", methods=["GET", "POST"])
@@ -1168,15 +1161,8 @@ def validate_domicilio(usuario_dato_id):
                 flash("Ha rechazado el acta de nacimiento", "success")
 
         return redirect(url_for("usuarios_datos.detail", usuario_dato_id=usuario_dato.id))
-    # Definir el tipo de archivo adjunto: Imagen o PDF.
-    tipo_archivo = None
-    if archivo_prev:
-        if archivo_prev.endswith(".jpg") or archivo_prev.endswith(".jpeg") or archivo_prev.endswith(".png"):
-            tipo_archivo = "IMG"
-        elif archivo_prev.endswith(".pdf"):
-            tipo_archivo = "PDF"
     # Renderiza la página de validación
-    return render_template("usuarios_datos/validate_domicilio.jinja2", form=form, usuario_dato=usuario_dato, archivo=archivo_prev, tipo_archivo=tipo_archivo)
+    return render_template("usuarios_datos/validate_domicilio.jinja2", form=form, usuario_dato=usuario_dato, archivo=archivo_prev)
 
 
 @usuarios_datos.route("/usuarios_datos/validar/curp/<int:usuario_dato_id>", methods=["GET", "POST"])
@@ -1211,15 +1197,8 @@ def validate_curp(usuario_dato_id):
                 flash("Ha rechazado el CURP", "success")
 
         return redirect(url_for("usuarios_datos.detail", usuario_dato_id=usuario_dato.id))
-    # Definir el tipo de archivo adjunto: Imagen o PDF.
-    tipo_archivo = None
-    if archivo_prev:
-        if archivo_prev.endswith(".jpg") or archivo_prev.endswith(".jpeg") or archivo_prev.endswith(".png"):
-            tipo_archivo = "IMG"
-        elif archivo_prev.endswith(".pdf"):
-            tipo_archivo = "PDF"
     # Renderiza la página de validación
-    return render_template("usuarios_datos/validate_curp.jinja2", form=form, usuario_dato=usuario_dato, archivo=archivo_prev, tipo_archivo=tipo_archivo)
+    return render_template("usuarios_datos/validate_curp.jinja2", form=form, usuario_dato=usuario_dato, archivo=archivo_prev)
 
 
 @usuarios_datos.route("/usuarios_datos/validar/cp_fiscal/<int:usuario_dato_id>", methods=["GET", "POST"])
@@ -1254,15 +1233,8 @@ def validate_cp_fiscal(usuario_dato_id):
                 flash("Ha rechazado el Código Postal Fiscal", "success")
 
         return redirect(url_for("usuarios_datos.detail", usuario_dato_id=usuario_dato.id))
-    # Definir el tipo de archivo adjunto: Imagen o PDF.
-    tipo_archivo = None
-    if archivo_prev:
-        if archivo_prev.endswith(".jpg") or archivo_prev.endswith(".jpeg") or archivo_prev.endswith(".png"):
-            tipo_archivo = "IMG"
-        elif archivo_prev.endswith(".pdf"):
-            tipo_archivo = "PDF"
     # Renderiza la página de validación
-    return render_template("usuarios_datos/validate_cp_fiscal.jinja2", form=form, usuario_dato=usuario_dato, archivo=archivo_prev, tipo_archivo=tipo_archivo)
+    return render_template("usuarios_datos/validate_cp_fiscal.jinja2", form=form, usuario_dato=usuario_dato, archivo=archivo_prev)
 
 
 @usuarios_datos.route("/usuarios_datos/validar/curriculum/<int:usuario_dato_id>", methods=["GET", "POST"])
@@ -1297,15 +1269,8 @@ def validate_curriculum(usuario_dato_id):
                 flash("Ha rechazado el Curriculum", "success")
 
         return redirect(url_for("usuarios_datos.detail", usuario_dato_id=usuario_dato.id))
-    # Definir el tipo de archivo adjunto: Imagen o PDF.
-    tipo_archivo = None
-    if archivo_prev:
-        if archivo_prev.endswith(".jpg") or archivo_prev.endswith(".jpeg") or archivo_prev.endswith(".png"):
-            tipo_archivo = "IMG"
-        elif archivo_prev.endswith(".pdf"):
-            tipo_archivo = "PDF"
     # Renderiza la página de validación
-    return render_template("usuarios_datos/validate_curriculum.jinja2", form=form, usuario_dato=usuario_dato, archivo=archivo_prev, tipo_archivo=tipo_archivo)
+    return render_template("usuarios_datos/validate_curriculum.jinja2", form=form, usuario_dato=usuario_dato, archivo=archivo_prev)
 
 
 @usuarios_datos.route("/usuarios_datos/validar/estudios/<int:usuario_dato_id>", methods=["GET", "POST"])
@@ -1340,15 +1305,8 @@ def validate_estudios(usuario_dato_id):
                 flash("Ha rechazado el Cédula Profesional", "success")
 
         return redirect(url_for("usuarios_datos.detail", usuario_dato_id=usuario_dato.id))
-    # Definir el tipo de archivo adjunto: Imagen o PDF.
-    tipo_archivo = None
-    if archivo_prev:
-        if archivo_prev.endswith(".jpg") or archivo_prev.endswith(".jpeg") or archivo_prev.endswith(".png"):
-            tipo_archivo = "IMG"
-        elif archivo_prev.endswith(".pdf"):
-            tipo_archivo = "PDF"
     # Renderiza la página de validación
-    return render_template("usuarios_datos/validate_estudios.jinja2", form=form, usuario_dato=usuario_dato, archivo=archivo_prev, tipo_archivo=tipo_archivo)
+    return render_template("usuarios_datos/validate_estudios.jinja2", form=form, usuario_dato=usuario_dato, archivo=archivo_prev)
 
 
 @usuarios_datos.route("/usuarios_datos/validar/es_madre/<int:usuario_dato_id>", methods=["GET", "POST"])
@@ -1392,15 +1350,8 @@ def validate_es_madre(usuario_dato_id):
         genero_curp = "HOMBRE, No podría ser madre"
     else:
         genero_curp = "MUJER"
-    # Definir el tipo de archivo adjunto: Imagen o PDF.
-    tipo_archivo = None
-    if archivo_prev:
-        if archivo_prev.endswith(".jpg") or archivo_prev.endswith(".jpeg") or archivo_prev.endswith(".png"):
-            tipo_archivo = "IMG"
-        elif archivo_prev.endswith(".pdf"):
-            tipo_archivo = "PDF"
     # Renderiza la página de validación
-    return render_template("usuarios_datos/validate_es_madre.jinja2", form=form, usuario_dato=usuario_dato, archivo=archivo_prev, tipo_archivo=tipo_archivo, genero_curp=genero_curp)
+    return render_template("usuarios_datos/validate_es_madre.jinja2", form=form, usuario_dato=usuario_dato, archivo=archivo_prev, genero_curp=genero_curp)
 
 
 @usuarios_datos.route("/usuarios_datos/validar/estado_civil/<int:usuario_dato_id>", methods=["GET", "POST"])
@@ -1465,15 +1416,8 @@ def validate_estado_cuenta(usuario_dato_id):
                 flash("Ha rechazado el Estado de Cuenta", "success")
 
         return redirect(url_for("usuarios_datos.detail", usuario_dato_id=usuario_dato.id))
-    # Definir el tipo de archivo adjunto: Imagen o PDF.
-    tipo_archivo = None
-    if archivo_prev:
-        if archivo_prev.endswith(".jpg") or archivo_prev.endswith(".jpeg") or archivo_prev.endswith(".png"):
-            tipo_archivo = "IMG"
-        elif archivo_prev.endswith(".pdf"):
-            tipo_archivo = "PDF"
     # Renderiza la página de validación
-    return render_template("usuarios_datos/validate_estado_cuenta.jinja2", form=form, usuario_dato=usuario_dato, archivo=archivo_prev, tipo_archivo=tipo_archivo)
+    return render_template("usuarios_datos/validate_estado_cuenta.jinja2", form=form, usuario_dato=usuario_dato, archivo=archivo_prev)
 
 
 @usuarios_datos.route("/usuarios_datos/exportar_xlsx")
@@ -1521,6 +1465,7 @@ def download_file(usuario_dato_id, usuario_documento_id):
         )
     except (MyBucketNotFoundError, MyFileNotFoundError, MyNotValidParamError) as error:
         flash(str(error), "danger")
+        abort(404)
 
     # Definir el nombre del archivo a descargar
     descarga_nombre = f"{archivo.descripcion}.pdf"
