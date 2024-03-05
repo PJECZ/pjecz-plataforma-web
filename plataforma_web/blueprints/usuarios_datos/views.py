@@ -1089,15 +1089,8 @@ def validate_identificacion(usuario_dato_id):
                 flash("Ha rechazado la identificación oficial", "success")
 
         return redirect(url_for("usuarios_datos.detail", usuario_dato_id=usuario_dato.id))
-    # Definir el tipo de archivo adjunto: Imagen o PDF.
-    tipo_archivo = None
-    if archivo_prev:
-        if archivo_prev.endswith(".jpg") or archivo_prev.endswith(".jpeg") or archivo_prev.endswith(".png"):
-            tipo_archivo = "IMG"
-        elif archivo_prev.endswith(".pdf"):
-            tipo_archivo = "PDF"
     # Renderiza la página de validación
-    return render_template("usuarios_datos/validate_identificacion.jinja2", form=form, usuario_dato=usuario_dato, archivo=archivo_prev, tipo_archivo=tipo_archivo)
+    return render_template("usuarios_datos/validate_identificacion.jinja2", form=form, usuario_dato=usuario_dato, archivo=archivo_prev)
 
 
 @usuarios_datos.route("/usuarios_datos/validar/acta_nacimiento/<int:usuario_dato_id>", methods=["GET", "POST"])
@@ -1506,7 +1499,7 @@ def download_file(usuario_dato_id, usuario_documento_id):
         abort(404)
 
     # Validar usuario_dato, en el cual el usuario debe ser el mismo que current_user
-    if usuario_dato.usuario != current_user:
+    if usuario_dato.usuario != current_user and not current_user.can_admin(MODULO):
         flash("Acceso no autorizado", "warning")
         return redirect(url_for("sistemas.start"))
 
@@ -1528,7 +1521,6 @@ def download_file(usuario_dato_id, usuario_documento_id):
         )
     except (MyBucketNotFoundError, MyFileNotFoundError, MyNotValidParamError) as error:
         flash(str(error), "danger")
-        return redirect(url_for("usuarios_datos.detail", usuario_dato_id=usuario_dato.id))
 
     # Definir el nombre del archivo a descargar
     descarga_nombre = f"{archivo.descripcion}.pdf"
