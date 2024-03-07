@@ -93,7 +93,7 @@ def enviar_email_validacion(usuario_solicitud_id: int):
         "<p>Ingrese el token recibido en el enlace de más abajo para validar que usted es el dueño de este correo electrónico.</p>",
         "<h2>TOKEN</h2>",
         f"<h1><code>{usuario_solicitud.token_email}</code></h1>",
-        f"<a href='{url}'>enlace de validación</a>",
+        f"<h3><a href='{url}'>enlace de validación</a></h3>",
     ]
     content = Content("text/html", "".join(contenidos))
 
