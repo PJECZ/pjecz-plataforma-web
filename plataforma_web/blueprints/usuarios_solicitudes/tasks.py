@@ -9,6 +9,7 @@ import os
 import sendgrid
 from dotenv import load_dotenv
 from sendgrid.helpers.mail import Email, To, Content, Mail
+from twilio.rest import Client
 
 from lib.tasks import set_task_progress, set_task_error
 
@@ -36,7 +37,10 @@ SENDGRID_API_KEY = os.getenv("SENDGRID_API_KEY", "")
 SENDGRID_FROM_EMAIL = os.getenv("SENDGRID_FROM_EMAIL", "")
 VALIDACION_EMAIL_PERSONAL_URL = os.getenv("VALIDACION_EMAIL_PERSONAL_URL", "")
 MAX_NUM_INTENTOS = 3
-
+TWILIO_ACCOUNT_SID = os.getenv("TWILIO_ACCOUNT_SID", "")
+TWILIO_AUTH_TOKEN = os.getenv("TWILIO_AUTH_TOKEN", "")
+TWILIO_TEL_FROM = os.getenv("TWILIO_TEL_FROM", "")
+VALIDACION_TELEFONO_PERSONAL_URL = os.getenv("VALIDACION_TELEFONO_PERSONAL_URL", "")
 
 def enviar_email_validacion(usuario_solicitud_id: int):
     """Enviar usuario solicitud para validación de email"""
@@ -68,7 +72,7 @@ def enviar_email_validacion(usuario_solicitud_id: int):
     usuario_solicitud = UsuarioSolicitud.query.get_or_404(usuario_solicitud_id)
 
     # Definir el URL que ira en el mensaje para validar el email personal
-    url = f"{VALIDACION_EMAIL_PERSONAL_URL}/{usuario_solicitud.id}"
+    url = f"{VALIDACION_EMAIL_PERSONAL_URL}{usuario_solicitud.encode_id()}"
 
     # Si intentos_email es mayor o igual a MAX_NUM_INTENTOS, se termina la tarea
     if usuario_solicitud.intentos_email >= MAX_NUM_INTENTOS:
@@ -115,6 +119,73 @@ def enviar_email_validacion(usuario_solicitud_id: int):
 
     # Terminar tarea
     mensaje_final = f"Se ha enviado el mensaje número {usuario_solicitud.intentos_email} al correo {usuario_solicitud.email_personal}"
+    bitacora.info(mensaje_final)
+    set_task_progress(100, mensaje_final)
+    return mensaje_final
+
+
+def enviar_telefono_validacion(usuario_solicitud_id: int):
+    """Enviar usuario solicitud para validación de teléfono celular"""
+
+    # Validar que se tiene VALIDACION_TELEFONO_PERSONAL_URL
+    url = None
+    if VALIDACION_TELEFONO_PERSONAL_URL == "":
+        mensaje_error = "Falta declarar la variable: VALIDACION_TELEFONO_PERSONAL_URL."
+        bitacora.error(mensaje_error)
+        return mensaje_error
+
+    # Validar que se tiene TWILIO_ACCOUNT_SID
+    if TWILIO_ACCOUNT_SID == "":
+        mensaje_error = "Falta declarar la variable: TWILIO_ACCOUNT_SID."
+        bitacora.error(mensaje_error)
+        return mensaje_error
+    
+    # Validar que se tiene TWILIO_AUTH_TOKEN
+    if TWILIO_AUTH_TOKEN == "":
+        mensaje_error = "Falta declarar la variable: TWILIO_AUTH_TOKEN."
+        bitacora.error(mensaje_error)
+        return mensaje_error
+    
+    # Validar que se tiene TWILIO_TEL_FROM
+    if TWILIO_TEL_FROM == "":
+        mensaje_error = "Falta declarar la variable: TWILIO_TEL_FROM."
+        bitacora.error(mensaje_error)
+        return mensaje_error
+    
+    # Consultar la solicitud
+    usuario_solicitud = UsuarioSolicitud.query.get_or_404(usuario_solicitud_id)
+
+    # Definir el URL que ira en el mensaje para validar el email personal
+    url = f"{VALIDACION_TELEFONO_PERSONAL_URL}{usuario_solicitud.encode_id()}"
+
+    # # Si intentos_email es mayor o igual a MAX_NUM_INTENTOS, se termina la tarea
+    if usuario_solicitud.intentos_telefono_celular >= MAX_NUM_INTENTOS:
+        mensaje_error = f"No se envió el mensaje a {usuario_solicitud.telefono_celular} porque llegó al máximo de intentos."
+        set_task_error(mensaje_error)
+        bitacora.warning(mensaje_error)
+        return mensaje_error
+    
+    # Creamos el sms de twilio
+    client = Client(TWILIO_ACCOUNT_SID, TWILIO_AUTH_TOKEN)
+    # Enviar mensaje
+    try:
+        client.messages.create(
+            body=f'Ingrese el siguiente token {usuario_solicitud.token_telefono_celular} en {url}',
+            from_=TWILIO_TEL_FROM,
+            to=f"+52{usuario_solicitud.telefono_celular}",
+        )
+    except Exception as e:
+        mensaje_error = f"No se envió el sms a {usuario_solicitud.telefono_celular} por error de Twilio. {e}"
+        set_task_error(mensaje_error)
+        bitacora.error(mensaje_error)
+        return mensaje_error
+    
+    # Incrementar el contador de intentos_telefono_celular
+    usuario_solicitud.intentos_telefono_celular = usuario_solicitud.intentos_telefono_celular + 1
+    usuario_solicitud.save()
+
+    # Terminar tarea
+    mensaje_final = f"Se ha enviado el mensaje número {usuario_solicitud.intentos_telefono_celular} al teléfono {usuario_solicitud.telefono_celular}"
     bitacora.info(mensaje_final)
     set_task_progress(100, mensaje_final)
     return mensaje_final
