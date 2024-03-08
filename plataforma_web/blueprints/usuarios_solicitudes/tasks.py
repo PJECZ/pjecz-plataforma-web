@@ -134,7 +134,7 @@ def enviar_email_validacion(usuario_solicitud_id: int):
     usuario_solicitud.save()
 
     # Terminar tarea
-    mensaje_final = f"Se ha enviado el mensaje número {usuario_solicitud.intentos_email} al correo {usuario_solicitud.email_personal}"
+    mensaje_final = f"Se ha enviado el mensaje de validacion a {usuario_solicitud.email_personal}"
     bitacora.info(mensaje_final)
     set_task_progress(100, mensaje_final)
     return mensaje_final
@@ -225,7 +225,7 @@ def enviar_sms_validacion(usuario_solicitud_id: int) -> str:
     usuario_solicitud.save()
 
     # Terminar tarea
-    mensaje_final = f"Se ha enviado un SMS al {usuario_solicitud.telefono_celular}"
+    mensaje_final = f"Se ha enviado el SMS de validacion a {usuario_solicitud.telefono_celular}"
     bitacora.info(mensaje_final)
     set_task_progress(100, mensaje_final)
     return mensaje_final
