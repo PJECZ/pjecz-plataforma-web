@@ -1,6 +1,7 @@
 """
 Usuarios Solicitudes, tareas en el fondo
 """
+
 from datetime import datetime
 import locale
 import logging
@@ -42,31 +43,32 @@ TWILIO_AUTH_TOKEN = os.getenv("TWILIO_AUTH_TOKEN", "")
 TWILIO_TEL_FROM = os.getenv("TWILIO_TEL_FROM", "")
 VALIDACION_TELEFONO_PERSONAL_URL = os.getenv("VALIDACION_TELEFONO_PERSONAL_URL", "")
 
+
 def enviar_email_validacion(usuario_solicitud_id: int):
     """Enviar usuario solicitud para validación de email"""
 
     # Validar que se tiene VALIDACION_EMAIL_PERSONAL_URL
-    url = None
     if VALIDACION_EMAIL_PERSONAL_URL == "":
-        mensaje_error = "Falta declarar la variable: VALIDACION_EMAIL_PERSONAL_URL."
+        mensaje_error = "ERROR: No esta configurada la variable VALIDACION_EMAIL_PERSONAL_URL."
         bitacora.error(mensaje_error)
         return mensaje_error
 
     # Validar que se tiene el remitente
-    from_email = None
     if SENDGRID_FROM_EMAIL == "":
-        mensaje_error = "Falta declarar la variable: SENDGRID_FROM_EMAIL."
+        mensaje_error = "ERROR: No esta configurada la variable SENDGRID_FROM_EMAIL."
         bitacora.error(mensaje_error)
         return mensaje_error
     from_email = Email(SENDGRID_FROM_EMAIL)
 
     # Validar que se tiene SENDGRID_API_KEY y crear el cliente de SendGrid
-    sendgrid_client = None
     if SENDGRID_API_KEY == "":
-        mensaje_error = "Falta declarar la variable: SENDGRID_API_KEY."
+        mensaje_error = "ERROR: No esta configurada la variable SENDGRID_API_KEY."
         bitacora.error(mensaje_error)
         return mensaje_error
     sendgrid_client = sendgrid.SendGridAPIClient(api_key=SENDGRID_API_KEY)
+
+    # Inicia la tarea en el fondo
+    set_task_progress(0, "Iniciando tarea de enviar mensaje via correo electronico de validación...")
 
     # Consultar la solicitud
     usuario_solicitud = UsuarioSolicitud.query.get_or_404(usuario_solicitud_id)
@@ -108,7 +110,7 @@ def enviar_email_validacion(usuario_solicitud_id: int):
         mail = Mail(from_email, to_email, subject, content)
         sendgrid_client.client.mail.send.post(request_body=mail.get())
     except Exception as e:
-        mensaje_error = f"No se envió el mensaje a {usuario_solicitud.email_personal} por error de SendGrid. {e}"
+        mensaje_error = f"ERROR: No se envió el mensaje a {usuario_solicitud.email_personal} por error de SendGrid. {e}"
         set_task_error(mensaje_error)
         bitacora.error(mensaje_error)
         return mensaje_error
@@ -124,68 +126,78 @@ def enviar_email_validacion(usuario_solicitud_id: int):
     return mensaje_final
 
 
-def enviar_telefono_validacion(usuario_solicitud_id: int):
-    """Enviar usuario solicitud para validación de teléfono celular"""
+def enviar_sms_validacion(usuario_solicitud_id: int) -> str:
+    """Enviar SMS vía Twilio al celular del usuario"""
 
     # Validar que se tiene VALIDACION_TELEFONO_PERSONAL_URL
-    url = None
     if VALIDACION_TELEFONO_PERSONAL_URL == "":
-        mensaje_error = "Falta declarar la variable: VALIDACION_TELEFONO_PERSONAL_URL."
+        mensaje_error = "ERROR: NO esta configurada la variable VALIDACION_TELEFONO_PERSONAL_URL."
         bitacora.error(mensaje_error)
         return mensaje_error
 
     # Validar que se tiene TWILIO_ACCOUNT_SID
     if TWILIO_ACCOUNT_SID == "":
-        mensaje_error = "Falta declarar la variable: TWILIO_ACCOUNT_SID."
+        mensaje_error = "ERROR: NO esta configurada la variable TWILIO_ACCOUNT_SID."
         bitacora.error(mensaje_error)
         return mensaje_error
-    
+
     # Validar que se tiene TWILIO_AUTH_TOKEN
     if TWILIO_AUTH_TOKEN == "":
-        mensaje_error = "Falta declarar la variable: TWILIO_AUTH_TOKEN."
+        mensaje_error = "ERROR: NO esta configurada la variable TWILIO_AUTH_TOKEN."
         bitacora.error(mensaje_error)
         return mensaje_error
-    
+
     # Validar que se tiene TWILIO_TEL_FROM
     if TWILIO_TEL_FROM == "":
-        mensaje_error = "Falta declarar la variable: TWILIO_TEL_FROM."
+        mensaje_error = "ERROR: NO esta configurada la variable TWILIO_TEL_FROM."
         bitacora.error(mensaje_error)
         return mensaje_error
-    
-    # Consultar la solicitud
-    usuario_solicitud = UsuarioSolicitud.query.get_or_404(usuario_solicitud_id)
 
-    # Definir el URL que ira en el mensaje para validar el email personal
+    # Inicia la tarea en el fondo
+    set_task_progress(0, "Iniciando tarea de enviar SMS de validación...")
+
+    # Consultar la solicitud
+    usuario_solicitud = UsuarioSolicitud.query.filter_by(estatus="A").get_or_404(usuario_solicitud_id)
+
+    # Si no se encuentra la solicitud, causa error y se termina
+    if usuario_solicitud is None:
+        mensaje_error = "ERROR: No se encontró la solicitud o esta eliminada."
+        set_task_error(mensaje_error)
+        bitacora.error(mensaje_error)
+        return mensaje_error
+
+    # Definir el URL que ira en el mensaje
     url = f"{VALIDACION_TELEFONO_PERSONAL_URL}{usuario_solicitud.encode_id()}"
 
-    # # Si intentos_email es mayor o igual a MAX_NUM_INTENTOS, se termina la tarea
+    # Si intentos_email es mayor o igual a MAX_NUM_INTENTOS, se termina la tarea
     if usuario_solicitud.intentos_telefono_celular >= MAX_NUM_INTENTOS:
-        mensaje_error = f"No se envió el mensaje a {usuario_solicitud.telefono_celular} porque llegó al máximo de intentos."
+        mensaje_error = f"AVISO: No se envió el SMS a {usuario_solicitud.telefono_celular} porque llegó al máximo de intentos."
         set_task_error(mensaje_error)
         bitacora.warning(mensaje_error)
         return mensaje_error
-    
-    # Creamos el sms de twilio
+
+    # Creamos el SMS de twilio
     client = Client(TWILIO_ACCOUNT_SID, TWILIO_AUTH_TOKEN)
+
     # Enviar mensaje
     try:
         client.messages.create(
-            body=f'Ingrese el siguiente token {usuario_solicitud.token_telefono_celular} en {url}',
+            body=f"Ingrese este token {usuario_solicitud.token_telefono_celular} en {url}",
             from_=TWILIO_TEL_FROM,
             to=f"+52{usuario_solicitud.telefono_celular}",
         )
     except Exception as e:
-        mensaje_error = f"No se envió el sms a {usuario_solicitud.telefono_celular} por error de Twilio. {e}"
+        mensaje_error = f"ERROR: No se envió el sms a {usuario_solicitud.telefono_celular} por error de Twilio. {e}"
         set_task_error(mensaje_error)
         bitacora.error(mensaje_error)
         return mensaje_error
-    
+
     # Incrementar el contador de intentos_telefono_celular
     usuario_solicitud.intentos_telefono_celular = usuario_solicitud.intentos_telefono_celular + 1
     usuario_solicitud.save()
 
     # Terminar tarea
-    mensaje_final = f"Se ha enviado el mensaje número {usuario_solicitud.intentos_telefono_celular} al teléfono {usuario_solicitud.telefono_celular}"
+    mensaje_final = f"Se ha enviado un SMS al {usuario_solicitud.telefono_celular}"
     bitacora.info(mensaje_final)
     set_task_progress(100, mensaje_final)
     return mensaje_final

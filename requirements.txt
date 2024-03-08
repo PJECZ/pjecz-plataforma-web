@@ -35,6 +35,7 @@ sendgrid
 SQLAlchemy-Utils>=0.38.0,<0.39.0
 SQLAlchemy>=1.4.0,<2.0.0
 tabulate
+twilio
 Unidecode
 Werkzeug==2.0.2
 WTForms>=2.3.3,<3.0.0

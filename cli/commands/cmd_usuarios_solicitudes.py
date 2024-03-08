@@ -1,9 +1,10 @@
 """
 Usuarios Solicitudes
 
-- enviar_sms: Enviar sms vía twilio a un usuario
-- eliminar_registros: Elimina registros no validados con más de 24hrs
+- enviar_sms: Enviar SMS vía Twilio al celular del usuario
+- eliminar_registros: Eliminar solicitudes de más de 24hrs que no fueron validadas
 """
+
 import click
 import sys
 from datetime import datetime, timedelta
@@ -23,45 +24,54 @@ db.app = app
 def cli():
     """Usuario Solicitudes"""
 
+
 @click.command()
 @click.argument("usuario_email", type=str)
 def enviar_sms(usuario_email):
-    """Enviar sms a un usuario"""
-    click.echo("Enviar sms a usuario...")
+    """Enviar SMS vía Twilio al celular del usuario"""
 
-    # Buscar usuario
-    usuario_solicitud = UsuarioSolicitud.query.join(Usuario).filter(Usuario.email==usuario_email).first()
+    # Consultar solicitudes activas del usuario dado
+    usuario_solicitud = UsuarioSolicitud.query.join(Usuario).filter(Usuario.email == usuario_email).filter(UsuarioSolicitud.estatus == "A").first()
 
+    # Si la consulta no arroja resultados
     if usuario_solicitud is None:
-        click.echo("Usuario no localizado")
+        click.echo(f"ERROR: El usuario {usuario_email} no tiene solicitudes activas. Nada que hacer.")
         sys.exit(1)
 
-    # Lanzar tarea en el fondo para enviar email de validación
+    # Lanzar la tarea en el fondo para enviar SMS de validación
+    click.echo("Lanzando la tarea en el fondo para enviar SMS de validación...")
     app.task_queue.enqueue(
-        "plataforma_web.blueprints.usuarios_solicitudes.tasks.enviar_telefono_validacion",
+        "plataforma_web.blueprints.usuarios_solicitudes.tasks.enviar_sms_validacion",
         usuario_solicitud_id=usuario_solicitud.id,
     )
 
-    # Respuesta
-    click.echo(f"Mensaje sms enviado a +52{usuario_solicitud.telefono_celular}")
+    # Mensaje final
+    click.echo(f"Mensaje SMS de validación enviado a +52{usuario_solicitud.telefono_celular}")
 
 
 @click.command()
-def eliminar_registros():
-    """Eliminar registros caducos"""
-    click.echo("Eliminar registros con más de 24hrs...")
+def eliminar_solicitudes_no_validadas():
+    """Eliminar solicitudes de más de 24hrs que no fueron validadas"""
+    click.echo("Eliminar solicitudes de más de 24hrs que no fueron validadas...")
 
-    # Buscar usuario_solicitudes
-    usuarios_solicitudes = UsuarioSolicitud.query.filter(or_(UsuarioSolicitud.validacion_email==False, UsuarioSolicitud.validacion_telefono_celular==False)).filter_by(estatus="A").all()
+    # Consultar solicitudes activas
+    usuarios_solicitudes = UsuarioSolicitud.query.filter_by(estatus="A").all()
 
-    # Bucle
+    # Si la consulta no arroja resultados
+    if usuarios_solicitudes is None:
+        click.echo("AVISO: No hay solicitudes activas. Nada que hacer.")
+        sys.exit(0)
+
+    # Bucle por cada solicitud
     contador = 0
     for usuario_solicitud in usuarios_solicitudes:
         if usuario_solicitud.creado <= datetime.now() + timedelta(days=1):
             usuario_solicitud.delete()
             contador = contador + 1
-    # mensaje final
-    click.echo(f"Se eliminaron {contador} registros.")
+
+    # Mensaje final
+    click.echo(f"Se eliminaron {contador} solicitudes de más de 24hrs que no fueron validadas")
+
 
 cli.add_command(enviar_sms)
-cli.add_command(eliminar_registros)
+cli.add_command(eliminar_solicitudes_no_validadas)
