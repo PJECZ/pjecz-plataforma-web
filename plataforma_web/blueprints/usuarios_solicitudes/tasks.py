@@ -129,10 +129,6 @@ def enviar_email_validacion(usuario_solicitud_id: int):
         bitacora.error(mensaje_error)
         return mensaje_error
 
-    # Incrementar el contador de intentos_email
-    usuario_solicitud.intentos_email = usuario_solicitud.intentos_email + 1
-    usuario_solicitud.save()
-
     # Terminar tarea
     mensaje_final = f"Se ha enviado el mensaje de validacion a {usuario_solicitud.email_personal}"
     bitacora.info(mensaje_final)
