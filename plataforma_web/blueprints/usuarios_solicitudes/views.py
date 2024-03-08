@@ -1,6 +1,7 @@
 """
 Usuarios Solicitudes, vistas
 """
+
 import json
 from random import randint
 from flask import Blueprint, flash, redirect, render_template, request, url_for
@@ -218,13 +219,14 @@ def new():
             # Lanzar tarea en el fondo para enviar email de validación
             current_user.launch_task(
                 nombre="usuarios_solicitudes.tasks.enviar_email_validacion",
-                descripcion="Enviando email de validación de email personal.",
+                descripcion="Enviando mensaje de validación de email personal.",
                 usuario_solicitud_id=usuario_solicitud.id,
             )
-            # Lanzar tarea en el fondo para enviar email de validación
+
+            # Lanzar tarea en el fondo para enviar SMS de validación
             current_user.launch_task(
-                nombre="usuarios_solicitudes.tasks.enviar_telefono_validacion",
-                descripcion="Enviando email de validación de email personal.",
+                nombre="usuarios_solicitudes.tasks.enviar_sms_validacion",
+                descripcion="Enviando SMS de validación de telefono personal.",
                 usuario_solicitud_id=usuario_solicitud.id,
             )
 
@@ -258,7 +260,7 @@ def token_email(id_hashed):
     if usuario_solicitud.estatus != "A":
         flash("Token caducado", "warning")
         return redirect(url_for("sistemas.start"))
-    
+
     # Si el usuario que consulta no es el usuario de la solicitud, te reenvía a inicio
     if usuario_solicitud.usuario != current_user:
         flash("No puede acceder a la validación de email personal de otro usuario", "warning")
@@ -306,4 +308,3 @@ def token_email(id_hashed):
 
     # Mostramos el formulario
     return render_template("usuarios_solicitudes/token_email.jinja2", form=form, usuario_solicitud=usuario_solicitud)
-
