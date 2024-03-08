@@ -71,7 +71,21 @@ def enviar_email_validacion(usuario_solicitud_id: int):
     set_task_progress(0, "Iniciando tarea de enviar mensaje via correo electronico de validación...")
 
     # Consultar la solicitud
-    usuario_solicitud = UsuarioSolicitud.query.get_or_404(usuario_solicitud_id)
+    usuario_solicitud = UsuarioSolicitud.query.get(usuario_solicitud_id)
+
+    # Si la consulta no arroja resultados, casua error y se termina
+    if usuario_solicitud is None:
+        mensaje_error = "ERROR: No se encontró la solicitud."
+        set_task_error(mensaje_error)
+        bitacora.error(mensaje_error)
+        return mensaje_error
+
+    # Si la solicitud esta eliminada, causa error y se termina
+    if usuario_solicitud.estatus != "A":
+        mensaje_error = f"ERROR: La solicitud {usuario_solicitud_id} esta eliminada."
+        set_task_error(mensaje_error)
+        bitacora.error(mensaje_error)
+        return mensaje_error
 
     # Definir el URL que ira en el mensaje para validar el email personal
     url = f"{VALIDACION_EMAIL_PERSONAL_URL}{usuario_solicitud.encode_id()}"
@@ -157,7 +171,21 @@ def enviar_sms_validacion(usuario_solicitud_id: int) -> str:
     set_task_progress(0, "Iniciando tarea de enviar SMS de validación...")
 
     # Consultar la solicitud
-    usuario_solicitud = UsuarioSolicitud.query.filter_by(estatus="A").get_or_404(usuario_solicitud_id)
+    usuario_solicitud = UsuarioSolicitud.query.get(usuario_solicitud_id)
+
+    # Si la consulta no arroja resultados, casua error y se termina
+    if usuario_solicitud is None:
+        mensaje_error = "ERROR: No se encontró la solicitud."
+        set_task_error(mensaje_error)
+        bitacora.error(mensaje_error)
+        return mensaje_error
+
+    # Si la solicitud esta eliminada, causa error y se termina
+    if usuario_solicitud.estatus != "A":
+        mensaje_error = f"ERROR: La solicitud {usuario_solicitud_id} esta eliminada."
+        set_task_error(mensaje_error)
+        bitacora.error(mensaje_error)
+        return mensaje_error
 
     # Si no se encuentra la solicitud, causa error y se termina
     if usuario_solicitud is None:
