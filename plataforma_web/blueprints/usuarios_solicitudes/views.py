@@ -30,23 +30,34 @@ usuarios_solicitudes = Blueprint("usuarios_solicitudes", __name__, template_fold
 def token_celular(id_hashed):
     """Validar el Token Teléfono Celular"""
 
-    # Consultamos la solicitud usuario_solicitud recibida
-    usuario_solicitud = UsuarioSolicitud.query.get_or_404(UsuarioSolicitud.decode_id(id_hashed))
+    # Descifrar el id_hashed
+    usuario_solicitud_id = UsuarioSolicitud.decode_id(id_hashed)
 
-    # Si el usuario que consulta no es el usuario de la solicitud, te reenvía a inicio
+    # Si el id_hashed no es válido, mostrar mensaje de error
+    if usuario_solicitud_id is None:
+        return render_template(
+            "usuarios_solicitudes/token_celular_message.jinja2",
+            mensaje="El enlace no es válido. Por favor, solicite una nueva validación.",
+        )
+
+    # Consultamos la solicitud usuario_solicitud recibida
+    usuario_solicitud = UsuarioSolicitud.query.get_or_404(usuario_solicitud_id)
+
+    # Si el usuario que consulta no es el usuario de la solicitud, se muestra la pagina con el mesaje
     if usuario_solicitud.estatus != "A":
         return render_template(
             "usuarios_solicitudes/token_celular_message.jinja2",
             mensaje="Esta solicitud ya se vencio porque tiene mas de 24 horas. Si lo necesita haga una nueva.",
         )
 
+    # Si ya fue validado, se muestra la pagina con el mesaje
     if usuario_solicitud.validacion_telefono_celular is True:
         return render_template(
             "usuarios_solicitudes/token_celular_message.jinja2",
             mensaje="Esta solicitud ya fue validada. Nada por hacer.",
         )
 
-    # Si el número de intentos es igual o mayor a VALIDACION_MAX_INTENTOS, indicarlo y redirigir a pantalla de inicio.
+    # Si el número de intentos es igual o mayor a VALIDACION_MAX_INTENTOS, se muestra la pagina con el mesaje
     if usuario_solicitud.intentos_telefono_celular >= VALIDACION_MAX_INTENTOS:
         return render_template(
             "usuarios_solicitudes/token_celular_message.jinja2",
@@ -56,7 +67,7 @@ def token_celular(id_hashed):
     # Procesar el formulario de envío
     form = UsuarioSolicitudValidateTokenTelefonoCelularForm()
     if form.validate_on_submit():
-        # Tomar al usuario para actualizar su telefono celular mas adelante
+        # Tomar al usuario para actualizar su telefono celular personal mas adelante
         usuario = usuario_solicitud.usuario
 
         # Comprobar que el token sea el mismo que se recibe
@@ -73,12 +84,12 @@ def token_celular(id_hashed):
             bitacora = Bitacora(
                 modulo=Modulo.query.filter_by(nombre=MODULO).first(),
                 usuario=usuario,
-                descripcion=safe_message(f"El usuario {usuario.email} ha validado con éxito su teléfono celular personal {usuario_solicitud.telefono_celular}"),
+                descripcion=safe_message(f"El usuario {usuario.email} ha validado su teléfono celular personal {usuario_solicitud.telefono_celular}"),
                 url=url_for("usuarios_solicitudes.detail", usuario_solicitud_id=usuario_solicitud.id),
             )
             bitacora.save()
 
-            # Mostrar el mensaje de que ha validado con éxito su teléfono celular
+            # Mostrar el mensaje de que ha validado con éxito
             return render_template(
                 "usuarios_solicitudes/token_celular_message.jinja2",
                 mensaje=f"Ha validado con éxito su teléfono celular personal {usuario_solicitud.telefono_celular}",
@@ -94,7 +105,7 @@ def token_celular(id_hashed):
             mensaje=f"El token es INCORRECTO. Intento {usuario_solicitud.intentos_telefono_celular} de {VALIDACION_MAX_INTENTOS}",
         )
 
-    # Cargamos campos de lectura para el formulario
+    # Cargar valores en los campos de solo lectura del formulario
     form.usuario_email.data = usuario_solicitud.usuario.email
     form.usuario_nombre.data = usuario_solicitud.usuario.nombre
     form.telefono_celular.data = usuario_solicitud.telefono_celular
@@ -102,6 +113,99 @@ def token_celular(id_hashed):
     # Mostramos el formulario
     return render_template(
         "usuarios_solicitudes/token_celular.jinja2",
+        form=form,
+        usuario_solicitud=usuario_solicitud,
+    )
+
+
+@usuarios_solicitudes.route("/usuarios_solicitudes/token_email/<id_hashed>", methods=["GET", "POST"])
+@anonymous_required()
+def token_email(id_hashed):
+    """Validar el Token Email Personal"""
+
+    # Descifrar el id_hashed
+    usuario_solicitud_id = UsuarioSolicitud.decode_id(id_hashed)
+
+    # Si el id_hashed no es válido, mostrar mensaje de error
+    if usuario_solicitud_id is None:
+        return render_template(
+            "usuarios_solicitudes/token_email_message.jinja2",
+            mensaje="El enlace no es válido. Por favor, solicite una nueva validación.",
+        )
+
+    # Consultamos la solicitud usuario_solicitud recibida
+    usuario_solicitud = UsuarioSolicitud.query.get_or_404(usuario_solicitud_id)
+
+    # Si el usuario que consulta no es el usuario de la solicitud, se muestra la pagina con el mesaje
+    if usuario_solicitud.estatus != "A":
+        return render_template(
+            "usuarios_solicitudes/token_email_message.jinja2",
+            mensaje="Esta solicitud ya se vencio porque tiene mas de 24 horas. Si lo necesita haga una nueva.",
+        )
+
+    # Si ya fue validado, se muestra la pagina con el mesaje
+    if usuario_solicitud.validacion_email is True:
+        return render_template(
+            "usuarios_solicitudes/token_email_message.jinja2",
+            mensaje="Esta solicitud ya fue validada. Nada por hacer.",
+        )
+
+    # Si el número de intentos es igual o mayor a VALIDACION_MAX_INTENTOS, se muestra la pagina con el mesaje
+    if usuario_solicitud.intentos_email >= VALIDACION_MAX_INTENTOS:
+        return render_template(
+            "usuarios_solicitudes/token_email_message.jinja2",
+            mensaje="Ha superado el número de intentos para validar. Deje pasar 24 horas y haga otra solicitud.",
+        )
+
+    # Procesar el formulario de envío
+    form = UsuarioSolicitudValidateTokenEmailForm()
+    if form.validate_on_submit():
+        # Tomar al usuario para actualizar su email personal mas adelante
+        usuario = usuario_solicitud.usuario
+
+        # Comprobar que el token sea el mismo que se recibe
+        if str(usuario_solicitud.token_email) == safe_string(form.token_email.data):
+            # Actualizar en la solicitud el estatus de validacion_email a True
+            usuario_solicitud.validacion_email = True
+            usuario_solicitud.save()
+
+            # Actualizar en el usuario el email_personal
+            usuario.email_personal = safe_email(usuario_solicitud.email_personal)
+            usuario.save()
+
+            # Agregar a la bitácora
+            bitacora = Bitacora(
+                modulo=Modulo.query.filter_by(nombre=MODULO).first(),
+                usuario=usuario,
+                descripcion=safe_message(f"El usuario {usuario.email} ha validado su correo electronico personal {usuario_solicitud.email_personal}"),
+                url=url_for("usuarios_solicitudes.detail", usuario_solicitud_id=usuario_solicitud.id),
+            )
+            bitacora.save()
+
+            # Mostrar el mensaje de que ha validado con éxito
+            return render_template(
+                "usuarios_solicitudes/token_email_message.jinja2",
+                mensaje=f"Ha validado con éxito su correo electrónico personal {usuario_solicitud.email_personal}",
+            )
+
+        # El token recibido NO es el mismo que se tiene en la BD, incrementar el numero de intentos
+        usuario_solicitud.intentos_email += 1
+        usuario_solicitud.save()
+
+        # Mostrar mensaje de que el token es incorrecto
+        return render_template(
+            "usuarios_solicitudes/token_email_message.jinja2",
+            mensaje=f"El token es INCORRECTO. Intento {usuario_solicitud.intentos_email} de {VALIDACION_MAX_INTENTOS}",
+        )
+
+    # Cargar valores en los campos de solo lectura del formulario
+    form.usuario_email.data = usuario_solicitud.usuario.email
+    form.usuario_nombre.data = usuario_solicitud.usuario.nombre
+    form.email_personal.data = usuario_solicitud.email_personal
+
+    # Mostramos el formulario
+    return render_template(
+        "usuarios_solicitudes/token_email.jinja2",
         form=form,
         usuario_solicitud=usuario_solicitud,
     )
@@ -271,66 +375,3 @@ def new():
 
     # Mostrar el formulario
     return render_template("usuarios_solicitudes/new.jinja2", form=form, usuario=current_user)
-
-
-@usuarios_solicitudes.route("/usuarios_solicitudes/token_email/<id_hashed>", methods=["GET", "POST"])
-@login_required
-@permission_required(MODULO, Permiso.MODIFICAR)
-def token_email(id_hashed):
-    """Validar el Token Email Personal"""
-
-    # Consultamos la solicitud usuario_solicitud recibida
-    usuario_solicitud = UsuarioSolicitud.query.get_or_404(UsuarioSolicitud.decode_id(id_hashed))
-
-    # valida si el token sigue válido
-    if usuario_solicitud.estatus != "A":
-        flash("Token caducado", "warning")
-        return redirect(url_for("sistemas.start"))
-
-    # Si el usuario que consulta no es el usuario de la solicitud, te reenvía a inicio
-    if usuario_solicitud.usuario != current_user:
-        flash("No puede acceder a la validación de email personal de otro usuario", "warning")
-        return redirect(url_for("sistemas.start"))
-
-    # Si la validación del token del email ya fue hecha, avisamos al usuario y lo redirigimos al inicio.
-    if usuario_solicitud.validacion_email is True:
-        flash("Validación de E-mail ya hecha correctamente", "warning")
-        return redirect(url_for("sistemas.start"))
-
-    # Si el número de intentos es igual o mayor a VALIDACION_MAX_INTENTOS, indicarlo y redirigirlo a la pantalla de inicio.
-    if usuario_solicitud.intentos_email >= VALIDACION_MAX_INTENTOS:
-        flash("Ha superado el número de intentos para validar su email personal", "warning")
-        return redirect(url_for("sistemas.start"))
-
-    # Procesamos el formulario de envío
-    form = UsuarioSolicitudValidateTokenEmailForm()
-    if form.validate_on_submit():
-        usuario = Usuario.query.get_or_404(current_user.id)
-
-        # Comprobamos que el token sea el mismo que se espera
-        if str(usuario_solicitud.token_email) == safe_string(form.token_email.data):
-            usuario_solicitud.validacion_email = True
-            usuario_solicitud.save()
-            usuario.email_personal = safe_email(usuario_solicitud.email_personal)
-            usuario.save()
-            bitacora = Bitacora(
-                modulo=Modulo.query.filter_by(nombre=MODULO).first(),
-                usuario=current_user,
-                descripcion=safe_message(f"El usuario {current_user.email} a agregado con éxito su correo personal {usuario_solicitud.email_personal}"),
-                url=url_for("usuarios_solicitudes.detail", usuario_solicitud_id=usuario_solicitud.id),
-            )
-            bitacora.save()
-            flash(bitacora.descripcion, "success")
-        else:
-            usuario_solicitud.intentos_email = usuario_solicitud.intentos_email + 1
-            usuario_solicitud.save()
-            flash("ERROR: Token incorrecto.", "danger")
-        return redirect(url_for("sistemas.start"))
-
-    # Cargamos campos de lectura para el formulario
-    form.usuario_email.data = current_user.email
-    form.usuario_nombre.data = current_user.nombre
-    form.email_personal.data = usuario_solicitud.email_personal
-
-    # Mostramos el formulario
-    return render_template("usuarios_solicitudes/token_email.jinja2", form=form, usuario_solicitud=usuario_solicitud)
