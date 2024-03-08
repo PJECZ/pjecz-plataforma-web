@@ -220,10 +220,6 @@ def enviar_sms_validacion(usuario_solicitud_id: int) -> str:
         bitacora.error(mensaje_error)
         return mensaje_error
 
-    # Incrementar el contador de intentos_telefono_celular
-    usuario_solicitud.intentos_telefono_celular = usuario_solicitud.intentos_telefono_celular + 1
-    usuario_solicitud.save()
-
     # Terminar tarea
     mensaje_final = f"Se ha enviado el SMS de validacion a {usuario_solicitud.telefono_celular}"
     bitacora.info(mensaje_final)
