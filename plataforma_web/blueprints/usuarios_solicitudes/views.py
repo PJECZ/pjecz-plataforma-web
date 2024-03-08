@@ -13,7 +13,7 @@ from lib.safe_string import safe_string, safe_message, safe_email
 from plataforma_web.blueprints.bitacoras.models import Bitacora
 from plataforma_web.blueprints.modulos.models import Modulo
 from plataforma_web.blueprints.permisos.models import Permiso
-from plataforma_web.blueprints.usuarios.decorators import permission_required
+from plataforma_web.blueprints.usuarios.decorators import anonymous_required, permission_required
 from plataforma_web.blueprints.usuarios_solicitudes.models import UsuarioSolicitud
 from plataforma_web.blueprints.usuarios.models import Usuario
 
@@ -26,6 +26,7 @@ usuarios_solicitudes = Blueprint("usuarios_solicitudes", __name__, template_fold
 
 
 @usuarios_solicitudes.route("/usuarios_solicitudes/token_telefono/<id_hashed>", methods=["GET", "POST"])
+@anonymous_required()
 def token_celular(id_hashed):
     """Validar el Token Teléfono Celular"""
 
@@ -80,14 +81,8 @@ def token_celular(id_hashed):
     return render_template("usuarios_solicitudes/token_celular.jinja2", form=form, usuario_solicitud=usuario_solicitud)
 
 
-@usuarios_solicitudes.before_request
-@login_required
-@permission_required(MODULO, Permiso.VER)
-def before_request():
-    """Permiso por defecto"""
-
-
 @usuarios_solicitudes.route("/usuarios_solicitudes/datatable_json", methods=["GET", "POST"])
+@login_required
 def datatable_json():
     """DataTable JSON para listado de Usuarios Solicitudes"""
     # Tomar parámetros de Datatables
@@ -131,6 +126,7 @@ def datatable_json():
 
 
 @usuarios_solicitudes.route("/usuarios_solicitudes")
+@login_required
 @permission_required(MODULO, Permiso.ADMINISTRAR)
 def list_active():
     """Listado de Usuarios Solicitudes activos"""
@@ -143,6 +139,7 @@ def list_active():
 
 
 @usuarios_solicitudes.route("/usuarios_solicitudes/inactivos")
+@login_required
 @permission_required(MODULO, Permiso.ADMINISTRAR)
 def list_inactive():
     """Listado de Usuarios Solicitudes inactivos"""
@@ -155,6 +152,7 @@ def list_inactive():
 
 
 @usuarios_solicitudes.route("/usuarios_solicitudes/<int:usuario_solicitud_id>")
+@login_required
 @permission_required(MODULO, Permiso.ADMINISTRAR)
 def detail(usuario_solicitud_id):
     """Detalle de un Usuario Solicitud"""
@@ -163,6 +161,7 @@ def detail(usuario_solicitud_id):
 
 
 @usuarios_solicitudes.route("/usuarios_solicitudes/nuevo", methods=["GET", "POST"])
+@login_required
 @permission_required(MODULO, Permiso.CREAR)
 def new():
     """Nuevo usuario solicitud"""
@@ -249,6 +248,7 @@ def new():
 
 
 @usuarios_solicitudes.route("/usuarios_solicitudes/token_email/<id_hashed>", methods=["GET", "POST"])
+@login_required
 @permission_required(MODULO, Permiso.MODIFICAR)
 def token_email(id_hashed):
     """Validar el Token Email Personal"""
