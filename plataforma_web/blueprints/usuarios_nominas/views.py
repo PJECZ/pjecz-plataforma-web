@@ -8,11 +8,13 @@ from flask_login import current_user, login_required
 from lib.datatables import get_datatable_parameters, output_datatable_json
 from lib.exceptions import MyBucketNotFoundError, MyFileNotFoundError, MyNotValidParamError
 from lib.google_cloud_storage import get_blob_name_from_url, get_file_from_gcs
-from lib.safe_string import safe_curp
+from lib.safe_string import safe_curp, safe_message
 
 from plataforma_web.blueprints.permisos.models import Permiso
 from plataforma_web.blueprints.usuarios.decorators import permission_required
 from plataforma_web.blueprints.usuarios_nominas.models import UsuarioNomina
+from plataforma_web.blueprints.modulos.models import Modulo
+from plataforma_web.blueprints.bitacoras.models import Bitacora
 
 MODULO = "USUARIOS NOMINAS"
 
@@ -123,6 +125,14 @@ def download_pdf(usuario_nomina_id):
         flash(str(error), "danger")
         return redirect(url_for("usuarios_nominas.detail", usuario_nomina_id=usuario_nomina.id))
 
+    # Guardar en bitácora que se consultó su recibo de nómina
+    Bitacora(
+        modulo=Modulo.query.filter_by(nombre=MODULO).first(),
+        usuario=current_user,
+        descripcion=safe_message(f"Descargado recibo de nómina {usuario_nomina.archivo_pdf}"),
+        url=url_for("usuarios_nominas.list_active"),
+    ).save()
+
     # Descargar un archivo PDF
     response = make_response(descarga_contenido)
     response.headers["Content-Type"] = "application/pdf"
@@ -161,6 +171,14 @@ def download_xml(usuario_nomina_id):
     except (MyBucketNotFoundError, MyFileNotFoundError, MyNotValidParamError) as error:
         flash(str(error), "danger")
         return redirect(url_for("usuarios_nominas.detail", usuario_nomina_id=usuario_nomina.id))
+
+    # Guardar en bitácora que se consultó su recibo de nómina
+    Bitacora(
+        modulo=Modulo.query.filter_by(nombre=MODULO).first(),
+        usuario=current_user,
+        descripcion=safe_message(f"Descargado recibo de nómina {usuario_nomina.archivo_xml}"),
+        url=url_for("usuarios_nominas.list_active"),
+    ).save()
 
     # Descargar un archivo XML
     response = make_response(descarga_contenido)
