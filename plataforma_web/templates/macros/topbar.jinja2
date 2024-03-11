@@ -68,6 +68,18 @@
     {{ button(label, url, 'mdi:map-marker') }}
 {%- endmacro -%}
 
+{%- macro button_request(label, url) -%}
+    {{ button(label, url, 'carbon:request-quote') }}
+{%- endmacro -%}
+
+{%- macro button_authorize(label, url) -%}
+    {{ button(label, url, 'mdi:check-outline') }}
+{%- endmacro -%}
+
+{%- macro button_review(label, url) -%}
+    {{ button(label, url, 'pajamas:review-list') }}
+{%- endmacro -%}
+
 {# Button modal executes a javascript function #}
 {%- macro button_modal(label, onclick_js, icon) -%}
     <a class="btn btn-sm btn-outline-secondary" href="javascript:void(0)" onclick="{{ onclick_js }}"><span class="iconify" data-icon="{{ icon }}"></span> {{ label }}</a>

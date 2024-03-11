@@ -1,0 +1,56 @@
+{% extends 'layouts/app.jinja2' %}
+{% import 'macros/list.jinja2' as list %}
+{% import 'macros/topbar.jinja2' as topbar %}
+
+{% block title %}{{ titulo }}{% endblock %}
+
+{% block topbar_actions %}
+    {% call topbar.page_buttons(titulo) %}
+        {% if current_user.can_edit('REQUISICIONES REGISTROS') %}
+            {% if estatus == 'A' %}{{ topbar.button_list_inactive('Inactivas', url_for('req_requisiciones_registros.list_inactive')) }}{% endif %}
+            {% if estatus == 'B' %}{{ topbar.button_list_active('Activas', url_for('req_requisiciones_registros.list_active')) }}{% endif %}
+        {% endif %}
+        {# if current_user.can_insert('REQUSICIONES REGISTRO') #}
+            {# topbar.button_new('Nuevo articulo', url_for('req_requisiciones_registros.new')) #}
+        {# endif #}
+    {% endcall %}
+{% endblock %}
+
+{% block content %}
+    {% call list.card() %}
+        <table id="req_requisiciones_registros_datatable" class="table {% if estatus == 'B'%}table-dark{% endif %} display nowrap" style="width:100%">
+            <thead>
+                <tr>
+                    <th>ID</th>
+                    <th>Descripción</th>
+                    <th>Cantidad</th>
+                    <th>Unidad de Medida</th>
+                </tr>
+            </thead>
+        </table>
+    {% endcall %}
+{% endblock %}
+
+{% block custom_javascript %}
+    {{ list.config_datatable() }}
+    <script>
+        configDataTable['ajax']['url'] = '/req_requisiciones_registros/datatable_json';
+        configDataTable['ajax']['data'] = {{ filtros }};
+        configDataTable['columns'] = [
+            { data: 'id' },
+            { data: 'detalle' },
+            { data: 'cantidad' },
+            { data: 'unidad_medida' },
+        ];
+        configDataTable['columnDefs'] = [
+            {
+                targets: 1, // id
+                data: null,
+                render: function(data, type, row, meta) {
+                    return '<a href="' + data.url + '">' + data.clave + '</a>';
+                }
+            },
+        ];
+        $('#req_requisiciones_registros_datatable').DataTable(configDataTable);
+    </script>
+{% endblock %}
