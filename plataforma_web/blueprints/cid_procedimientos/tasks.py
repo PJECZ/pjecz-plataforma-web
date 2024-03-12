@@ -3,6 +3,7 @@ CID Procedimientos, tareas en el fondo
 
 - crear_pdf: Crear PDF
 """
+
 import json
 import locale
 import logging
@@ -60,9 +61,10 @@ def crear_pdf(cid_procedimiento_id: int, usuario_id: int = None, accept_reject_u
         bitacora.error(mensaje)
         return mensaje
 
-    # Poner en bitácora información de arranque
-    bitacora.info("Crear PDF de %s", cid_procedimiento.titulo_procedimiento)
-    # bitacora.info("Directorio actual: %s", os.getcwd())
+    # Iniciar tarea
+    mensaje_inicial = f"Inicia crear PDF de {cid_procedimiento.titulo_procedimiento}"
+    set_task_progress(0, mensaje_inicial)
+    bitacora.info(mensaje_inicial)
 
     # Juntar las firmas
     elaboro_firma = ""
@@ -150,7 +152,7 @@ def crear_pdf(cid_procedimiento_id: int, usuario_id: int = None, accept_reject_u
     )
 
     # Definir las rutas de los archivos temporales
-    random_hex = "%030x" % random.randrange(16 ** 30)
+    random_hex = "%030x" % random.randrange(16**30)
     path_header = Path("/tmp/pjecz_plataforma_web-" + random_hex + "-header.html")
     path_footer = Path("/tmp/pjecz_plataforma_web-" + random_hex + "-footer.html")
 
@@ -310,7 +312,7 @@ def crear_pdf(cid_procedimiento_id: int, usuario_id: int = None, accept_reject_u
         # TODO: Enviar mensaje para informar al revisor
 
     # Terminar tarea
-    mensaje = "Tarea finalizada"
-    set_task_progress(100)
-    bitacora.info(mensaje)
-    return mensaje
+    mensaje_final = f"Termina crear PDF de {cid_procedimiento.titulo_procedimiento}"
+    set_task_progress(100, mensaje_final)
+    bitacora.info(mensaje_final)
+    return mensaje_final

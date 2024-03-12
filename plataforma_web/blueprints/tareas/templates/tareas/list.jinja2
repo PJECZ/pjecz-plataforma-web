@@ -24,10 +24,11 @@
         <table id="tareas_datatable" class="table display nowrap" style="width:100%">
             <thead>
                 <tr>
-                    <th>Inicios</th>
-                    <th>Nombres</th>
-                    <th>Descripciones</th>
+                    <th>Creado</th>
+                    <th>Comando</th>
                     <th>Ha terminado</th>
+                    <th>Mensaje</th>
+                    <th>Usuario</th>
                 </tr>
             </thead>
         </table>
@@ -41,9 +42,10 @@
         configDataTable['ajax']['data'] = {{ filtros }};
         configDataTable['columns'] = [
             { data: 'creado' },
-            { data: 'nombre' },
-            { data: 'descripcion' },
-            { data: 'ha_terminado' }
+            { data: 'detalle' },
+            { data: 'ha_terminado' },
+            { data: 'mensaje' },
+            { data: 'usuario' }
         ];
         configDataTable['columnDefs'] = [
             {
@@ -54,10 +56,31 @@
                 }
             },
             {
-                targets: 3, // ha_terminado
+                targets: 1, // detalle
                 data: null,
                 render: function(data, type, row, meta) {
-                    if (data) { return 'Si'; } else { return ''; }
+                    return '<a href="' + data.url + '">' + data.comando + '</a>';
+                }
+            },
+            {
+                targets: 2, // ha_terminado
+                data: null,
+                render: function(data, type, row, meta) {
+                    if (data) { return 'Terminado'; } else { return ''; }
+                }
+            },
+            {
+                targets: 3, // mensaje
+                data: null,
+                render: function(data, type, row, meta) {
+                    return (data.length > 48 ? '<span title="'+ data +'">' + data.substr(0, 48) + '…</span>' : data);
+                }
+            },
+            {
+                targets: 4, // usuario
+                data: null,
+                render: function(data, type, row, meta) {
+                    return '<a href="' + data.url + '">' + data.email + '</a>';
                 }
             }
         ];

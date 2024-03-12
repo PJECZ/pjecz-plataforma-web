@@ -204,5 +204,5 @@ def lanzar_exportar_xlsx():
         return mensaje_error
 
     # Terminar la tarea en el fondo y entregar el mensaje de termino
-    set_task_progress(100, mensaje_termino)  # nombre_archivo_xlsx, public_url
+    set_task_progress(100, mensaje_termino, nombre_archivo_xlsx, public_url)
     return mensaje_termino

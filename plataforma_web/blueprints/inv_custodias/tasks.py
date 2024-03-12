@@ -3,6 +3,7 @@ Inventarios Custodias, tareas en el fondo
 
 - actualizar: Actualizar las cantidades de equipos y fotos de las custodias
 """
+
 import logging
 
 from lib.tasks import set_task_progress
@@ -28,6 +29,12 @@ db.app = app
 
 def actualizar():
     """Actualizar las cantidades de equipos y fotos de las custodias"""
+
+    # Iniciar tarea
+    mensaje_inicial = "Inicia actualizar las cantidades de equipos y fotos de las custodias"
+    set_task_progress(0, mensaje_inicial)
+    bitacora.info(mensaje_inicial)
+
     contador = 0
     # Recorrer todas las custodias activas
     for inv_custodia in InvCustodia.query.filter_by(estatus="A").all():
@@ -52,8 +59,9 @@ def actualizar():
         if hay_que_actualizar:
             inv_custodia.save()
             contador += 1
-    # Terminar
-    set_task_progress(100)
-    mensaje_final = f"Se actualiazaron {contador} custodias"
+
+    # Terminar tarea
+    mensaje_final = f"Termina con {contador} custodias actualizadas en cantidades de equipos y fotos"
+    set_task_progress(100, mensaje_final)
     bitacora.info(mensaje_final)
     return mensaje_final

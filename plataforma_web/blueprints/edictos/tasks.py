@@ -1,6 +1,7 @@
 """
 Edictos, tareas para ejecutar en el fondo
 """
+
 import logging
 import os
 import re
@@ -12,6 +13,7 @@ from google.cloud import storage
 from hashids import Hashids
 from rq import get_current_job
 from lib.safe_string import safe_string
+from lib.tasks import set_task_error, set_task_progress
 
 from plataforma_web.app import create_app
 from plataforma_web.blueprints.autoridades.models import Autoridad
@@ -28,37 +30,6 @@ bitacora.addHandler(empunadura)
 
 app = create_app()
 app.app_context().push()
-
-
-def set_task_progress(progress: int, mensaje: str = None):
-    """Cambiar el progreso de la tarea"""
-    job = get_current_job()
-    if job:
-        job.meta["progress"] = progress
-        job.save_meta()
-        tarea = Tarea.query.get(job.get_id())
-        if tarea:
-            if progress >= 100:
-                tarea.ha_terminado = True
-            if mensaje is not None:
-                tarea.descripcion = mensaje
-            tarea.save()
-
-
-def set_task_error(mensaje: str):
-    """Al fallar la tarea debe tomar el mensaje y terminarla"""
-    job = get_current_job()
-    if job:
-        job.meta["progress"] = 100
-        job.save_meta()
-        tarea = Tarea.query.get(job.get_id())
-        if tarea:
-            tarea.ha_terminado = True
-            tarea.descripcion = mensaje
-            tarea.save()
-    bitacora.error(mensaje)
-    bitacora.info("Termina")
-    return mensaje
 
 
 def refrescar(autoridad_id: int, usuario_id: int = None):
@@ -111,8 +82,12 @@ def refrescar(autoridad_id: int, usuario_id: int = None):
     # Para descifrar los hash ids
     hashids = Hashids(salt=os.environ.get("SALT", "Esta es una muy mala cadena aleatoria"), min_length=8)
 
-    # Iniciar la tarea y contadores
-    set_task_progress(0)
+    # Iniciar tarea
+    mensaje_inicial = "Inicia refrescar los Edictos"
+    set_task_progress(0, mensaje_inicial)
+    bitacora.info(mensaje_inicial)
+
+    # Iniciar contadores
     contador_incorrectos = 0
     contador_insertados = 0
     contador_presentes = 0
@@ -233,7 +208,6 @@ def refrescar(autoridad_id: int, usuario_id: int = None):
     mensaje_final = "- " + ". ".join(mensajes) + "."
 
     # Terminar tarea
-    set_task_progress(100)
+    set_task_progress(100, mensaje_final)
     bitacora.info(mensaje_final)
-    bitacora.info("Termina")
     return mensaje_final

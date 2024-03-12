@@ -6,6 +6,7 @@ Funcionarios, tareas para ejecutar en el fondo
 - enviar_reporte: Enviar via correo electronico el reporte de funcionarios
 - sincronizar: Sincronizar funcionarios con la API de RRHH Personal
 """
+
 from datetime import datetime, date
 import locale
 import logging
@@ -53,7 +54,6 @@ def asignar_oficinas(funcionario_id: int, domicilio_id: int):
     """Asignar funcionarios_oficinas a partir de una direccion"""
 
     # Iniciar
-    bitacora.info("Inicia asignar oficinas")
 
     # Consultar funcionario
     funcionario = Funcionario.query.get(funcionario_id)
@@ -70,6 +70,11 @@ def asignar_oficinas(funcionario_id: int, domicilio_id: int):
         set_task_error(mensaje)
         bitacora.error(mensaje)
         return
+
+    # Iniciar tarea
+    mensaje_inicial = f"Inicia asignar_oficinas del domicilio {domicilio_id} al funcionario CURP {funcionario.curp}"
+    set_task_progress(0, mensaje_inicial)
+    bitacora.info(mensaje_inicial)
 
     # Consultar las oficinas activas de ese domicilio
     oficinas = Oficina.query.filter(Oficina.domicilio == domicilio).filter(Oficina.estatus == "A").all()
@@ -94,17 +99,14 @@ def asignar_oficinas(funcionario_id: int, domicilio_id: int):
                 contador += 1
 
     # Terminar
-    set_task_progress(100)
-    mensaje_final = f"Terminado asignar {contador} oficinas al CURP {funcionario.curp}"
+    mensaje_final = f"Termina asignar {contador} oficinas del domicilio {domicilio_id} al funcionario CURP {funcionario.curp}"
+    set_task_progress(100, mensaje_final)
     bitacora.info(mensaje_final)
     return mensaje_final
 
 
 def limpiar_oficinas(funcionario_id: int):
     """Limpiar funcionarios_oficinas"""
-
-    # Iniciar
-    bitacora.info("Inicia limpiar oficinas")
 
     # Consultar funcionario
     funcionario = Funcionario.query.get(funcionario_id)
@@ -114,6 +116,11 @@ def limpiar_oficinas(funcionario_id: int):
         bitacora.error(mensaje)
         return
 
+    # Iniciar tarea
+    mensaje_inicial = f"Inicia limpiar oficinas al funcionario CURP {funcionario.curp}"
+    set_task_progress(0, mensaje_inicial)
+    bitacora.info(mensaje_inicial)
+
     # Limpiar (cambiar estatus a B) los registros de funcionarios_oficinas
     contador = 0
     for funcionario_oficina in FuncionarioOficina.query.filter(FuncionarioOficina.funcionario == funcionario).all():
@@ -122,25 +129,8 @@ def limpiar_oficinas(funcionario_id: int):
             contador += 1
 
     # Terminar
-    set_task_progress(100)
-    mensaje_final = f"Terminado limpiar oficinas, {contador} a {funcionario.curp}"
-    bitacora.info(mensaje_final)
-    return mensaje_final
-
-
-def enviar_reporte():
-    """Enviar reporte de funcionarios via correo electronico"""
-
-    # Iniciar
-    bitacora.info("Inicia enviar reporte")
-
-    # Consultar
-    funcionarios = db.session.query(Funcionario).filter_by(estatus="A")
-    bitacora.info("Hay %s funcionarios activos", funcionarios.count())
-
-    # Terminar
-    set_task_progress(100)
-    mensaje_final = "Terminado enviar reporte satisfactoriamente"
+    mensaje_final = f"Termina limpiar {contador} oficinas al funcionario CURP {funcionario.curp}"
+    set_task_progress(100, mensaje_final)
     bitacora.info(mensaje_final)
     return mensaje_final
 
@@ -245,8 +235,10 @@ def get_personas_fotografias(base_url, token, persona_id):
 def sincronizar():
     """Sincronizar funcionarios con la API de RRHH Personal"""
 
-    # Iniciar
-    bitacora.info("Inicia sincronizar")
+    # Iniciar tarea
+    mensaje_inicial = "Inicia sincronizar funcionarios con la API de RRHH Personal"
+    set_task_progress(0, mensaje_inicial)
+    bitacora.info(mensaje_inicial)
 
     # Consultar el centro de trabajo NO DEFINIDO
     centro_trabajo_no_definido = CentroTrabajo.query.filter_by(nombre="NO DEFINIDO").first()
@@ -412,6 +404,8 @@ def sincronizar():
         mensaje_final = f"Error: {error}"
         bitacora.error(mensaje_final)
 
-    # Terminar
-    bitacora.info("Terminado sincronizar")
+    # Terminar tarea
+    mensaje_final = "Termina sincronizar funcionarios con la API de RRHH Personal"
+    set_task_progress(100, mensaje_final)
+    bitacora.info(mensaje_final)
     return mensaje_final

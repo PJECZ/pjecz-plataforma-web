@@ -1,6 +1,7 @@
 """
 Archivo, tareas para ejecutar en el fondo
 """
+
 from datetime import date, timedelta
 import locale
 import logging
@@ -48,7 +49,8 @@ def pasar_al_historial_solicitudes_completadas():
         bitacora.error(mensaje_final)
         return mensaje_final
 
-    set_task_progress(1)
+    # Iniciar tarea
+    set_task_progress(0, "Inicia pasar al historial solicitudes completadas")
 
     # Selección de solicitudes con más de tantos días de antigüedad y en estado de recibidos
     solicitudes = ArcSolicitud.query.filter_by(estado="ENTREGADO").filter_by(esta_archivado=False).filter(ArcSolicitud.tiempo_recepcion <= fecha_limite).all()
@@ -70,7 +72,7 @@ def pasar_al_historial_solicitudes_completadas():
         bitacora.info("Se han pasado al historial %d solicitudes con fechas de recibido mayor a %d días.", contador, DIAS_ANTIGUEDAD)
 
     # Terminar tarea
-    set_task_progress(100)
+    set_task_progress(100, "Termina pasar al historial solicitudes completadas")
 
     return "Terminado satisfactoriamente"
 
@@ -88,7 +90,8 @@ def pasar_al_historial_solicitudes_canceladas():
         bitacora.error(mensaje_final)
         return mensaje_final
 
-    set_task_progress(1)
+    # Iniciar tarea
+    set_task_progress(0, "Inicia pasar al historial solicitudes canceladas")
 
     # Selección de solicitudes con más de tantos días de antigüedad y en estado de recibidos
     solicitudes = ArcSolicitud.query.filter_by(estado="CANCELADO").filter_by(esta_archivado=False).filter(ArcSolicitud.modificado <= fecha_limite).all()
@@ -110,7 +113,7 @@ def pasar_al_historial_solicitudes_canceladas():
         bitacora.info("Se han pasado al historial %d solicitudes canceladas con más de %d días.", contador, DIAS_ANTIGUEDAD_CANCELADAS)
 
     # Terminar tarea
-    set_task_progress(100)
+    set_task_progress(100, "Termina pasar al historial solicitudes canceladas")
 
     return "Terminado satisfactoriamente"
 
@@ -128,7 +131,8 @@ def pasar_al_historial_remesas_archivadas():
         bitacora.error(mensaje_final)
         return mensaje_final
 
-    set_task_progress(1)
+    # Iniciar tarea
+    set_task_progress(0, "Inicia pasar al historial remesas archivadas")
 
     # Selección de solicitudes con más de tantos días de antigüedad y en estado de recibidos
     remesas = ArcRemesa.query.filter(or_(ArcRemesa.estado == "ARCHIVADO", ArcRemesa.estado == "ARCHIVADO CON ANOMALIA")).filter_by(esta_archivado=False).filter(ArcRemesa.modificado <= fecha_limite).all()
@@ -150,7 +154,7 @@ def pasar_al_historial_remesas_archivadas():
         bitacora.info("Se han pasado al historial %d remesas con fechas de recibido mayor a %d días.", contador, DIAS_ANTIGUEDAD)
 
     # Terminar tarea
-    set_task_progress(100)
+    set_task_progress(100, "Termina pasar al historial remesas archivadas")
 
     return "Terminado satisfactoriamente"
 
@@ -168,7 +172,8 @@ def pasar_al_historial_remesas_canceladas():
         bitacora.error(mensaje_final)
         return mensaje_final
 
-    set_task_progress(1)
+    # Iniciar tarea
+    set_task_progress(0, "Inicia pasar al historial remesas canceladas")
 
     # Selección de remesas con más de tantos días de antigüedad y en estado de cancelada
     remesas = ArcRemesa.query.filter_by(estado="CANCELADO").filter_by(esta_archivado=False).filter(ArcRemesa.modificado <= fecha_limite).all()
@@ -190,6 +195,6 @@ def pasar_al_historial_remesas_canceladas():
         bitacora.info("Se han pasado al historial %d remesas canceladas con más de %d días.", contador, DIAS_ANTIGUEDAD_CANCELADAS)
 
     # Terminar tarea
-    set_task_progress(100)
+    set_task_progress(100, "Termina pasar al historial remesas canceladas")
 
     return "Terminado satisfactoriamente"
