@@ -215,7 +215,10 @@ def edit_identificacion(usuario_dato_id):
     if form.validate_on_submit():
         es_valido = True
         archivo = request.files["archivo"]
-        storage = GoogleCloudStorage(SUBDIRECTORIO)
+        storage = GoogleCloudStorage(
+            base_directory=SUBDIRECTORIO,
+            bucket_name=current_app.config["CLOUD_STORAGE_DEPOSITO_USUARIOS"],
+        )
         try:
             storage.set_content_type(archivo.filename)
         except NotAllowedExtesionError:
@@ -297,7 +300,10 @@ def edit_acta_nacimiento(usuario_dato_id):
                 flash("Debe cargar un archivo adjunto.", "warning")
         else:
             es_valido = True
-            storage = GoogleCloudStorage(SUBDIRECTORIO)
+            storage = GoogleCloudStorage(
+                base_directory=SUBDIRECTORIO,
+                bucket_name=current_app.config["CLOUD_STORAGE_DEPOSITO_USUARIOS"],
+            )
             try:
                 storage.set_content_type(archivo.filename)
             except NotAllowedExtesionError:
@@ -388,7 +394,10 @@ def edit_domicilio(usuario_dato_id):
                 flash("Debe cargar un archivo adjunto.", "warning")
         else:
             es_valido = True
-            storage = GoogleCloudStorage(SUBDIRECTORIO)
+            storage = GoogleCloudStorage(
+                base_directory=SUBDIRECTORIO,
+                bucket_name=current_app.config["CLOUD_STORAGE_DEPOSITO_USUARIOS"],
+            )
             try:
                 storage.set_content_type(archivo.filename)
             except NotAllowedExtesionError:
@@ -485,7 +494,10 @@ def edit_curp(usuario_dato_id):
                 flash("Debe cargar un archivo adjunto.", "warning")
         else:
             es_valido = True
-            storage = GoogleCloudStorage(SUBDIRECTORIO)
+            storage = GoogleCloudStorage(
+                base_directory=SUBDIRECTORIO,
+                bucket_name=current_app.config["CLOUD_STORAGE_DEPOSITO_USUARIOS"],
+            )
             try:
                 storage.set_content_type(archivo.filename)
             except NotAllowedExtesionError:
@@ -570,7 +582,10 @@ def edit_cp_fiscal(usuario_dato_id):
                 flash("Debe cargar un archivo adjunto.", "warning")
         else:
             es_valido = True
-            storage = GoogleCloudStorage(SUBDIRECTORIO)
+            storage = GoogleCloudStorage(
+                base_directory=SUBDIRECTORIO,
+                bucket_name=current_app.config["CLOUD_STORAGE_DEPOSITO_USUARIOS"],
+            )
             try:
                 storage.set_content_type(archivo.filename)
             except NotAllowedExtesionError:
@@ -641,7 +656,10 @@ def edit_curriculum(usuario_dato_id):
     if form.validate_on_submit():
         es_valido = True
         archivo = request.files["archivo"]
-        storage = GoogleCloudStorage(SUBDIRECTORIO)
+        storage = GoogleCloudStorage(
+                base_directory=SUBDIRECTORIO,
+                bucket_name=current_app.config["CLOUD_STORAGE_DEPOSITO_USUARIOS"],
+            )
         try:
             storage.set_content_type(archivo.filename)
         except NotAllowedExtesionError:
@@ -723,7 +741,10 @@ def edit_estudios(usuario_dato_id):
                 flash("Debe cargar un archivo adjunto.", "warning")
         else:
             es_valido = True
-            storage = GoogleCloudStorage(SUBDIRECTORIO)
+            storage = GoogleCloudStorage(
+                base_directory=SUBDIRECTORIO,
+                bucket_name=current_app.config["CLOUD_STORAGE_DEPOSITO_USUARIOS"],
+            )
             try:
                 storage.set_content_type(archivo.filename)
             except NotAllowedExtesionError:
@@ -830,7 +851,10 @@ def edit_es_madre(usuario_dato_id):
                     return redirect(url_for("usuarios_datos.detail", usuario_dato_id=usuario_dato.id))
         else:
             es_valido = True
-            storage = GoogleCloudStorage(SUBDIRECTORIO)
+            storage = GoogleCloudStorage(
+                base_directory=SUBDIRECTORIO,
+                bucket_name=current_app.config["CLOUD_STORAGE_DEPOSITO_USUARIOS"],
+            )
             try:
                 storage.set_content_type(archivo.filename)
             except NotAllowedExtesionError:
@@ -933,7 +957,10 @@ def edit_estado_cuenta(usuario_dato_id):
     if form.validate_on_submit():
         es_valido = True
         archivo = request.files["archivo"]
-        storage = GoogleCloudStorage(SUBDIRECTORIO)
+        storage = GoogleCloudStorage(
+                base_directory=SUBDIRECTORIO,
+                bucket_name=current_app.config["CLOUD_STORAGE_DEPOSITO_USUARIOS"],
+            )
         try:
             storage.set_content_type(archivo.filename)
         except NotAllowedExtesionError:
