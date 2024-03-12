@@ -15,7 +15,7 @@ def main():
     """Proceso principal"""
 
     # Inicializar
-    load_dotenv()
+    load_dotenv()  # Take environment variables from .env
     app = create_app()
     db.app = app
 

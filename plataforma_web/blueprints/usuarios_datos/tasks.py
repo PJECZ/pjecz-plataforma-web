@@ -10,6 +10,7 @@ from pathlib import Path
 from typing import Tuple
 
 import pytz
+from dotenv import load_dotenv
 from openpyxl import Workbook
 
 from lib.exceptions import MyAnyError, MyEmptyError
@@ -20,8 +21,11 @@ from plataforma_web.blueprints.usuarios.models import Usuario
 from plataforma_web.blueprints.usuarios_datos.models import UsuarioDato
 from plataforma_web.extensions import db
 
+load_dotenv()  # Take environment variables from .env
+
 GCS_BASE_DIRECTORY = "usuarios_datos/exportaciones"
 LOCAL_BASE_DIRECTORY = "exports/usuarios_datos"
+CLOUD_STORAGE_DEPOSITO_USUARIOS = os.getenv("CLOUD_STORAGE_DEPOSITO_USUARIOS", "")
 TIMEZONE = "America/Mexico_City"
 
 bitacora = logging.getLogger(__name__)
@@ -39,9 +43,6 @@ db.app = app
 def exportar_xlsx() -> Tuple[str, str, str]:
     """Exportar Usuarios-Datos a un archivo XLSX"""
     bitacora.info("Inicia exportar Usuarios Datos a un archivo XLSX")
-
-    # Tomar el nombre del bucket de Google Cloud Storage donde se va a subir el archivo
-    bucket_name = os.getenv("CLOUD_STORAGE_DEPOSITO_USUARIOS", "")
 
     # Consultar Usuarios-Datos
     usuarios_datos = UsuarioDato.query.join(Usuario).filter(UsuarioDato.estatus == "A").order_by(UsuarioDato.curp).all()
@@ -159,12 +160,12 @@ def exportar_xlsx() -> Tuple[str, str, str]:
 
     # Si esta definido el bucket de Google Cloud Storage
     public_url = ""
-    if bucket_name != "":
+    if CLOUD_STORAGE_DEPOSITO_USUARIOS != "":
         # Subir el archivo XLSX a GCS
         with open(ruta_local_archivo_xlsx, "rb") as archivo:
             storage = GoogleCloudStorage(
                 base_directory=ruta_gcs,
-                bucket_name=bucket_name,
+                bucket_name=CLOUD_STORAGE_DEPOSITO_USUARIOS,
             )
             try:
                 storage.set_filename(

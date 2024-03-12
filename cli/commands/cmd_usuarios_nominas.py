@@ -18,7 +18,7 @@ from plataforma_web.extensions import db
 from plataforma_web.blueprints.usuarios.models import Usuario
 from plataforma_web.blueprints.usuarios_nominas.models import UsuarioNomina
 
-load_dotenv()
+load_dotenv()  # Take environment variables from .env
 
 PERSEO_API_URL = os.getenv("PERSEO_API_URL")
 PERSEO_API_KEY = os.getenv("PERSEO_API_KEY")

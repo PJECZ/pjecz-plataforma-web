@@ -31,7 +31,7 @@ from plataforma_web.blueprints.usuarios.models import Usuario
 from plataforma_web.blueprints.usuarios_roles.models import UsuarioRol
 from plataforma_web.extensions import pwd_context
 
-load_dotenv()
+load_dotenv()  # Take environment variables from .env
 
 PERSEO_API_URL = os.getenv("PERSEO_API_URL")
 PERSEO_API_KEY = os.getenv("PERSEO_API_KEY")

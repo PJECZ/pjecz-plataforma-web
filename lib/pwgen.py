@@ -9,7 +9,8 @@ import string
 from dotenv import load_dotenv
 from hashids import Hashids
 
-load_dotenv()
+load_dotenv()  # Take environment variables from .env
+
 SALT = os.environ.get("SALT", "Esta es una muy mala cadena aleatoria")
 
 
