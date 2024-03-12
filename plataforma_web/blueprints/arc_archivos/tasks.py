@@ -26,7 +26,7 @@ USUARIO_DEFECTO = "archivo@pjecz.gob.mx"
 bitacora = logging.getLogger(__name__)
 bitacora.setLevel(logging.INFO)
 formato = logging.Formatter("%(asctime)s:%(levelname)s:%(message)s")
-empunadura = logging.FileHandler("archivo.log")
+empunadura = logging.FileHandler("logs/arc_archivos.log")
 empunadura.setFormatter(formato)
 bitacora.addHandler(empunadura)
 

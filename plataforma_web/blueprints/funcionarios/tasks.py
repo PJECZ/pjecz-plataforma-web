@@ -33,7 +33,7 @@ load_dotenv()  # Take environment variables from .env
 bitacora = logging.getLogger(__name__)
 bitacora.setLevel(logging.INFO)
 formato = logging.Formatter("%(asctime)s:%(levelname)s:%(message)s")
-empunadura = logging.FileHandler("funcionarios.log")
+empunadura = logging.FileHandler("logs/funcionarios.log")
 empunadura.setFormatter(formato)
 bitacora.addHandler(empunadura)
 

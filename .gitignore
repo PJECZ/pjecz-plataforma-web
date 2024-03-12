@@ -15,7 +15,6 @@ __pycache__/
 /app.yaml
 /exports/
 /instance/settings.py
-/logs/
 /seed/
 /venv/
 /.venv/

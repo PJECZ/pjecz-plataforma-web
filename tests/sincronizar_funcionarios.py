@@ -1,6 +1,7 @@
 """
 Sinconizar funcionarios con la API de RRHH Personal
 """
+
 from datetime import datetime, date
 import logging
 import os
@@ -127,7 +128,7 @@ def main():
     bitacora = logging.getLogger(__name__)
     bitacora.setLevel(logging.INFO)
     formato = logging.Formatter("%(asctime)s:%(levelname)s:%(message)s")
-    empunadura = logging.FileHandler("sincronizar_funcionarios.log")
+    empunadura = logging.FileHandler("logs/sincronizar_funcionarios.log")
     empunadura.setFormatter(formato)
     bitacora.addHandler(empunadura)
     bitacora.info("Inicia")

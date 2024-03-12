@@ -26,7 +26,7 @@ from plataforma_web.blueprints.cid_formatos.models import CIDFormato
 bitacora = logging.getLogger(__name__)
 bitacora.setLevel(logging.INFO)
 formato = logging.Formatter("%(asctime)s:%(levelname)s:%(message)s")
-empunadura = logging.FileHandler("cid_procedimientos.log")
+empunadura = logging.FileHandler("logs/cid_procedimientos.log")
 empunadura.setFormatter(formato)
 bitacora.addHandler(empunadura)
 

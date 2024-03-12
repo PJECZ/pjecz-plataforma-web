@@ -24,7 +24,7 @@ from plataforma_web.blueprints.usuarios.models import Usuario
 bitacora = logging.getLogger(__name__)
 bitacora.setLevel(logging.INFO)
 formato = logging.Formatter("%(asctime)s:%(levelname)s:%(message)s")
-empunadura = logging.FileHandler("edictos.log")
+empunadura = logging.FileHandler("logs/edictos.log")
 empunadura.setFormatter(formato)
 bitacora.addHandler(empunadura)
 
