@@ -447,7 +447,7 @@ def search():
     # Proceso de búsqueda
     if "num_expediente" in request.form:
         num_expediente = request.form["num_expediente"]
-        load_dotenv()
+        load_dotenv()  # Take environment variables from .env
         EXPEDIENTE_VIRTUAL_API_URL = os.environ.get("EXPEDIENTE_VIRTUAL_API_URL", "")
         if EXPEDIENTE_VIRTUAL_API_URL == "":
             flash("No se declaro la variable de entorno EXPEDIENTE_VIRTUAL_API_URL", "warning")
