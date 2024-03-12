@@ -171,10 +171,10 @@ class Usuario(db.Model, UserMixin, UniversalMixin):
         """¿Tiene permiso para administrar?"""
         return self.can(modulo_nombre, Permiso.ADMINISTRAR)
 
-    def launch_task(self, nombre, descripcion, *args, **kwargs):
-        """Arrancar tarea"""
-        rq_job = current_app.task_queue.enqueue("plataforma_web.blueprints." + nombre, *args, **kwargs)
-        tarea = Tarea(id=rq_job.get_id(), comando=nombre, mensaje=descripcion, usuario=self)
+    def launch_task(self, comando, mensaje, *args, **kwargs):
+        """Lanzar tarea en el fondo"""
+        rq_job = current_app.task_queue.enqueue(f"plataforma_web.blueprints.{comando}", *args, **kwargs)
+        tarea = Tarea(id=rq_job.get_id(), comando=comando, mensaje=mensaje, usuario=self)
         tarea.save()
         return tarea
 
