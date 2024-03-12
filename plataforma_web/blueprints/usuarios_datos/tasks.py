@@ -158,6 +158,7 @@ def exportar_xlsx() -> Tuple[str, str, str]:
     libro.save(ruta_local_archivo_xlsx)
 
     # Si esta definido el bucket de Google Cloud Storage
+    public_url = ""
     if bucket_name != "":
         # Subir el archivo XLSX a GCS
         with open(ruta_local_archivo_xlsx, "rb") as archivo:
@@ -171,7 +172,7 @@ def exportar_xlsx() -> Tuple[str, str, str]:
                     description="Documentos-Personales",
                     extension="xlsx",
                 )
-                storage.upload(archivo.read())
+                public_url = storage.upload(archivo.read())
                 bitacora.info("Se subió el archivo %s a GCS", nombre_archivo_xlsx)
             except NotConfiguredError:
                 mensaje = set_task_error("No fue posible subir el archivo a Google Storage porque falta la configuración.")
@@ -186,7 +187,7 @@ def exportar_xlsx() -> Tuple[str, str, str]:
     # Entregar mensaje de termino, el nombre del archivo XLSX y la URL publica
     mensaje_termino = f"Se exportaron {contador} Usuarios-Datos a {nombre_archivo_xlsx}"
     bitacora.info(mensaje_termino)
-    return mensaje_termino, nombre_archivo_xlsx, ""
+    return mensaje_termino, nombre_archivo_xlsx, public_url
 
 
 def lanzar_exportar_xlsx():
@@ -204,5 +205,5 @@ def lanzar_exportar_xlsx():
         return mensaje_error
 
     # Terminar la tarea en el fondo y entregar el mensaje de termino
-    set_task_progress(100, mensaje_termino)  # nombre_archivo_xlsx, public_url
+    set_task_progress(100, mensaje_termino, nombre_archivo_xlsx, public_url)
     return mensaje_termino

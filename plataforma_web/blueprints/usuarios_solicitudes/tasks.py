@@ -24,7 +24,7 @@ locale.setlocale(locale.LC_TIME, "es_MX.utf8")
 bitacora = logging.getLogger(__name__)
 bitacora.setLevel(logging.INFO)
 formato = logging.Formatter("%(asctime)s:%(levelname)s:%(message)s")
-empunadura = logging.FileHandler("usuarios_solicitudes.log")
+empunadura = logging.FileHandler("logs/usuarios_solicitudes.log")
 empunadura.setFormatter(formato)
 bitacora.addHandler(empunadura)
 
@@ -45,7 +45,7 @@ VALIDACION_TELEFONO_PERSONAL_URL = os.getenv("VALIDACION_TELEFONO_PERSONAL_URL",
 
 
 def enviar_email_validacion(usuario_solicitud_id: int):
-    """Enviar usuario solicitud para validación de email"""
+    """Enviar mensaje para validar el email personal del usuario"""
 
     # Validar que se tiene VALIDACION_EMAIL_PERSONAL_URL
     if VALIDACION_EMAIL_PERSONAL_URL == "":
@@ -67,8 +67,10 @@ def enviar_email_validacion(usuario_solicitud_id: int):
         return mensaje_error
     sendgrid_client = sendgrid.SendGridAPIClient(api_key=SENDGRID_API_KEY)
 
-    # Inicia la tarea en el fondo
-    set_task_progress(0, "Iniciando tarea de enviar mensaje via correo electronico de validación...")
+    # Iniciar tarea
+    mensaje_inicial = f"Iniciando enviar mensaje para validar el email personal del usuario ID: {usuario_solicitud_id}"
+    set_task_progress(0, mensaje_inicial)
+    bitacora.info(mensaje_inicial)
 
     # Consultar la solicitud
     usuario_solicitud = UsuarioSolicitud.query.get(usuario_solicitud_id)
@@ -130,9 +132,9 @@ def enviar_email_validacion(usuario_solicitud_id: int):
         return mensaje_error
 
     # Terminar tarea
-    mensaje_final = f"Se ha enviado el mensaje de validacion a {usuario_solicitud.email_personal}"
-    bitacora.info(mensaje_final)
+    mensaje_final = f"Termina enviar mensaje para validar el email personal {usuario_solicitud.email_personal} del usuario"
     set_task_progress(100, mensaje_final)
+    bitacora.info(mensaje_final)
     return mensaje_final
 
 
@@ -163,8 +165,10 @@ def enviar_sms_validacion(usuario_solicitud_id: int) -> str:
         bitacora.error(mensaje_error)
         return mensaje_error
 
-    # Inicia la tarea en el fondo
-    set_task_progress(0, "Iniciando tarea de enviar SMS de validación...")
+    # Iniciar tarea
+    mensaje_inicial = f"Iniciando enviar SMS vía Twilio al celular del usuario ID: {usuario_solicitud_id}"
+    set_task_progress(0, mensaje_inicial)
+    bitacora.info(mensaje_inicial)
 
     # Consultar la solicitud
     usuario_solicitud = UsuarioSolicitud.query.get(usuario_solicitud_id)
@@ -217,7 +221,7 @@ def enviar_sms_validacion(usuario_solicitud_id: int) -> str:
         return mensaje_error
 
     # Terminar tarea
-    mensaje_final = f"Se ha enviado el SMS de validacion a {usuario_solicitud.telefono_celular}"
-    bitacora.info(mensaje_final)
+    mensaje_final = f"Termina enviar SMS vía Twilio al celular del usuario {usuario_solicitud.telefono_celular}"
     set_task_progress(100, mensaje_final)
+    bitacora.info(mensaje_final)
     return mensaje_final

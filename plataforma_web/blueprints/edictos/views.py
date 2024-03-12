@@ -367,24 +367,6 @@ def download():
     return current_app.response_class(archivo, mimetype=media_type)
 
 
-@edictos.route("/edictos/refrescar/<int:autoridad_id>")
-@permission_required(MODULO, Permiso.ADMINISTRAR)
-def refresh(autoridad_id):
-    """Refrescar Edictos"""
-    autoridad = Autoridad.query.get_or_404(autoridad_id)
-    if current_user.get_task_in_progress("edictos.tasks.refrescar"):
-        flash("Debe esperar porque hay una tarea en el fondo sin terminar.", "warning")
-    else:
-        tarea = current_user.launch_task(
-            nombre="edictos.tasks.refrescar",
-            descripcion=f"Refrescar edictos de {autoridad.clave}",
-            usuario_id=current_user.id,
-            autoridad_id=autoridad.id,
-        )
-        flash(f"{tarea.descripcion} está corriendo en el fondo.", "info")
-    return redirect(url_for("edictos.list_autoridad_edictos", autoridad_id=autoridad.id))
-
-
 @edictos.route("/edictos/<int:edicto_id>")
 def detail(edicto_id):
     """Detalle de un Edicto"""

@@ -1,6 +1,7 @@
 """
 Glosas, vistas
 """
+
 import datetime
 import json
 from pathlib import Path
@@ -351,24 +352,6 @@ def download():
         return redirect(url_for("glosas.list_active"))
     # Entregar archivo
     return current_app.response_class(archivo, mimetype=media_type)
-
-
-@glosas.route("/glosas/refrescar/<int:autoridad_id>")
-@permission_required(MODULO, Permiso.ADMINISTRAR)
-def refresh(autoridad_id):
-    """Refrescar Glosas"""
-    autoridad = Autoridad.query.get_or_404(autoridad_id)
-    if current_user.get_task_in_progress("glosas.tasks.refrescar"):
-        flash("Debe esperar porque hay una tarea en el fondo sin terminar.", "warning")
-    else:
-        tarea = current_user.launch_task(
-            nombre="glosas.tasks.refrescar",
-            descripcion=f"Refrescar glosas de {autoridad.clave}",
-            usuario_id=current_user.id,
-            autoridad_id=autoridad.id,
-        )
-        flash(f"{tarea.descripcion} está corriendo en el fondo.", "info")
-    return redirect(url_for("glosas.list_autoridad_glosas", autoridad_id=autoridad.id))
 
 
 @glosas.route("/glosas/<int:glosa_id>")

@@ -1,6 +1,7 @@
 """
 Sentencias, tareas para ejecutar en el fondo
 """
+
 import base64
 import csv
 from datetime import datetime, date
@@ -28,7 +29,7 @@ load_dotenv()  # Take environment variables from .env
 bitacora = logging.getLogger(__name__)
 bitacora.setLevel(logging.INFO)
 formato = logging.Formatter("%(asctime)s:%(levelname)s:%(message)s")
-empunadura = logging.FileHandler("sentencias.log")
+empunadura = logging.FileHandler("logs/sentencias.log")
 empunadura.setFormatter(formato)
 bitacora.addHandler(empunadura)
 
@@ -43,6 +44,11 @@ def enviar_reporte():
 
     # Fecha
     fecha = date.today()
+
+    # Iniciar tarea
+    mensaje_inicial = f"Inicia enviar reporte de sentencias del {fecha}"
+    set_task_progress(0, mensaje_inicial)
+    bitacora.info(mensaje_inicial)
 
     # Momento en que se elabora este reporte
     momento = datetime.now()
@@ -138,170 +144,7 @@ def enviar_reporte():
         reporte_ruta.unlink(missing_ok=True)
 
     # Terminar tarea
-    set_task_progress(100)
-    mensaje_final = "Terminado satisfactoriamente"
+    mensaje_final = f"Termina enviar reporte de sentencias del {fecha}"
+    set_task_progress(100, mensaje_final)
     bitacora.info(mensaje_final)
-    return mensaje_final
-
-
-def refrescar(autoridad_id: int, usuario_id: int = None):
-    """Rastrear las sentencias para agregar las que no tiene y dar de baja las que no existen en la BD"""
-    bitacora.info("Inicia")
-
-    # Para validar la fecha
-    anos_limite = 20
-    hoy = date.today()
-    hoy_dt = datetime(year=hoy.year, month=hoy.month, day=hoy.day)
-    limite_dt = datetime(year=hoy.year - anos_limite, month=1, day=1)
-
-    # Validad usuario
-    usuario = None
-    if usuario_id is not None:
-        usuario = Usuario.query.get(usuario_id)
-        if usuario is None or usuario.estatus != "A":
-            return set_task_error("El usuario no existe o no es activo")
-        bitacora.info("- Usuario %s", usuario.email)
-
-    # Validar autoridad
-    autoridad = Autoridad.query.get(autoridad_id)
-    if autoridad is None or autoridad.estatus != "A":
-        return set_task_error("La autoridad no existe o no es activa")
-    if autoridad.directorio_sentencias is None or autoridad.directorio_sentencias == "":
-        return set_task_error("La autoridad no tiene directorio para sentencias")
-    bitacora.info("- Autoridad %s", autoridad.clave)
-
-    # Consultar las sentencias (activos e inactivos) y elaborar lista de archivos
-    sentencias = Sentencia.query.filter(Sentencia.autoridad == autoridad).all()
-    total_en_bd = len(sentencias)
-    bitacora.info("- Tiene %d registros en la base de datos", total_en_bd)
-
-    # Obtener archivos en el depósito
-    deposito = os.environ.get("CLOUD_STORAGE_DEPOSITO_SENTENCIAS", "pjecz-pruebas")
-    bucket = storage.Client().get_bucket(deposito)
-    subdirectorio = autoridad.directorio_sentencias
-    blobs = list(bucket.list_blobs(prefix=subdirectorio))
-    total_en_deposito = len(blobs)
-    if total_en_deposito == 0:
-        return set_task_error(f"No existe o no hay archivos en {subdirectorio}")
-    bitacora.info("- Tiene %d archivos en el depósito", total_en_deposito)
-
-    # Precompilar expresión regular para "NO" letras y digitos
-    letras_digitos_regex = re.compile("[^0-9a-zA-Z]+")
-
-    # Iniciar la tarea y contadores
-    set_task_progress(0)
-    contador_incorrectos = 0
-    contador_insertados = 0
-    contador_presentes = 0
-
-    # Bucle por los archivos en el depósito
-    for blob in blobs:
-        # Validar que sea PDF
-        ruta = Path(blob.name)
-        if ruta.suffix.lower() != ".pdf":
-            continue
-
-        # Saltar y quitar de la lista si se encuentra en la consulta
-        esta_en_bd = False
-        for indice, sentencia in enumerate(sentencias):
-            if blob.public_url == sentencia.url:
-                sentencias.pop(indice)
-                esta_en_bd = True
-                break
-        if esta_en_bd:
-            contador_presentes += 1
-            continue
-
-        # A partir de aquí tenemos un archivo que no está en la base de datos
-        # El nombre del archivo para una sentencia debe ser como
-        # AAAA-MM-DD-EEEE-EEEE-SENT-SENT-G-IDHASED.pdf
-
-        # Separar elementos del nombre del archivo
-        nombre_sin_extension = ruta.name[:-4]
-        elementos = re.sub(letras_digitos_regex, "-", nombre_sin_extension).strip("-").split("-")
-
-        # Tomar la fecha
-        try:
-            ano = int(elementos[0])
-            mes = int(elementos[1])
-            dia = int(elementos[2])
-            fecha = date(ano, mes, dia)
-        except (IndexError, ValueError):
-            bitacora.warning("X Fecha incorrecta: %s", ruta)
-            contador_incorrectos += 1
-            continue
-
-        # Descartar fechas en el futuro o muy en el pasado
-        if not limite_dt <= datetime(year=fecha.year, month=fecha.month, day=fecha.day) <= hoy_dt:
-            bitacora.warning("X Fecha fuera de rango: %s", ruta)
-            contador_incorrectos += 1
-            continue
-
-        # Tomar la sentencia
-        try:
-            numero = int(elementos[3])
-            ano = int(elementos[4])
-            sentencia = str(numero) + "/" + str(ano)
-        except (IndexError, ValueError):
-            bitacora.warning("X Sentencia incorrecta: %s", ruta)
-            contador_incorrectos += 1
-            continue
-
-        # Tomar el expediente
-        try:
-            numero = int(elementos[5])
-            ano = int(elementos[6])
-            expediente = str(numero) + "/" + str(ano)
-        except (IndexError, ValueError):
-            bitacora.warning("X Expediente incorrecto: %s", ruta)
-            contador_incorrectos += 1
-            continue
-
-        # Tomar la paridad de género
-        es_perspectiva_genero = False
-        if len(elementos) > 7 and elementos[7].upper() == "G":
-            es_perspectiva_genero = True
-
-        # Insertar
-        tiempo_local = blob.time_created.astimezone(tzlocal())
-        Sentencia(
-            creado=tiempo_local,
-            modificado=tiempo_local,
-            autoridad=autoridad,
-            fecha=fecha,
-            sentencia=sentencia,
-            expediente=expediente,
-            es_perspectiva_genero=es_perspectiva_genero,
-            archivo=ruta.name,
-            url=blob.public_url,
-        ).save()
-        contador_insertados += 1
-
-    # Los registros que no se encontraron serán dados de baja
-    contador_borrados = 0
-    for sentencia in sentencias:
-        if sentencia.estatus == "A":
-            sentencia.delete()
-            contador_borrados += 1
-
-    # Mensaje final
-    mensajes = []
-    if contador_insertados > 0:
-        mensajes.append(f"Se insertaron {contador_insertados} registros")
-    else:
-        mensajes.append("No se insertaron registros")
-    if contador_borrados > 0:
-        mensajes.append(f"Se borraron {contador_borrados} registros")
-    else:
-        mensajes.append("No se borraron registros")
-    if contador_presentes > 0:
-        mensajes.append(f"Están presentes {contador_presentes}")
-    if contador_incorrectos > 0:
-        mensajes.append(f"Hay {contador_incorrectos} archivos con nombres incorrectos")
-    mensaje_final = "- " + ". ".join(mensajes) + "."
-
-    # Terminar tarea
-    set_task_progress(100)
-    bitacora.info(mensaje_final)
-    bitacora.info("Termina")
     return mensaje_final

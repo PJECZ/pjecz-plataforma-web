@@ -347,15 +347,15 @@ def new():
 
             # Lanzar tarea en el fondo para enviar email de validación
             current_user.launch_task(
-                nombre="usuarios_solicitudes.tasks.enviar_email_validacion",
-                descripcion="Enviando mensaje de validación de email personal.",
+                comando="usuarios_solicitudes.tasks.enviar_email_validacion",
+                mensaje="Enviando mensaje de validación de email personal.",
                 usuario_solicitud_id=usuario_solicitud.id,
             )
 
             # Lanzar tarea en el fondo para enviar SMS de validación
             current_user.launch_task(
-                nombre="usuarios_solicitudes.tasks.enviar_sms_validacion",
-                descripcion="Enviando SMS de validación de telefono personal.",
+                comando="usuarios_solicitudes.tasks.enviar_sms_validacion",
+                mensaje="Enviando SMS de validación de telefono personal.",
                 usuario_solicitud_id=usuario_solicitud.id,
             )
 

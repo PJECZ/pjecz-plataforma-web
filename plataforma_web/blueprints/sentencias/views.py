@@ -1,6 +1,7 @@
 """
 Sentencias, vistas
 """
+
 import datetime
 import json
 from urllib.parse import quote
@@ -437,24 +438,6 @@ def download():
         return redirect(url_for("sentencias.list_active"))
     # Entregar archivo
     return current_app.response_class(archivo, mimetype=media_type)
-
-
-@sentencias.route("/sentencias/refrescar/<int:autoridad_id>")
-@permission_required(MODULO, Permiso.ADMINISTRAR)
-def refresh(autoridad_id):
-    """Refrescar Listas de Acuerdos"""
-    autoridad = Autoridad.query.get_or_404(autoridad_id)
-    if current_user.get_task_in_progress("sentencias.tasks.refrescar"):
-        flash("Debe esperar porque hay una tarea en el fondo sin terminar.", "warning")
-    else:
-        tarea = current_user.launch_task(
-            nombre="sentencias.tasks.refrescar",
-            descripcion=f"Refrescar sentencias de {autoridad.clave}",
-            usuario_id=current_user.id,
-            autoridad_id=autoridad.id,
-        )
-        flash(f"{tarea.descripcion} está corriendo en el fondo.", "info")
-    return redirect(url_for("sentencias.list_autoridad_sentencias", autoridad_id=autoridad.id))
 
 
 @sentencias.route("/sentencias/<int:sentencia_id>")

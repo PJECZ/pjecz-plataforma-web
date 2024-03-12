@@ -1029,26 +1029,26 @@ def actualizar_estado_general(usuario_dato: UsuarioDato) -> str:
     #     return "NO VALIDO"
 
     # Si almenos sigue habiendo un dato vacío
-    if usuario_dato.estado_identificacion == 'INCOMPLETO':
-        return 'INCOMPLETO'
-    if usuario_dato.estado_acta_nacimiento == 'INCOMPLETO':
-        return 'INCOMPLETO'
-    if usuario_dato.estado_domicilio == 'INCOMPLETO':
-        return 'INCOMPLETO'
-    if usuario_dato.estado_curp == 'INCOMPLETO':
-        return 'INCOMPLETO'
-    if usuario_dato.estado_cp_fiscal == 'INCOMPLETO':
-        return 'INCOMPLETO'
-    if usuario_dato.estado_curriculum == 'INCOMPLETO':
-        return 'INCOMPLETO'
-    if usuario_dato.estado_estudios == 'INCOMPLETO':
-        return 'INCOMPLETO'
-    if usuario_dato.estado_es_madre == 'INCOMPLETO':
-        return 'INCOMPLETO'
-    if usuario_dato.estado_estado_civil == 'INCOMPLETO':
-        return 'INCOMPLETO'
-    if usuario_dato.estado_estado_cuenta == 'INCOMPLETO':
-        return 'INCOMPLETO'
+    if usuario_dato.estado_identificacion == "INCOMPLETO":
+        return "INCOMPLETO"
+    if usuario_dato.estado_acta_nacimiento == "INCOMPLETO":
+        return "INCOMPLETO"
+    if usuario_dato.estado_domicilio == "INCOMPLETO":
+        return "INCOMPLETO"
+    if usuario_dato.estado_curp == "INCOMPLETO":
+        return "INCOMPLETO"
+    if usuario_dato.estado_cp_fiscal == "INCOMPLETO":
+        return "INCOMPLETO"
+    if usuario_dato.estado_curriculum == "INCOMPLETO":
+        return "INCOMPLETO"
+    if usuario_dato.estado_estudios == "INCOMPLETO":
+        return "INCOMPLETO"
+    if usuario_dato.estado_es_madre == "INCOMPLETO":
+        return "INCOMPLETO"
+    if usuario_dato.estado_estado_civil == "INCOMPLETO":
+        return "INCOMPLETO"
+    if usuario_dato.estado_estado_cuenta == "INCOMPLETO":
+        return "INCOMPLETO"
     # if usuario_dato.estado_telefono == None:
     #     return None
     # if usuario_dato.estado_email == None:
@@ -1424,8 +1424,12 @@ def validate_estado_cuenta(usuario_dato_id):
 @permission_required(MODULO, Permiso.ADMINISTRAR)
 def exportar_xlsx():
     """Lanzar tarea en el fondo para exportar los Usuarios-Datos a un archivo XLSX"""
+    tarea = current_user.launch_task(
+        comando="usuarios_datos.tasks.lanzar_exportar_xlsx",
+        mensaje="Exportando los Usuarios-Datos a un archivo XLSX...",
+    )
     flash("Se ha lanzado esta tarea en el fondo. Esta página se va a recargar en 10 segundos...", "info")
-    return redirect(url_for("usuarios_datos.list_active"))
+    return redirect(url_for("tareas.detail", tarea_id=tarea.id))
 
 
 @usuarios_datos.route("/usuarios_datos/<int:usuario_dato_id>/<int:usuario_documento_id>.pdf", methods=["GET", "POST"])
@@ -1475,4 +1479,3 @@ def download_file(usuario_dato_id, usuario_documento_id):
     response.headers["Content-Type"] = "application/pdf"
     response.headers["Content-Disposition"] = f"inline; filename={descarga_nombre}"
     return response
-    
