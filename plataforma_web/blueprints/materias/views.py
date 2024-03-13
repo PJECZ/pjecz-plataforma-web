@@ -1,6 +1,7 @@
 """
 Materias, vistas
 """
+
 import json
 from flask import Blueprint, flash, redirect, render_template, request, url_for
 from flask_login import current_user, login_required
@@ -49,6 +50,7 @@ def datatable_json():
                     "nombre": resultado.nombre,
                     "url": url_for("materias.detail", materia_id=resultado.id),
                 },
+                "descripcion": resultado.descripcion,
             }
         )
     # Entregar JSON
@@ -91,12 +93,20 @@ def new():
     """Nueva Materia"""
     form = MateriaForm()
     if form.validate_on_submit():
+        es_valido = True
         # Validar que el nombre no se repita
         nombre = safe_string(form.nombre.data, save_enie=True)
         if Materia.query.filter_by(nombre=nombre).first():
             flash("La nombre ya está en uso. Debe de ser único.", "warning")
-        else:
-            materia = Materia(nombre=nombre)
+            es_valido = False
+        # Validar la descripcion
+        descripcion = safe_string(form.descripcion.data, save_enie=True, to_uppercase=False, max_len=1024)
+        if descripcion == "":
+            flash("La descripción no es válida.", "warning")
+            es_valido = False
+        # Si es valido crear
+        if es_valido:
+            materia = Materia(nombre=nombre, descripcion=descripcion)
             materia.save()
             bitacora = Bitacora(
                 modulo=Modulo.query.filter_by(nombre=MODULO).first(),
@@ -125,9 +135,15 @@ def edit(materia_id):
             if materia_existente and materia_existente.id != materia_id:
                 es_valido = False
                 flash("El nombre ya está en uso. Debe de ser único.", "warning")
+        # Validar la descripcion
+        descripcion = safe_string(form.descripcion.data, save_enie=True, to_uppercase=False, max_len=1024)
+        if descripcion == "":
+            flash("La descripción no es válida.", "warning")
+            es_valido = False
         # Si es valido actualizar
         if es_valido:
             materia.nombre = nombre
+            materia.descripcion = descripcion
             materia.save()
             bitacora = Bitacora(
                 modulo=Modulo.query.filter_by(nombre=MODULO).first(),
@@ -139,6 +155,7 @@ def edit(materia_id):
             flash(bitacora.descripcion, "success")
             return redirect(bitacora.url)
     form.nombre.data = materia.nombre
+    form.descripcion.data = materia.descripcion
     return render_template("materias/edit.jinja2", form=form, materia=materia)
 
 
