@@ -27,7 +27,8 @@
         <table id="materias_datatable" class="table {% if estatus == 'B'%}table-dark{% endif %} display nowrap" style="width:100%">
             <thead>
                 <tr>
-                    <th>Materias</th>
+                    <th>Materia</th>
+                    <th>Descripción</th>
                 </tr>
             </thead>
         </table>
@@ -40,7 +41,8 @@
         configDataTable['ajax']['url'] = '/materias/datatable_json';
         configDataTable['ajax']['data'] = {{ filtros }};
         configDataTable['columns'] = [
-            { data: "detalle" }
+            { data: "detalle" },
+            { data: "descripcion" }
         ];
         configDataTable['columnDefs'] = [
             {
@@ -48,6 +50,13 @@
                 data: null,
                 render: function(data, type, row, meta) {
                     return '<a href="' + data.url + '">' + data.nombre + '</a>';
+                }
+            },
+            {
+                targets: 1, // descripcion
+                data: null,
+                render: function(data, type, row, meta) {
+                    return data.length > 128 ? data.substr(0, 128) + '…' : data;
                 }
             }
         ];
