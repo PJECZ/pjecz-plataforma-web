@@ -12,7 +12,7 @@
     {% call f.card() %}
         <p class="lead">Validación Token Email Personal</p>
             {% set form_kwargs = {'id_hashed': usuario_solicitud.encode_id()} %}
-            {% call f.form_tag('usuarios_solicitudes.token_email_session', fid='usuario_solicitud_form', **form_kwargs) %}
+            {% call f.form_tag('usuarios_solicitudes.token_email_with_session', fid='usuario_solicitud_form', **form_kwargs) %}
                 {% call f.form_group(form.usuario_email, readOnly=true) %}{% endcall %}
                 {% call f.form_group(form.usuario_nombre, readOnly=true) %}{% endcall %}
                 <hr/>
