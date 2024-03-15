@@ -25,7 +25,7 @@ VALIDACION_MAX_INTENTOS = 5
 usuarios_solicitudes = Blueprint("usuarios_solicitudes", __name__, template_folder="templates")
 
 
-@usuarios_solicitudes.route("/usuarios_solicitudes/token_telefono/public/<id_hashed>", methods=["GET", "POST"])
+@usuarios_solicitudes.route("/usuarios_solicitudes/token_celular/public/<id_hashed>", methods=["GET", "POST"])
 def token_celular_without_session(id_hashed):
     """Validar el Token Teléfono Celular"""
 
@@ -117,7 +117,7 @@ def token_celular_without_session(id_hashed):
     )
 
 
-@usuarios_solicitudes.route("/usuarios_solicitudes/token_telefono/<id_hashed>", methods=["GET", "POST"])
+@usuarios_solicitudes.route("/usuarios_solicitudes/token_celular/<id_hashed>", methods=["GET", "POST"])
 def token_celular_with_session(id_hashed):
     """Validar el Token Teléfono Celular"""
 
