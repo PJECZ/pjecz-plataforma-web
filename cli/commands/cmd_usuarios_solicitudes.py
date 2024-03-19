@@ -7,14 +7,21 @@ Usuarios Solicitudes
 
 import click
 import sys
+import os
 from datetime import datetime, timedelta
 
-from sqlalchemy import or_
+from twilio.rest import Client
 
 from plataforma_web.app import create_app
 from plataforma_web.extensions import db
 from plataforma_web.blueprints.usuarios.models import Usuario
 from plataforma_web.blueprints.usuarios_solicitudes.models import UsuarioSolicitud
+
+TWILIO_ACCOUNT_SID = os.getenv("TWILIO_ACCOUNT_SID", "")
+TWILIO_AUTH_TOKEN = os.getenv("TWILIO_AUTH_TOKEN", "")
+TWILIO_TEL_FROM = os.getenv("TWILIO_TEL_FROM", "")
+VALIDACION_TELEFONO_PERSONAL_URL = os.getenv("VALIDACION_TELEFONO_PERSONAL_URL", "")
+
 
 app = create_app()
 db.app = app
@@ -47,6 +54,62 @@ def enviar_sms(usuario_email):
 
     # Mensaje final
     click.echo(f"Mensaje SMS de validación enviado a +52{usuario_solicitud.telefono_celular}")
+
+
+@click.command()
+@click.argument("usuario_email", type=str)
+def enviar_whatsapp(usuario_email):
+    """Enviar Whatsapp vía Twilio al celular del usuario"""
+
+    # Seleccionamos al usuario por su correo
+    usuario = Usuario.query.filter_by(email=usuario_email).first()
+
+    # Si el usuario no está activo, mandamos un error.
+    if usuario.estatus != 'A':
+        click.echo("ERROR: El usuario no está activo")
+        sys.exit(1)
+
+    # Si el usuario no tiene un teléfono celular personal, mandamos un error.
+    if usuario.telefono_celular is None or usuario.telefono_celular == "":
+        click.echo("ERROR: El usuario no tiene un teléfono celular personal.")
+        sys.exit(1)
+
+    # Validar que se tiene VALIDACION_TELEFONO_PERSONAL_URL
+    if VALIDACION_TELEFONO_PERSONAL_URL == "":
+        click.echo("ERROR: NO esta configurada la variable VALIDACION_TELEFONO_PERSONAL_URL.")
+        sys.exit(1)
+
+    # Validar que se tiene TWILIO_ACCOUNT_SID
+    if TWILIO_ACCOUNT_SID == "":
+        click.echo("ERROR: NO esta configurada la variable TWILIO_ACCOUNT_SID.")
+        sys.exit(1)
+
+    # Validar que se tiene TWILIO_AUTH_TOKEN
+    if TWILIO_AUTH_TOKEN == "":
+        click.echo("ERROR: NO esta configurada la variable TWILIO_AUTH_TOKEN.")
+        sys.exit(1)
+
+    # Validar que se tiene TWILIO_TEL_FROM
+    if TWILIO_TEL_FROM == "":
+        click.echo("ERROR: NO esta configurada la variable TWILIO_TEL_FROM.")
+        sys.exit(1)
+
+    # Creamos el SMS de twilio
+    client = Client(TWILIO_ACCOUNT_SID, TWILIO_AUTH_TOKEN)
+
+    # Enviar mensaje
+    try:
+        client.messages.create(
+            body="Prueba de mensaje de Whatsapp",
+            from_=f"whatsapp:{TWILIO_TEL_FROM}",
+            to=f"whatsapp:+52{usuario.telefono_celular}",
+        )
+    except Exception as e:
+        click.echo(f"ERROR: No se envió el whatsapp a {usuario.telefono_celular} por error de Twilio. {e}")
+        sys.exit(1)
+
+    # Mensaje final
+    click.echo(f"Mensaje de Whatsapp enviado al +52{usuario.telefono_celular}")
 
 
 @click.command()
