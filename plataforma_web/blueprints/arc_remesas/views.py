@@ -652,6 +652,7 @@ def add_document(documento_id):
     # Buscar si el documento ya está en otra remesa pendiente
     documento_en_otra_remesa = ArcRemesaDocumento.query.join(ArcRemesa)
     documento_en_otra_remesa = documento_en_otra_remesa.filter(ArcRemesaDocumento.arc_documento_id == documento_id)
+    documento_en_otra_remesa = documento_en_otra_remesa.filter(ArcRemesa.estatus == 'A')
     documento_en_otra_remesa = documento_en_otra_remesa.filter(ArcRemesa.estado != "CANCELADO").filter(ArcRemesa.estado != "ARCHIVADO").filter(ArcRemesa.estado != "RECHAZADO").first()
     if documento_en_otra_remesa:
         if documento_en_otra_remesa.arc_remesa.estado not in ("CANCELADO", "ARCHIVADO", "RECHAZADO", "ARCHIVADO CON ANOMALIA"):
