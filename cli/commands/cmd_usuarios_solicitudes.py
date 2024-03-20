@@ -137,4 +137,5 @@ def eliminar_solicitudes_no_validadas():
 
 
 cli.add_command(enviar_sms)
+cli.add_command(enviar_whatsapp)
 cli.add_command(eliminar_solicitudes_no_validadas)
