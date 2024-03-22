@@ -1,0 +1,42 @@
+:root {
+  --md-primary-fg-color: #004360;
+  --md-primary-fg-color--light: #004360;
+  --md-primary-fg-color--dark: #90030c;
+}
+
+h2 {
+  font-weight: bolder !important;
+  color: #004360;
+  margin-top: 4rem !important;
+}
+
+.md-button {
+  padding: 5px 10px !important;
+  border-radius: 0.25rem !important;
+  color: white !important;
+  font-weight: normal !important;
+  border: 0 !important;
+  font-size: small !important;
+}
+
+.md-button--success {
+  background-color: #157347 !important;
+}
+
+.md-button--secondary {
+  background-color: #6c757d !important;
+}
+
+.md-button--primary {
+  background-color: #0d6efd !important;
+}
+
+.md-button--warning {
+  background-color: #ffc107 !important;
+  color: black !important;
+}
+
+.md-button--danger {
+  background-color: #dc3545 !important;
+  color: rgb(246, 246, 246) !important;
+}
