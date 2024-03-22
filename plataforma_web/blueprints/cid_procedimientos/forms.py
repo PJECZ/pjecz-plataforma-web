@@ -43,13 +43,13 @@ class CIDProcedimientoForm(FlaskForm):
     # Step Autorizaciones
     elaboro_nombre = StringField("Nombre", validators=[Optional(), Length(max=256)])
     elaboro_puesto = StringField("Puesto", validators=[Optional(), Length(max=256)])
-    elaboro_email = SelectField(label="Correo", coerce=str, validators=[Optional()], validate_choice=False)
+    elaboro_email = SelectField(label="Correo electrónico", coerce=str, validators=[Optional()], validate_choice=False)
     reviso_nombre = StringField("Nombre", validators=[Optional(), Length(max=256)])
     reviso_puesto = StringField("Puesto", validators=[Optional(), Length(max=256)])
-    reviso_email = SelectField(label="Correo", coerce=str, validators=[Optional()], validate_choice=False)
+    reviso_email = SelectField(label="Correo electrónico", coerce=str, validators=[Optional()], validate_choice=False)
     aprobo_nombre = StringField("Nombre", validators=[Optional(), Length(max=256)])
     aprobo_puesto = StringField("Puesto", validators=[Optional(), Length(max=256)])
-    aprobo_email = SelectField(label="Correo", coerce=str, validators=[Optional()], validate_choice=False)
+    aprobo_email = SelectField(label="Correo electrónico", coerce=str, validators=[Optional()], validate_choice=False)
     autorizaciones = JSONField("Autorizaciones", validators=[Optional()])
     # Guardar
     guardar = SubmitField("Guardar")
@@ -93,3 +93,19 @@ class CIDProcedimientoSearchForm(FlaskForm):
     fecha_desde = DateField("Fecha desde", validators=[Optional()])
     fecha_hasta = DateField("Fecha hasta", validators=[Optional()])
     buscar = SubmitField("Buscar")
+
+
+class CIDProcedimientosNewReview(FlaskForm):
+    """Formulario nueva revision"""
+
+    titulo_procedimiento = StringField("Título Procedimiento", validators=[Optional()])
+    codigo = StringField("Código")  # Solo lectura
+    revision = IntegerField("Nueva Revisión")  # Solo lectura
+    fecha = DateField("Fecha de elaboración", validators=[DataRequired()])
+    reviso_nombre = StringField("Nombre", validators=[Optional(), Length(max=256)])
+    reviso_puesto = StringField("Puesto", validators=[Optional(), Length(max=256)])
+    reviso_email = SelectField(label="Correo electrónico", coerce=str, validators=[Optional()], validate_choice=False)
+    aprobo_nombre = StringField("Nombre", validators=[Optional(), Length(max=256)])
+    aprobo_puesto = StringField("Puesto", validators=[Optional(), Length(max=256)])
+    aprobo_email = SelectField(label="Correo electrónico", coerce=str, validators=[Optional()], validate_choice=False)
+    guardar = SubmitField("Iniciar nueva revisión")

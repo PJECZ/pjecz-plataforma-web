@@ -1,0 +1,142 @@
+{% extends 'layouts/app.jinja2' %}
+{% import 'macros/detail.jinja2' as detail %}
+{% import 'macros/form.jinja2' as f with context %}
+{% import 'macros/modals.jinja2' as modals %}
+{% import 'macros/topbar.jinja2' as topbar %}
+
+{% block title %}Nueva Revisión{% endblock %}
+
+{% block topbar_actions %}
+    {{ topbar.page('Nueva Revisión') }}
+{% endblock %}
+
+{% block custom_head %}
+    <!-- Select2 bootstrap -->
+    <link href="https://cdn.jsdelivr.net/npm/select2@4.1.0-rc.0/dist/css/select2.min.css" rel="stylesheet" />
+{% endblock %}
+
+{% block content %}
+    {% call detail.card(estatus=cid_procedimiento.estatus, title="Nueva revisión de datos del procedimiento " +  (cid_procedimiento.revision) | string) %}
+        {{ detail.label_value('Revisión Actual', cid_procedimiento.revision) }}
+        {{ detail.label_value('Título', cid_procedimiento.titulo_procedimiento) }}
+        {{ detail.label_value('Código', cid_procedimiento.codigo) }}
+
+    {% endcall %}
+    <div class="alert alert-warning" role="alert">
+        <b>AVISO</b>: La revisión de un nuevo procedimiento genera una nueva cadena de mensajes.
+    </div>
+    {% call f.card('Formulario para crear la revisión ' +  (cid_procedimiento.revision + 1) | string ) %}
+        {% set form_kwargs = {'cid_procedimiento_id': cid_procedimiento.id} %}
+        {% call f.form_tag('cid_procedimientos.copiar_procedimiento_con_revision', fid='cid_procedimiento_form', **form_kwargs) %}
+            {% call f.form_group(form.titulo_procedimiento) %}{% endcall %}
+            {% call f.form_group(form.codigo, readonly=true) %}{% endcall %}
+            {% call f.form_group(form.revision, readonly=true) %}{% endcall %}
+            {% call f.form_group(form.fecha) %}{% endcall %}
+            <div class="alert alert-info" role="alert">
+                <b>IMPORTANTE:</b> Verifica que los usuarios y los correos electrónicos sean los correctos.
+            </div>
+            <div class="row">
+                <h4>Revisor</h4>
+                <div class="row">
+                    <div class="col">
+                        {% call f.form_group(form.reviso_nombre) %}{% endcall %}
+                    </div>
+                    <div class="col">
+                        {% call f.form_group(form.reviso_puesto) %}{% endcall %}
+                    </div>
+                    <div class="col">
+                        {% call f.form_group(form.reviso_email) %}{% endcall %}
+                    </div>
+                </div>
+                <h4>Autorizador</h4>
+                <div class="row">
+                    <div class="col">
+                        {% call f.form_group(form.aprobo_nombre) %}{% endcall %}
+                    </div>
+                    <div class="col">
+                        {% call f.form_group(form.aprobo_puesto) %}{% endcall %}
+                    </div>
+                    <div class="col">
+                        {% call f.form_group(form.aprobo_email) %}{% endcall %}
+                    </div>
+                </div>
+            </div>
+            {% call f.form_group(form.guardar) %}{% endcall %}
+        {% endcall %}
+    {% endcall %}
+{% endblock %}
+{% block custom_javascript %}
+    <!-- Select2 bootstrap -->
+    <script src="https://cdn.jsdelivr.net/npm/select2@4.1.0-rc.0/dist/js/select2.min.js"></script>
+    <script>
+         $(document).ready(function(){
+            // Agregar clases a los select
+            $('#reviso_email').addClass('js-reviso-autorizo-data-ajax js-states form-control');
+            $('#aprobo_email').addClass('js-reviso-autorizo-data-ajax js-states form-control');
+            
+            // Poner como activo el valor actual
+            $('#elaboro_email option').each(function() {
+                if($(this).text() == '{{cid_procedimiento.reviso_email}}') {
+                    $("#reviso_email").val( $(this).val() );
+                }
+                if($(this).text() == '{{cid_procedimiento.aprobo_email}}') {
+                    $("#aprobo_email").val( $(this).val() );
+                }
+            });
+
+            // Ajax para los select
+            $(".js-example-data-ajax").select2({
+                // --- Carga de emails por Ajax --- //
+                
+                placeholder: "correo",
+                minimumInputLength: 4,
+                allowClear: true,
+                ajax: {
+                    url: '/cid_procedimientos/usuarios_json',
+                    headers: { "X-CSRF-TOKEN": "{{ csrf_token() }}" },
+                    dataType: 'json',
+                    delay: 250,
+                    type: "POST",
+                    data: function (params) {
+                        return { 'searchString': params.term }
+                    },
+
+                }
+            });
+
+            //Ajax para que al escribir desde 4 caracteres se filtren las opciones en los selects
+            $(".js-reviso-autorizo-data-ajax").select2({
+                //--- Carga de emails por Ajax --- //
+                placeholder:"Correo electrónico quien revisa ó autoriza",
+                allowClear:true,
+                minimumInputLength:4,
+                ajax:{
+                    url:'/cid_procedimientos/revisores_autorizadores_json',
+                    headers: { "X-CSRF-TOKEN": "{{ csrf_token() }}"},
+                    dataType: 'json',
+                    delay: 250,
+                    type: "POST",
+                    data: function (params) {
+                        return { 'searchString': params.term };
+                    }
+                }
+            });
+
+            // Usa Ajax para traer hasta 10 emails, se debe agregar el valor actual
+            let data_reviso = {
+                id: '{{cid_procedimiento.reviso_email}}',
+                text: '{{cid_procedimiento.reviso_email}}'
+            };
+            let newOptionReviso = new Option(data_reviso.text, data_reviso.id, false, false);
+            $('#reviso_email').append(newOptionReviso).trigger('change');
+
+            let data_aprobo = {
+                id: '{{cid_procedimiento.aprobo_email}}',
+                text: '{{cid_procedimiento.aprobo_email}}'
+            };
+            let newOptionAprobo = new Option(data_aprobo.text, data_aprobo.id, false, false);
+            $('#aprobo_email').append(newOptionAprobo).trigger('change');
+
+        });
+    </script>
+{% endblock %}
