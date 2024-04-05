@@ -1,0 +1,22 @@
+{% extends 'layouts/app.jinja2' %}
+{% import 'macros/form.jinja2' as f with context %}
+{% import 'macros/topbar.jinja2' as topbar %}
+
+{% block title %}Cambiar AREAS{% endblock %}
+
+{% block topbar_actions %}
+    {{ topbar.page('Cambiar Área ' + cid_procedimiento.codigo) }}
+{% endblock %}
+
+{% block content %}
+    {% call f.card() %}
+        {% set form_kwargs = {'cid_procedimiento_id': cid_procedimiento.id} %}
+        {% call f.form_tag('cid_procedimientos.cambiar_area', fid='cambiar_area_form', **form_kwargs) %}
+            {% call f.form_group(form.titulo_procedimiento, readonly=true) %}{% endcall %}
+            {% call f.form_group(form.codigo, readonly=true) %}{% endcall %}
+            {% call f.form_group(form.cid_area_original, readonly=true) %}{% endcall %}
+            {% call f.form_group(form.cid_area) %}{% endcall %}
+            {% call f.form_group(form.guardar) %}{% endcall %}
+        {% endcall %}
+    {% endcall %}
+{% endblock %}
