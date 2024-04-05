@@ -85,6 +85,7 @@ class ArcDocumentoEditArchivoForm(FlaskForm):
     demandado = StringField("Demandado(s)", validators=[Optional(), Length(max=256)])
     juicio = StringField("Juicio", validators=[Optional(), Length(max=128)])
     juzgado_origen = QuerySelectField("Instancia de Origen", query_factory=juzgados_extintos_opciones, get_label="nombre", validators=[Optional()], allow_blank=True)
+    juzgados_origen = StringField("Instancias de Origen")
     tipo = SelectField("Tipo de Documento", coerce=int, validate_choice=False, validators=[DataRequired()])
     ubicacion = SelectField("Ubicación", choices=ArcDocumento.UBICACIONES, validators=[DataRequired()])
     tipo_juzgado = SelectField("Tipo de Instancia", choices=ArcDocumento.TIPO_JUZGADOS, validators=[DataRequired()])

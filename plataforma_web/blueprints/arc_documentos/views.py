@@ -388,7 +388,8 @@ def edit(arc_documento_id):
             documento.demandado = safe_string(form.demandado.data, save_enie=True)
             documento.juicio = safe_string(form.juicio.data, save_enie=True)
             documento.tipo_juzgado = safe_string(form.tipo_juzgado.data)
-            documento.arc_juzgado_origen = form.juzgado_origen.data
+            #documento.arc_juzgado_origen = form.juzgado_origen.data
+            documento.arc_juzgados_origen_claves = form.juzgados_origen.data
             documento.arc_documento_tipo_id = int(form.tipo.data)
             documento.fojas = fojas
             documento.notas = safe_message(form.notas.data, default_output_str=None)
@@ -416,6 +417,7 @@ def edit(arc_documento_id):
     form.actor.data = documento.actor
     form.demandado.data = documento.demandado
     form.juzgado_origen.data = documento.arc_juzgado_origen
+    form.juzgados_origen.data = documento.arc_juzgados_origen_claves
     form.juicio.data = documento.juicio
     form.tipo_juzgado.data = documento.tipo_juzgado
     form.tipo.data = documento.arc_documento_tipo
