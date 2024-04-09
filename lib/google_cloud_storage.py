@@ -23,12 +23,13 @@ from lib.exceptions import (
 EXTENSIONS_MEDIA_TYPES = {
     "doc": "application/msword",
     "docx": "application/msword",
+    "jpeg": "image/jpeg",
+    "jpg": "image/jpeg",
     "pdf": "application/pdf",
+    "png": "image/png",
     "xls": "xapplication/vnd.ms-excel",
     "xlsx": "xapplication/vnd.ms-excel",
-    "jpg": "image/jpeg",
-    "jpeg": "image/jpeg",
-    "png": "image/png",
+    "xml": "application/xml",
 }
 
 
@@ -73,6 +74,62 @@ def get_blob_name_from_url(url: str) -> str:
 
     # Returno blob name unquoted
     return unquote(blob_name)
+
+
+def check_file_exists_from_gcs(
+    bucket_name: str,
+    blob_name: str,
+) -> bool:
+    """
+    Check if file exists in Google Cloud Storage
+
+    :param bucket_name: Name of the bucket
+    :param blob_name: Path to the file
+    :return: True if file exists
+    """
+
+    # Get bucket
+    storage_client = storage.Client()
+    try:
+        bucket = storage_client.get_bucket(bucket_name)
+    except NotFound as error:
+        raise MyBucketNotFoundError("Bucket not found") from error
+
+    # Get file
+    blob = bucket.get_blob(blob_name)
+    if blob is None:
+        return False
+
+    # Return True if file exists
+    return True
+
+
+def get_public_url_from_gcs(
+    bucket_name: str,
+    blob_name: str,
+) -> str:
+    """
+    Get public URL from Google Cloud Storage
+
+    :param bucket_name: Name of the bucket
+    :param blob_name: Path to the file
+    :return: Public URL
+    """
+
+    # Get bucket
+    storage_client = storage.Client()
+    try:
+        bucket = storage_client.get_bucket(bucket_name)
+    except NotFound as error:
+        raise MyBucketNotFoundError("Bucket not found") from error
+
+    # Get file
+    blob = bucket.get_blob(blob_name)
+    if blob is None:
+        raise MyFileNotFoundError("File not found")
+
+    # Return public URL
+    return blob.public_url
 
 
 def get_file_from_gcs(

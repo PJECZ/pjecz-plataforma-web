@@ -4,6 +4,7 @@ Usuarios, tareas para ejecutar en el fondo
 - estandarizar: Estandarizar nombres, apellidos y puestos en mayusculas
 - sincronizar: Sincronizar funcionarios con la API de RRHH Personal
 """
+
 import locale
 import logging
 import os
@@ -32,7 +33,7 @@ load_dotenv()  # Take environment variables from .env
 bitacora = logging.getLogger(__name__)
 bitacora.setLevel(logging.INFO)
 formato = logging.Formatter("%(asctime)s:%(levelname)s:%(message)s")
-empunadura = logging.FileHandler("usuarios.log")
+empunadura = logging.FileHandler("logs/usuarios.log")
 empunadura.setFormatter(formato)
 bitacora.addHandler(empunadura)
 
@@ -48,7 +49,9 @@ TIMEOUT = 16
 def estandarizar():
     """Estandarizar nombres, apellidos y puestos en mayusculas"""
 
-    # Iniciar
+    # Iniciar tarea
+    mensaje_inicial = "Inicia estandarizar nombres, apellidos y puestos en mayusculas"
+    set_task_progress(0, mensaje_inicial)
     bitacora.info("Inicia estandarizar")
 
     # Tomar rol SOPORTE USUARIO
@@ -107,11 +110,10 @@ def estandarizar():
         if contador % 100 == 0:
             bitacora.info("Procesados %d", contador)
 
-    # Terminar
-    bitacora.info("Se actualizaron %d usuarios", usuarios_actualizados_contador)
-    bitacora.info("Se insertaron o actualizaron %d usuarios_roles", usuarios_roles_contador)
-    set_task_progress(100)
-    mensaje_final = "Terminado estandarizar satisfactoriamente"
+    # Terminar tarea
+    mensaje_final = f"Se actualizaron {usuarios_actualizados_contador} usuarios, "
+    mensaje_final += f"se insertaron o actualizaron {usuarios_roles_contador} usuarios_roles"
+    set_task_progress(100, mensaje_final)
     bitacora.info(mensaje_final)
     return mensaje_final
 
@@ -119,8 +121,10 @@ def estandarizar():
 def sincronizar():
     """Sincronizar usuarios con la API de RRHH Personal"""
 
-    # Iniciar
-    bitacora.info("Inicia sincronizar")
+    # Iniciar tarea
+    mensaje_inicial = "Inicia sincronizar usuarios con la API de RRHH Personal"
+    set_task_progress(0, mensaje_inicial)
+    bitacora.info(mensaje_inicial)
 
     # Definir la autoridad NO DEFINIDO
     autoridad_no_definido = Autoridad.query.filter_by(clave="ND").first()
@@ -223,11 +227,11 @@ def sincronizar():
         if offset + limit >= total:
             break
         offset += limit
-    # Terminar
-    bitacora.info("Se han insertado %s usuarios", usuarios_insertados_contador)
-    bitacora.info("Hay %s personas ya presentes, se omiten", usuarios_presentes_contador)
-    bitacora.info("En %s personas no hay CURP o email coahuila.gob.mx", personas_omitidas_contador)
-    set_task_progress(100)
-    mensaje_final = "Terminado sincronizar satisfactoriamente"
+
+    # Terminar tarea
+    mensaje_final = f"Se han insertado {usuarios_insertados_contador} usuarios, "
+    mensaje_final += f"hay {usuarios_presentes_contador} personas ya presentes, se omiten, "
+    mensaje_final += f"en {personas_omitidas_contador} personas no hay CURP o email coahuila.gob.mx"
+    set_task_progress(100, mensaje_final)
     bitacora.info(mensaje_final)
     return

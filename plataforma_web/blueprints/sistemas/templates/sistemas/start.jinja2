@@ -16,16 +16,80 @@
 {% endblock %}
 
 {% block content %}
+    {# Mis recibos de nomina #}
+    {% if mostrar_mis_recibos_de_nomina %}
+        {% call start.card('Recibos de ' + current_user.nombre) %}
+            <div class="container">
+                <div class="row">
+                    <div class="col-md-6 col-sm-12 mb-2">
+                        <img src="https://storage.googleapis.com/pjecz-informatica/static/images/inicio-usuarios-nominas-3.png" class="img-fluid mb-2">
+                    </div>
+                    <div class="col-md-6 col-sm-12 mb-2">
+                        <h4>Mis Recibos de Nómina</h4>
+                        <p>
+                            Tus recibos de nómina (desde diciembre de 2023) están disponibles para su descarga en esta Plataforma.
+                            En caso de que no veas tus recibos, revisa en <a href="/perfil">tu perfil</a> que tu CURP sea correcta,
+                            y si no lo es, crea un <a href="/soportes_tickets/nuevo">ticket de soporte</a> con el CURP correcto.
+                        </p>
+                        <a href="{{ url_for('usuarios_nominas.list_active') }}" class="btn btn-primary btn-tickets ml-auto">Recibos de Nómina</a>
+                    </div>
+                </div>
+            </div>
+        {% endcall %}
+    {% endif %}
+    {# Actualizar mis datos personales #}
+    {% if mostrar_actualizar_mis_datos_personales %}
+        {% call start.card('Datos personales de ' + current_user.nombre) %}
+            <div class="container">
+                <div class="row">
+                    <div class="col-md-6 col-sm-12 mb-2">
+                        <img src="https://storage.googleapis.com/pjecz-informatica/static/images/inicio-actualizar-datos-personales.png" class="img-fluid mb-2">
+                    </div>
+                    <div class="col-md-6 col-sm-12 mb-2">
+                        <h4>Actualizar mis datos personales</h4>
+                        <p class="mb-2">
+                            Es obligación de todos las personas que trabajan en nuestra Institución proporcionar sus datos actualizados y los documentos que los respaldan.
+                            Gracias a esta Plataforma se va a ahorrar tiempo, y gastos en papel, impresiones y mensajería.
+                            Usa el botón para subir tus documentos (en JPG o PDF) con algunos datos adicionales.
+                            Después de completar la entrega, cuando haya cambios (por ejemplo, si te cambias de domicilio), debes subir el nuevo comprobante.
+                        </p>
+                        <h5 class="mb-0">Documentos personales</h4>
+                        <p class="mb-2">
+                            <strong>Estado: </strong>
+                            {% if estado_documentos_personales == 'VALIDO' %}
+                                <span class="badge rounded-pill bg-success"><span class="iconify" data-icon="mdi:check-circle"></span> {{ estado_documentos_personales }}</span>
+                                <small class="text-muted">Ducumentación validada. Si vas a actualizar vuelve a subir tus nuevos documentos y datos.</small>
+                            {% elif estado_documentos_personales == 'POR VALIDAR' %}
+                                <span class="badge rounded-pill bg-primary"><span class="iconify" data-icon="mdi:alert"></span> {{ estado_documentos_personales }}</span>
+                                <small class="text-muted">Hay documentos pendientes por validar. Revise más tarde.</small>
+                            {% elif estado_documentos_personales == 'NO VALIDO' %}
+                                <span class="badge rounded-pill bg-danger"><span class="iconify" data-icon="mdi:cancel"></span> {{ estado_documentos_personales }}</span>
+                                <small class="text-muted">Hay documentos que NO son válidos. Revise y vuelva a subirlos.</small>
+                            {% else %}
+                                <span class="badge rounded-pill bg-secondary"><span class="iconify" data-icon="mdi:checkbox-blank-circle-outline"></span> INCOMPLETO</span>
+                                <small class="text-muted">Faltan documentos por subir.</small>
+                            {% endif %}
+                            <a href="{{ url_for('usuarios_datos.new') }}"class="btn btn-success btn-tickets ml-auto">Mis documentos personales</a>
+                        </p>
+                        <h5 class="mb-0">Celular y correo electrónico</h4>
+                        <p class="mb-2">
+                            Actualiza tu número celular y correo electrónico personales:
+                            <a href="{{ url_for('usuarios_solicitudes.new') }}" class="btn btn-primary btn-tickets ml-auto">Mi email y teléfono</a>
+                        </p>
+                    </div>
+                </div>
+            </div>
+        {% endcall %}
+    {% endif %}
     {# Soporte Técnico #}
     {% if mostrar_portal_soporte %}
         {% call start.card('Soporte Técnico') %}
             <div class="container">
-                <div class="row" >
-                    {# ¿Necesitas soporte técnico? #}
+                <div class="row">
                     <div class="col-md-6 col-sm-12 mb-2">
                         <div class="text-center">
                             <img src="https://storage.googleapis.com/pjecz-informatica/static/images/inicio-soportes-tickets-2.png" class="img-fluid mb-2">
-                            <h4>¿Necesitas soporte técnico?</h4>
+                            <h4>Tickets de Soporte Técnico</h4>
                             <p>
                                 <a href="{{ url_for('soportes_tickets.new') }}"class="btn btn-success btn-tickets ml-auto">Crear un nuevo ticket</a>
                                 <a href="{{ url_for('soportes_tickets.list_active') }}" class="btn btn-primary btn-tickets ml-auto">Mis tickets</a>
@@ -36,9 +100,9 @@
                     <div class="col-md-6 col-sm-12 mb-2">
                         <div class="text-center">
                             <img src="https://storage.googleapis.com/pjecz-informatica/static/images/inicio-directorio.png" class="img-fluid mb-2">
-                            <h4>¿Buscas un teléfono?</h4>
+                            <h4>Directorio telefónico</h4>
                             <p>
-                                <a href="{{ url_for('funcionarios.list_active') }}" class="btn btn-primary btn-directorio">Directorio</a>
+                                <a href="{{ url_for('funcionarios.list_active') }}" class="btn btn-primary btn-directorio">Ver el directorio telefónico</a>
                             </p>
                         </div>
                     </div>
@@ -46,16 +110,16 @@
             </div>
         {% endcall %}
     {% else %}
-        {% call start.card("Soporte Técnico") %}
+        {# call start.card("Soporte Técnico") #}
             {# No tiene privilegios para crear tickets #}
-                <div class="col-md-6 col-sm-12 mb-2">
+                <!--div class="col-md-6 col-sm-12 mb-2">
                     <div class="text-center">
                         <img src="https://storage.googleapis.com/pjecz-informatica/static/images/inicio-soportes-tickets-1.png" class="img-fluid mb-2">
                         <h4>Bienvenido al sistema</h4>
                         <p>Ha ingresado con una cuenta que <strong>no es personal.</strong> Para solicitar Soporte Técnico a Informática use su cuenta coahuila.gob.mx ó pjecz.gob.mx.</p>
                     </div>
-                </div>
-        {% endcall %}
+                </div-->
+        {# endcall #}
     {% endif %}
     {# Portal de Notarías #}
     {% if mostrar_portal_notarias %}
@@ -63,36 +127,25 @@
             <div class="container">
                 <div class="row" >
                     {# ¿Necesitas publicar un edicto? #}
-                    <div class="col-md-4 col-sm-12 col-xs-12 mb-2">
+                    <div class="col-md-6 col-sm-12 col-xs-12 mb-2">
                         <div class="text-center">
-                            <img src="https://storage.googleapis.com/pjecz-informatica/static/images/portal_notaria.png" class="img-fluid mb-2" style="padding: 50px 0px 40px;">
-                            <h5>¿Necesitas publicar un edicto?</h5>
+                            <img src="https://storage.googleapis.com/pjecz-informatica/static/images/inicio-publicacion-edictos.png" class="img-fluid mb-2">
+                            <h5>Publicar un edicto</h5>
                             <p>
                                 <a href="{{ url_for('edictos.new') }}"class="btn btn-success btn-tickets ml-auto">Subir un nuevo edicto</a>
-                                <a href="{{ url_for('edictos.list_active') }}" class="btn btn-primary btn-tickets ml-auto">Mis edictos</a>
+                                <a href="{{ url_for('edictos.list_active') }}" class="btn btn-primary btn-tickets ml-auto">Ver mis edictos</a>
                             </p>
                         </div>
                     </div>
                     {# ¿Necesitas revisar una escritura? #}
-                    <div class="col-md-4 col-sm-12 col-xs-12 mb-2">
+                    <div class="col-md-6 col-sm-12 col-xs-12 mb-2">
                         <div class="text-center">
-                            <img src="https://storage.googleapis.com/pjecz-informatica/static/images/escrituras.png" class="img-fluid mb-2" style="padding: 20px 0px 20px;">
-                            <h5>¿Necesitas revisar una escritura?</h5>
+                            <img src="https://storage.googleapis.com/pjecz-informatica/static/images/inicio-revision-escrituras.png" class="img-fluid mb-2">
+                            <h5>Subir una escritura para revisión</h5>
                             <div>
-                                <a href="{{ url_for('not_escrituras.new') }}"class="btn btn-success btn-tickets ml-auto">Nueva escritura</a>
-                                <a href="{{ url_for('not_escrituras.list_active') }}" class="btn btn-primary btn-tickets ml-auto">Mis escrituras</a>
+                                <a href="{{ url_for('not_escrituras.new') }}"class="btn btn-success btn-tickets ml-auto">Subir una nueva escritura</a>
+                                <a href="{{ url_for('not_escrituras.list_active') }}" class="btn btn-primary btn-tickets ml-auto">Ver mis escrituras</a>
                             </div>
-                        </div>
-                    </div>
-                    {# ¿Necesitas conversar? #}
-                    <div class="col-md-4 col-sm-12 col-xs-12 mb-2">
-                        <div class="text-center">
-                            <img src="https://storage.googleapis.com/pjecz-informatica/static/images/mensajes.png" class="img-fluid mb-2">
-                            <h5>¿Necesitas conversar?</h5>
-                            <p>
-                                <a href="#"class="btn btn-success btn-tickets ml-auto">Nueva conversación</a>
-                                <a href="#" class="btn btn-primary btn-tickets ml-auto">Mis conversaciones</a>
-                            </p>
                         </div>
                     </div>
                 </div>

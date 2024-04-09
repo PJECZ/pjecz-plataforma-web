@@ -29,7 +29,7 @@
 
 {% block content %}
     {# Detalle #}
-    {% call detail.card('Detalles de la Remesa') %}
+    {% call detail.card('Detalles de la Remesa', estatus=remesa.estatus) %}
         {{ detail.label_value('Creado', moment(remesa.creado).format('llll')) }}
         {{ detail.label_value('Instancia', remesa.autoridad.clave + ' : ' + remesa.autoridad.descripcion_corta) }}
         <div class="row">

@@ -32,6 +32,8 @@ CLOUD_STORAGE_DEPOSITO_EDICTOS = os.environ.get("CLOUD_STORAGE_DEPOSITO_EDICTOS"
 CLOUD_STORAGE_DEPOSITO_GLOSAS = os.environ.get("CLOUD_STORAGE_DEPOSITO_GLOSAS", "pjecz-pruebas")
 CLOUD_STORAGE_DEPOSITO_LISTAS_DE_ACUERDOS = os.environ.get("CLOUD_STORAGE_DEPOSITO_LISTAS_DE_ACUERDOS", "pjecz-pruebas")
 CLOUD_STORAGE_DEPOSITO_SENTENCIAS = os.environ.get("CLOUD_STORAGE_DEPOSITO_SENTENCIAS", "pjecz-pruebas")
+CLOUD_STORAGE_DEPOSITO_PERSEO = os.environ.get("CLOUD_STORAGE_DEPOSITO_PERSEO", "pjecz-perseo")
+CLOUD_STORAGE_DEPOSITO_USUARIOS = os.environ.get("CLOUD_STORAGE_DEPOSITO_USUARIOS", "pjecz-pruebas")
 
 # Host, para los vínculos en los mensajes como <HOST>/ficha/<HASHID>
 HOST = os.environ.get("HOST", "https://plataforma-web.justiciadigital.gob.mx")

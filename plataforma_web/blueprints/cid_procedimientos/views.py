@@ -712,8 +712,8 @@ def sign_for_maker(cid_procedimiento_id):
         flash("Quien aprueba no pasa la validación.", "warning")
     else:
         tarea = current_user.launch_task(
-            nombre="cid_procedimientos.tasks.crear_pdf",
-            descripcion=f"Crear archivo PDF de {cid_procedimiento.titulo_procedimiento}",
+            comando="cid_procedimientos.tasks.crear_pdf",
+            mensaje=f"Crear archivo PDF de {cid_procedimiento.titulo_procedimiento}",
             usuario_id=current_user.id,
             cid_procedimiento_id=cid_procedimiento.id,
             accept_reject_url=url_for("cid_procedimientos.accept_reject", cid_procedimiento_id=cid_procedimiento.id),

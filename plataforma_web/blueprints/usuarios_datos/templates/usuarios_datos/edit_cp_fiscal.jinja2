@@ -1,0 +1,50 @@
+{% extends 'layouts/app.jinja2' %}
+{% import 'macros/form.jinja2' as f with context %}
+{% import 'macros/topbar.jinja2' as topbar %}
+
+{% block title %}Editar Código Postal Fiscal{% endblock %}
+
+{% block custom_head %}
+    {{ f.drop_zone_css() }}
+{% endblock %}
+
+{% block topbar_actions %}
+    {% call topbar.page_buttons("Editar - Código Postal Fiscal") %}
+        {{ topbar.button_previous('Regresar', url_for('usuarios_datos.detail', usuario_dato_id=usuario_dato.id)) }}
+    {% endcall %}
+{% endblock %}
+
+{% block content %}
+    {# Sección de Mensajed de rechazo #}
+    {% if usuario_dato.mensaje_cp_fiscal %}
+        <div class="card mb-3">
+            <div class="card-header bg-danger text-light" style="font-weight: bold;">Mensaje de rechazo</div>
+            <div class="card-body" style="background-color: #e7d1d1;">
+                <textarea class="form-control" style="height: 100px" disabled>{{ usuario_dato.mensaje_cp_fiscal }}</textarea>
+            </div>
+        </div>
+    {% endif %}
+    {% call f.card() %}
+        <p class="lead">Escriba su código postal fiscal y adjunte el documento de su constacia de situación fiscal (SAT) en formato PDF.</p>
+        {% set form_kwargs = {'usuario_dato_id': usuario_dato.id} %}
+        {% call f.form_tag_multipart('usuarios_datos.edit_cp_fiscal', fid='usuario_dato_form', **form_kwargs) %}
+            {% call f.form_group(form.cp_fiscal) %}{% endcall %}
+            {% call f.drop_zone_wrapper() %}
+                {% call f.form_group(form.archivo, class='dropzone') %}{% endcall %}
+            {% endcall %}
+            {% call f.form_group(form.guardar) %}{% endcall %}
+        {% endcall %}
+    {% endcall %}
+    {# Preview #}
+    {% call f.card("Previsualización") %}
+        {% if archivo %}
+            <object data="{{ url_for('usuarios_datos.download_file', usuario_dato_id=usuario_dato.id, usuario_documento_id=usuario_dato.adjunto_cp_fiscal_id) }}" type="application/pdf" width="100%" height="600"></object>
+        {% endif %}
+    {% endcall %}
+{% endblock %}
+
+
+{% block custom_javascript %}
+    {{ f.drop_zone_js() }}
+{% endblock %}
+

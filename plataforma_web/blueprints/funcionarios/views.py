@@ -407,8 +407,8 @@ def clean(funcionario_id):
     else:
         # Lanzar tarea en el fondo
         current_user.launch_task(
-            nombre="funcionarios.tasks.limpiar_oficinas",
-            descripcion=f"Limpiar oficinas del funcionario {funcionario.curp}",
+            comando="funcionarios.tasks.limpiar_oficinas",
+            mensaje=f"Limpiar oficinas del funcionario {funcionario.curp}",
             funcionario_id=funcionario.id,
         )
         flash("Se están limpiando las oficinas de este funcionario... ", "info")
@@ -431,8 +431,8 @@ def insert_offices(funcionario_id):
     if form.validate_on_submit():
         # Lanzar tarea en el fondo
         current_user.launch_task(
-            nombre="funcionarios.tasks.asignar_oficinas",
-            descripcion=f"Asignar oficinas para el funcionario {funcionario.curp}",
+            comando="funcionarios.tasks.asignar_oficinas",
+            mensaje=f"Asignar oficinas para el funcionario {funcionario.curp}",
             funcionario_id=funcionario.id,
             domicilio_id=form.domicilio.data.id,
         )

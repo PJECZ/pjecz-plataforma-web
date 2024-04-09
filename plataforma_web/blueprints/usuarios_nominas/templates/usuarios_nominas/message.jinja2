@@ -1,0 +1,19 @@
+{% extends 'layouts/app.jinja2' %}
+{% import 'macros/topbar.jinja2' as topbar %}
+{% import 'macros/detail.jinja2' as detail %}
+
+{% block title %}Solicitar actualización de datos personales{% endblock %}
+
+{% block topbar_actions %}
+    {{ topbar.page('Solicitar actualización de datos personales') }}
+{% endblock %}
+
+{% block content %}
+    {% call detail.card() %}
+        <p class="lead">Hola {{ usuario.nombre }}.</p>
+        <p class="lead">{{ mensaje }}</p>
+        <div class="form-group mb-2">
+            <a href="{{ btn_enlace }}" class="btn btn-success text-white">{{ btn_texto }}</a>
+        </div>
+    {% endcall %}
+{% endblock %}

@@ -1,0 +1,241 @@
+{% extends 'layouts/app.jinja2' %}
+{% import 'macros/detail.jinja2' as detail %}
+{% import 'macros/modals.jinja2' as modals %}
+{% import 'macros/topbar.jinja2' as topbar %}
+
+{% block title %}Documentos Personales{% endblock %}
+
+{% block topbar_actions %}
+    {% call topbar.page_buttons("Documentos Personales") %}
+        {{ topbar.button_previous('Usuarios Datos', url_for('usuarios_datos.list_active')) }}
+    {% endcall %}
+{% endblock %}
+
+{% block content %}
+    {% call detail.card(estatus=usuario_dato.estatus) %}
+        {{ detail.label_value_big('Nombre', usuario_dato.usuario.nombre) }}
+        {{ detail.label_value('email', usuario_dato.usuario.email) }}
+        {{ detail.label_value('CURP en Plataforma Web', usuario_dato.usuario.curp) }}
+        <div class="row">
+            <div class="col-md-3 text-end">
+                Estado de su revisión
+            </div>
+            <div class="col-md-9">
+                <span id="estado_general"></span>
+            </div>
+        </div>
+    {% endcall %}
+    {# Campos a rellenar #}
+    {% call detail.card("Datos") %}
+        <div class="row mb-2">
+            <div class="col-md-2">
+                <a id="btn_identificacion" class="btn btn-sm btn-outline-primary hide" href="{{ url_for('usuarios_datos.validate_identificacion', usuario_dato_id=usuario_dato.id) }}">Validar</a>
+            </div>
+            <div class="col-md-2">
+                <span id="estado_identificacion"></span>
+            </div>
+            <div class="col-md-8">
+                <strong>Identificación oficial</strong>
+                <p>
+                    <i class="text-danger">{{ usuario_dato.mensaje_identificacion if usuario_dato.mensaje_identificacion else ""}}</i>
+                </p>
+            </div>
+        </div>
+
+        <div class="row">
+            <div class="col-md-2">
+                <a id="btn_acta_nacimiento" class="btn btn-sm btn-outline-primary" href="{{ url_for('usuarios_datos.validate_acta_nacimiento', usuario_dato_id=usuario_dato.id) }}">Validar</a>
+            </div>
+            <div class="col-md-2">
+                <span id="estado_acta_nacimiento"></span>
+            </div>
+            <div class="col-md-8">
+                <strong>Acta de Nacimiento</strong>
+                <p>
+                    {% if usuario_dato.fecha_nacimiento %}
+                        {{ usuario_dato.fecha_nacimiento }}<br />
+                    {% endif %}
+                    <i class="text-danger">{{ usuario_dato.mensaje_acta_nacimiento if usuario_dato.mensaje_acta_nacimiento else "" }}</i>
+                </p>
+            </div>
+        </div>
+
+        <div class="row">
+            <div class="col-md-2">
+                <a id="btn_domicilio" class="btn btn-sm btn-outline-primary" href="{{ url_for('usuarios_datos.validate_domicilio', usuario_dato_id=usuario_dato.id) }}">Validar</a>
+            </div>
+            <div class="col-md-2">
+                <span id="estado_domicilio"></span>
+            </div>
+            <div class="col-md-8">
+                <strong>Domicilio</strong>
+                <p>
+                    {% if usuario_dato.domicilio_calle %}
+                    {{ usuario_dato.domicilio_calle }}, Col. {{ usuario_dato.domicilio_colonia }}. {{ usuario_dato.domicilio_numero_ext }} int. {{ usuario_dato.domicilio_numero_int }}<br/>
+                    {{ usuario_dato.domicilio_ciudad }}, {{ usuario_dato.domicilio_estado }}. CP: {{ usuario_dato.domicilio_cp }}<br />
+                    {% endif %}
+                    <i class="text-danger">{{ usuario_dato.mensaje_domicilio if usuario_dato.mensaje_domicilio else "" }}</i>
+                </p>
+            </div>
+        </div>
+
+        <div class="row">
+            <div class="col-md-2">
+                <a id="btn_curp" class="btn btn-sm btn-outline-primary" href="{{ url_for('usuarios_datos.validate_curp', usuario_dato_id=usuario_dato.id) }}">Validar</a>
+            </div>
+            <div class="col-md-2">
+                <span id="estado_curp"></span>
+            </div>
+            <div class="col-md-8">
+                <strong>CURP</strong>
+                <p>
+                    {% if usuario_dato.curp %}
+                    {{ usuario_dato.curp }}<br />
+                    {% endif %}
+                    <i class="text-danger">{{ usuario_dato.mensaje_curp if usuario_dato.mensaje_curp else "" }}</i>
+                </p>
+            </div>
+        </div>
+
+        <div class="row">
+            <div class="col-md-2">
+                <a id="btn_cp_fiscal" class="btn btn-sm btn-outline-primary" href="{{ url_for('usuarios_datos.validate_cp_fiscal', usuario_dato_id=usuario_dato.id) }}">Validar</a>
+            </div>
+            <div class="col-md-2">
+                <span id="estado_cp_fiscal"></span>
+            </div>
+            <div class="col-md-8">
+                <strong>Código Postal Físcal</strong>
+                <p>
+                    {% if usuario_dato.cp_fiscal %}
+                    {{ usuario_dato.cp_fiscal }}<br />
+                    {% endif %}
+                    <i class="text-danger">{{ usuario_dato.mensaje_cp_fiscal if usuario_dato.mensaje_cp_fiscal else "" }}</i>
+                </p>
+            </div>
+        </div>
+
+        <div class="row">
+            <div class="col-md-2">
+                <a id="btn_curriculum" class="btn btn-sm btn-outline-primary" href="{{ url_for('usuarios_datos.validate_curriculum', usuario_dato_id=usuario_dato.id) }}">Validar</a>
+            </div>
+            <div class="col-md-2">
+                <span id="estado_curriculum"></span>
+            </div>
+            <div class="col-md-8">
+                <strong>Curriculum</strong>
+                <p>
+                    <i class="text-danger">{{ usuario_dato.mensaje_curriculum if usuario_dato.mensaje_curriculum else "" }}</i>
+                </p>
+            </div>
+        </div>
+
+        <div class="row">
+            <div class="col-md-2">
+                <a id="btn_estudios" class="btn btn-sm btn-outline-primary" href="{{ url_for('usuarios_datos.validate_estudios', usuario_dato_id=usuario_dato.id) }}">Validar</a>
+            </div>
+            <div class="col-md-2">
+                <span id="estado_estudios"></span>
+            </div>
+            <div class="col-md-8">
+                <strong>Estudios</strong>
+                <p>
+                    {% if usuario_dato.estudios_cedula %}
+                    {{ usuario_dato.estudios_cedula }}<br />
+                    {% endif %}
+                    <i class="text-danger">{{ usuario_dato.mensaje_estudios if usuario_dato.mensaje_estudios else "" }}</i>
+                </p>
+            </div>
+        </div>
+
+        <div class="row">
+            <div class="col-md-2">
+                <a id="btn_es_madre" class="btn btn-sm btn-outline-primary" href="{{ url_for('usuarios_datos.validate_es_madre', usuario_dato_id=usuario_dato.id) }}">Validar</a>
+            </div>
+            <div class="col-md-2">
+                <span id="estado_es_madre"></span>
+            </div>
+            <div class="col-md-8">
+                <strong>Es Madre</strong>
+                <p>
+                    {% if usuario_dato.es_madre != None %}
+                    {{ 'SI' if usuario_dato.es_madre else 'NO' }}<br />
+                    {% endif %}
+                    <i class="text-danger">{{ usuario_dato.mensaje_es_madre if usuario_dato.mensaje_es_madre else "" }}</i>
+                </p>
+            </div>
+        </div>
+
+        <div class="row">
+            <div class="col-md-2">
+                <a id="btn_estado_civil" class="btn btn-sm btn-outline-primary" href="{{ url_for('usuarios_datos.validate_estado_civil', usuario_dato_id=usuario_dato.id) }}">Validar</a>
+            </div>
+            <div class="col-md-2">
+                <span id="estado_estado_civil"></span>
+            </div>
+            <div class="col-md-8">
+                <strong>Estado Civil</strong>
+                <p>
+                    {% if usuario_dato.estado_civil %}
+                    {{ usuario_dato.estado_civil }}<br />
+                    {% endif %}
+                    <i class="text-danger">{{ usuario_dato.mensaje_estado_civil if usuario_dato.mensaje_estado_civil else ""}}</i>
+                </p>
+            </div>
+        </div>
+
+        <div class="row">
+            <div class="col-md-2">
+                <a id="btn_estado_cuenta" class="btn btn-sm btn-outline-primary" href="{{ url_for('usuarios_datos.validate_estado_cuenta', usuario_dato_id=usuario_dato.id) }}">Validar</a>
+            </div>
+            <div class="col-md-2">
+                <span id="estado_estado_cuenta"></span>
+            </div>
+            <div class="col-md-8">
+                <strong>Estado de Cuenta</strong>
+                <p>
+                    <i class="text-danger">{{ usuario_dato.mensaje_estado_cuenta if usuario_dato.mensaje_estado_cuenta else ""}}</i>
+                </p>
+            </div>
+        </div>
+    {% endcall %}
+{% endblock %}
+
+{% block custom_javascript %}
+    <script>
+        window.onload = function () {
+            render_estado("general", "{{ usuario_dato.estado_general }}", false);
+            render_estado("identificacion", "{{ usuario_dato.estado_identificacion }}");
+            render_estado("acta_nacimiento", "{{ usuario_dato.estado_acta_nacimiento }}");
+            render_estado("domicilio", "{{ usuario_dato.estado_domicilio }}");
+            render_estado("curp", "{{ usuario_dato.estado_curp }}");
+            render_estado("cp_fiscal", "{{ usuario_dato.estado_cp_fiscal }}");
+            render_estado("curriculum", "{{ usuario_dato.estado_curriculum }}");
+            render_estado("estudios", "{{ usuario_dato.estado_estudios }}");
+            render_estado("es_madre", "{{ usuario_dato.estado_es_madre }}");
+            render_estado("estado_civil", "{{ usuario_dato.estado_estado_civil }}");
+            render_estado("estado_cuenta", "{{ usuario_dato.estado_estado_cuenta }}");
+        }
+        function render_estado(elemento_id, estado, tiene_btn=true) {
+            disable_btn = false;
+            switch( estado ) {
+                case "POR VALIDAR": bgcolor = "bg-primary";             icon="mdi:alert";               break;
+                case "NO VALIDO":   bgcolor = "bg-danger";              icon="mdi:cancel";              break;
+                case "VALIDO":      bgcolor = "bg-success";             icon="mdi:check-circle";        break;
+                case "INCOMPLETO":
+                default:            bgcolor = "bg-secondary";           icon="mdi:checkbox-blank-circle-outline";   
+                                    estado = "INCOMPLETO";              disable_btn = true;
+                                    break;
+            }
+            html = '<h6><span class="badge rounded-pill ' + bgcolor + '"><span class="iconify" data-icon="' + icon + '"></span> ' + estado + '</span></h6>';
+            document.getElementById( "estado_" + elemento_id ).innerHTML = html;
+            if( tiene_btn && disable_btn ) {
+                document.getElementById( "btn_" + elemento_id ).remove();
+            }
+        }
+        function render_telefono(elemento, telefono) {
+            const telefono_format = `(${telefono.slice(0,  3)}) ${telefono.slice(3,  6)}-${telefono.slice(6,  10)}`;
+            elemento.innerHTML = telefono_format;
+        }
+    </script>
+{% endblock %}

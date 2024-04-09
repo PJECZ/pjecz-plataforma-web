@@ -1,6 +1,7 @@
 """
 Materias, modelos
 """
+
 from plataforma_web.extensions import db
 from lib.universal_mixin import UniversalMixin
 
@@ -16,6 +17,7 @@ class Materia(db.Model, UniversalMixin):
 
     # Columnas
     nombre = db.Column(db.String(64), unique=True, nullable=False)
+    descripcion = db.Column(db.String(1024), nullable=False)
     en_sentencias = db.Column(db.Boolean, nullable=False, default=False)
 
     # Hijos

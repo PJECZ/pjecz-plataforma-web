@@ -17,6 +17,9 @@
 {% endblock %}
 
 {% block content %}
+    {% call detail.card(estatus=materia.estatus) %}
+        {{ detail.label_value('Descripción', materia.descripcion) }}
+    {% endcall %}
     {% if current_user.can_view('AUTORIDADES') %}
         {% call detail.card(title='Autoridades') %}
             <table id="autoridades_datatable" class="table display nowrap" style="width:100%">

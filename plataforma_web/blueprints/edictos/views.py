@@ -1,6 +1,7 @@
 """
 Edictos, vistas
 """
+
 import datetime
 import json
 from pathlib import Path
@@ -8,7 +9,6 @@ from urllib.parse import quote
 
 from flask import Blueprint, current_app, flash, redirect, render_template, request, url_for
 from flask_login import current_user, login_required
-from google.cloud import storage
 from werkzeug.datastructures import CombinedMultiDict
 from werkzeug.utils import secure_filename
 
@@ -16,6 +16,7 @@ from lib.datatables import get_datatable_parameters, output_datatable_json
 from lib.exceptions import MyAnyError
 from lib.google_cloud_storage import get_blob_name_from_url, get_media_type_from_filename, get_file_from_gcs
 from lib.safe_string import safe_expediente, safe_message, safe_numero_publicacion, safe_string
+from lib.storage import GoogleCloudStorage, NotAllowedExtesionError, UnknownExtesionError, NotConfiguredError
 from lib.time_to_text import dia_mes_ano, mes_en_palabra
 from plataforma_web.blueprints.usuarios.decorators import permission_required
 
@@ -366,24 +367,6 @@ def download():
     return current_app.response_class(archivo, mimetype=media_type)
 
 
-@edictos.route("/edictos/refrescar/<int:autoridad_id>")
-@permission_required(MODULO, Permiso.ADMINISTRAR)
-def refresh(autoridad_id):
-    """Refrescar Edictos"""
-    autoridad = Autoridad.query.get_or_404(autoridad_id)
-    if current_user.get_task_in_progress("edictos.tasks.refrescar"):
-        flash("Debe esperar porque hay una tarea en el fondo sin terminar.", "warning")
-    else:
-        tarea = current_user.launch_task(
-            nombre="edictos.tasks.refrescar",
-            descripcion=f"Refrescar edictos de {autoridad.clave}",
-            usuario_id=current_user.id,
-            autoridad_id=autoridad.id,
-        )
-        flash(f"{tarea.descripcion} está corriendo en el fondo.", "info")
-    return redirect(url_for("edictos.list_autoridad_edictos", autoridad_id=autoridad.id))
-
-
 @edictos.route("/edictos/<int:edicto_id>")
 def detail(edicto_id):
     """Detalle de un Edicto"""
@@ -437,38 +420,54 @@ def new():
     # Si viene el formulario
     form = EdictoNewForm(CombinedMultiDict((request.files, request.form)))
     if form.validate_on_submit():
+        es_valido = True
+
         # Validar fecha
         fecha = form.fecha.data
         if not limite_dt <= datetime.datetime(year=fecha.year, month=fecha.month, day=fecha.day) <= hoy_dt:
             flash(f"La fecha no debe ser del futuro ni anterior a {LIMITE_DIAS} días.", "warning")
             form.fecha.data = hoy
-            return render_template("edictos/new.jinja2", form=form)
+            es_valido = False
 
         # Validar descripcion
         descripcion = safe_string(form.descripcion.data)
         if descripcion == "":
             flash("La descripción es incorrecta.", "warning")
-            return render_template("edictos/new.jinja2", form=form)
+            es_valido = False
 
         # Validar expediente
         try:
             expediente = safe_expediente(form.expediente.data)
         except (IndexError, ValueError):
             flash("El expediente es incorrecto.", "warning")
-            return render_template("edictos/new.jinja2", form=form)
+            es_valido = False
 
         # Validar número de publicación
         try:
             numero_publicacion = safe_numero_publicacion(form.numero_publicacion.data)
         except (IndexError, ValueError):
             flash("El número de publicación es incorrecto.", "warning")
-            return render_template("edictos/new.jinja2", form=form)
+            es_valido = False
+
+        # Inicializar la liberia Google Cloud Storage con el directorio base, la fecha, las extensiones permitidas y los meses como palabras
+        gcstorage = GoogleCloudStorage(
+            base_directory=autoridad.directorio_edictos,
+            upload_date=fecha,
+            allowed_extensions=["pdf"],
+            month_in_word=True,
+            bucket_name=current_app.config["CLOUD_STORAGE_DEPOSITO_EDICTOS"],
+        )
 
         # Validar archivo
         archivo = request.files["archivo"]
-        archivo_nombre = secure_filename(archivo.filename.lower())
-        if "." not in archivo_nombre or archivo_nombre.rsplit(".", 1)[1] != "pdf":
-            flash("No es un archivo PDF.", "warning")
+        try:
+            gcstorage.set_content_type(archivo.filename)
+        except (NotAllowedExtesionError, UnknownExtesionError):
+            flash("Tipo de archivo no permitido o desconocido.", "warning")
+            es_valido = False
+
+        # No es válido, entonces se vuelve a mostrar el formulario
+        if es_valido is False:
             return render_template("edictos/new.jinja2", form=form)
 
         # Insertar registro
@@ -481,39 +480,33 @@ def new():
         )
         edicto.save()
 
-        # Elaborar nombre del archivo
-        fecha_str = fecha.strftime("%Y-%m-%d")
-        elementos = [fecha_str]
-        if expediente != "":
-            elementos.append(expediente.replace("/", "-"))
-        if numero_publicacion != "":
-            elementos.append(numero_publicacion.replace("/", "-"))
-        elementos.append(safe_string(descripcion, max_len=64).replace(" ", "-"))
-        elementos.append(edicto.encode_id())
-        archivo_str = "-".join(elementos) + ".pdf"
+        # Subir a Google Cloud Storage
+        es_exitoso = True
+        try:
+            gcstorage.set_filename(hashed_id=edicto.encode_id(), description=descripcion)
+            gcstorage.upload(archivo.stream.read())
+        except (NotAllowedExtesionError, UnknownExtesionError):
+            flash("Tipo de archivo no permitido o desconocido.", "warning")
+            es_exitoso = False
+        except NotConfiguredError:
+            flash("Error al subir el archivo porque falla la configuración de GCS.", "danger")
+            es_exitoso = False
+        except Exception:
+            flash("Error desconocido al subir el archivo.", "danger")
+            es_exitoso = False
 
-        # Elaborar ruta Autoridad/YYYY/MES/archivo.pdf
-        ano_str = fecha.strftime("%Y")
-        mes_str = mes_en_palabra(fecha.month)
-        ruta_str = str(Path(autoridad.directorio_edictos, ano_str, mes_str, archivo_str))
+        # Si se sube con exito, actualizar el registro con la URL del archivo y mostrar el detalle
+        if es_exitoso:
+            edicto.archivo = gcstorage.filename
+            edicto.url = gcstorage.url
+            edicto.save()
+            bitacora = new_success(edicto)
+            flash(bitacora.descripcion, "success")
+            return redirect(bitacora.url)
 
-        # Subir el archivo
-        deposito = current_app.config["CLOUD_STORAGE_DEPOSITO_EDICTOS"]
-        storage_client = storage.Client()
-        bucket = storage_client.bucket(deposito)
-        blob = bucket.blob(ruta_str)
-        blob.upload_from_string(archivo.stream.read(), content_type="application/pdf")
-        url = blob.public_url
-
-        # Actualizar el nombre del archivo y el url
-        edicto.archivo = archivo_str
-        edicto.url = url
+        # Como no se subio con exito, se cambia el estatus a "B"
+        edicto.estatus = "B"
         edicto.save()
-
-        # Mostrar mensaje de éxito e ir al detalle
-        bitacora = new_success(edicto)
-        flash(bitacora.descripcion, "success")
-        return redirect(bitacora.url)
 
     # Prellenado de los campos
     form.distrito.data = autoridad.distrito.nombre
@@ -553,38 +546,54 @@ def new_for_autoridad(autoridad_id):
     # Si viene el formulario
     form = EdictoNewForm(CombinedMultiDict((request.files, request.form)))
     if form.validate_on_submit():
+        es_valido = True
+
         # Validar fecha
         fecha = form.fecha.data
         if not limite_dt <= datetime.datetime(year=fecha.year, month=fecha.month, day=fecha.day) <= hoy_dt:
             flash(f"La fecha no debe ser del futuro ni anterior a {LIMITE_ADMINISTRADORES_DIAS} días.", "warning")
             form.fecha.data = hoy
-            return render_template("edictos/new_for_autoridad.jinja2", form=form, autoridad=autoridad)
+            es_valido = False
 
         # Validar descripcion
         descripcion = safe_string(form.descripcion.data)
         if descripcion == "":
             flash("La descripción es incorrecta.", "warning")
-            return render_template("edictos/new_for_autoridad.jinja2", form=form, autoridad=autoridad)
+            es_valido = False
 
         # Validar expediente
         try:
             expediente = safe_expediente(form.expediente.data)
         except (IndexError, ValueError):
             flash("El expediente es incorrecto.", "warning")
-            return render_template("edictos/new.jinja2", form=form)
+            es_valido = False
 
         # Validar número de publicación
         try:
             numero_publicacion = safe_numero_publicacion(form.numero_publicacion.data)
         except (IndexError, ValueError):
             flash("El número de publicación es incorrecto.", "warning")
-            return render_template("edictos/new.jinja2", form=form)
+            es_valido = False
+
+        # Inicializar la liberia Google Cloud Storage con el directorio base, la fecha, las extensiones permitidas y los meses como palabras
+        gcstorage = GoogleCloudStorage(
+            base_directory=autoridad.directorio_edictos,
+            upload_date=fecha,
+            allowed_extensions=["pdf"],
+            month_in_word=True,
+            bucket_name=current_app.config["CLOUD_STORAGE_DEPOSITO_EDICTOS"],
+        )
 
         # Validar archivo
         archivo = request.files["archivo"]
-        archivo_nombre = secure_filename(archivo.filename.lower())
-        if "." not in archivo_nombre or archivo_nombre.rsplit(".", 1)[1] != "pdf":
-            flash("No es un archivo PDF.", "warning")
+        try:
+            gcstorage.set_content_type(archivo.filename)
+        except (NotAllowedExtesionError, UnknownExtesionError):
+            flash("Tipo de archivo no permitido o desconocido.", "warning")
+            es_valido = False
+
+        # No es válido, entonces se vuelve a mostrar el formulario
+        if es_valido is False:
             return render_template("edictos/new_for_autoridad.jinja2", form=form, autoridad=autoridad)
 
         # Insertar registro
@@ -597,39 +606,33 @@ def new_for_autoridad(autoridad_id):
         )
         edicto.save()
 
-        # Elaborar nombre del archivo
-        fecha_str = fecha.strftime("%Y-%m-%d")
-        elementos = [fecha_str]
-        if expediente != "":
-            elementos.append(expediente.replace("/", "-"))
-        if numero_publicacion != "":
-            elementos.append(numero_publicacion.replace("/", "-"))
-        elementos.append(safe_string(descripcion, max_len=64).replace(" ", "-"))
-        elementos.append(edicto.encode_id())
-        archivo_str = "-".join(elementos) + ".pdf"
+        # Subir a Google Cloud Storage
+        es_exitoso = True
+        try:
+            gcstorage.set_filename(hashed_id=edicto.encode_id(), description=descripcion)
+            gcstorage.upload(archivo.stream.read())
+        except (NotAllowedExtesionError, UnknownExtesionError):
+            flash("Tipo de archivo no permitido o desconocido.", "warning")
+            es_exitoso = False
+        except NotConfiguredError:
+            flash("Error al subir el archivo porque falla la configuración de GCS.", "danger")
+            es_exitoso = False
+        except Exception:
+            flash("Error desconocido al subir el archivo.", "danger")
+            es_exitoso = False
 
-        # Elaborar ruta Autoridad/YYYY/MES/archivo.pdf
-        ano_str = fecha.strftime("%Y")
-        mes_str = mes_en_palabra(fecha.month)
-        ruta_str = str(Path(autoridad.directorio_edictos, ano_str, mes_str, archivo_str))
+        # Si se sube con exito, actualizar el registro con la URL del archivo y mostrar el detalle
+        if es_exitoso:
+            edicto.archivo = gcstorage.filename
+            edicto.url = gcstorage.url
+            edicto.save()
+            bitacora = new_success(edicto)
+            flash(bitacora.descripcion, "success")
+            return redirect(bitacora.url)
 
-        # Subir el archivo
-        deposito = current_app.config["CLOUD_STORAGE_DEPOSITO_EDICTOS"]
-        storage_client = storage.Client()
-        bucket = storage_client.bucket(deposito)
-        blob = bucket.blob(ruta_str)
-        blob.upload_from_string(archivo.stream.read(), content_type="application/pdf")
-        url = blob.public_url
-
-        # Actualizar el nombre del archivo y el url
-        edicto.archivo = archivo_str
-        edicto.url = url
+        # Como no se subio con exito, se cambia el estatus a "B"
+        edicto.estatus = "B"
         edicto.save()
-
-        # Mostrar mensaje de éxito e ir al detalle
-        bitacora = new_success(edicto)
-        flash(bitacora.descripcion, "success")
-        return redirect(bitacora.url)
 
     # Prellenado de los campos
     form.distrito.data = autoridad.distrito.nombre

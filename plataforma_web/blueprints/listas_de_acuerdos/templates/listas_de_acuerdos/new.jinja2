@@ -1,5 +1,6 @@
 {% extends 'layouts/app.jinja2' %}
 {% import 'macros/form.jinja2' as f with context %}
+{% import 'macros/help.jinja2' as help %}
 {% import 'macros/topbar.jinja2' as topbar %}
 
 {% block title %}Subir Lista de Acuerdos{% endblock %}
@@ -31,6 +32,10 @@
             {% call f.form_group(form.guardar) %}{% endcall %}
         {% endcall %}
     {% endcall %}
+{% endblock %}
+
+{% block content_help %}
+    {{ help.help_button('https://www.pjecz.gob.mx/pjecz-plataforma-web/listas_de_acuerdos/#formulario-para-subir-una-lista-de-acuerdos') }}
 {% endblock %}
 
 {% block custom_javascript %}
