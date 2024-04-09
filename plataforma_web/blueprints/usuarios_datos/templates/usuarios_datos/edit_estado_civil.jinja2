@@ -1,0 +1,31 @@
+{% extends 'layouts/app.jinja2' %}
+{% import 'macros/form.jinja2' as f with context %}
+{% import 'macros/topbar.jinja2' as topbar %}
+
+{% block title %}Editar Estado Civil{% endblock %}
+
+{% block topbar_actions %}
+    {% call topbar.page_buttons("Editar - Estado Civil") %}
+        {{ topbar.button_previous('Regresar', url_for('usuarios_datos.detail', usuario_dato_id=usuario_dato.id)) }}
+    {% endcall %}
+{% endblock %}
+
+{% block content %}
+    {# Sección de Mensajed de rechazo #}
+    {% if usuario_dato.mensaje_estado_civil %}
+        <div class="card mb-3">
+            <div class="card-header bg-danger text-light" style="font-weight: bold;">Mensaje de rechazo</div>
+            <div class="card-body" style="background-color: #e7d1d1;">
+                <textarea class="form-control" style="height: 100px" disabled>{{ usuario_dato.mensaje_estado_civil }}</textarea>
+            </div>
+        </div>
+    {% endif %}
+    {% call f.card() %}
+        <p class="lead">Seleccione una de las opciones de estado civil en la que se encuentra.</p>
+        {% set form_kwargs = {'usuario_dato_id': usuario_dato.id} %}
+        {% call f.form_tag('usuarios_datos.edit_estado_civil', fid='usuario_dato_form', **form_kwargs) %}
+            {% call f.form_group(form.estado_civil) %}{% endcall %}
+            {% call f.form_group(form.guardar) %}{% endcall %}
+        {% endcall %}
+    {% endcall %}
+{% endblock %}

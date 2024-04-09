@@ -1,0 +1,42 @@
+{% extends 'layouts/app.jinja2' %}
+{% import 'macros/detail.jinja2' as detail %}
+{% import 'macros/modals.jinja2' as modals %}
+{% import 'macros/topbar.jinja2' as topbar %}
+
+{% block title %}Tarea {{ tarea.id | string }}{% endblock %}
+
+{% block topbar_actions %}
+    {% if tarea.ha_terminado %}
+        {% set cabecera = 'Tarea terminada' %}
+    {% else %}
+        {% set cabecera = 'Tarea en ejecución' %}
+    {% endif %}
+    {% call topbar.page_buttons(cabecera) %}
+        {% if current_user.can_view('TAREAS') %}
+            {{ topbar.button_previous('Tareas', url_for('tareas.list_active')) }}
+        {% endif %}
+    {% endcall %}
+{% endblock %}
+
+{% block content %}
+    {% if tarea.ha_terminado %}
+        {% set border_class = 'border-success' %}
+    {% else %}
+        {% set border_class = 'border-info' %}
+    {% endif %}
+    {% call detail.card(estatus=tarea.estatus) %}
+        {{ detail.label_value('Usuario', tarea.usuario.nombre) }}
+        {{ detail.label_value('Comando', tarea.comando) }}
+        {{ detail.label_value('Mensaje', tarea.mensaje) }}
+        {% if tarea.url %}
+            <a type="button" class="w-100 btn btn-lg btn-success my-2" href="{{ url_for('tareas.download_xlsx', tarea_id=tarea.id) }}" target="_blank">
+                <span class="iconify" data-icon="mdi:file-download" style="font-size: 2.0em; margin-right: 4px;"></span>
+                {{ tarea.archivo }}
+            </a>
+        {% endif %}
+    {% endcall %}
+{% endblock %}
+
+{% block custom_javascript %}
+    {{ detail.moment_js(moment) }}
+{% endblock %}

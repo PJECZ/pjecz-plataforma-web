@@ -84,7 +84,7 @@ def main():
     bitacora = logging.getLogger("migracion_sibed")
     bitacora.setLevel(logging.INFO)
     formato = logging.Formatter("%(asctime)s:%(levelname)s:%(message)s")
-    empunadura = logging.FileHandler("migracion_sibed.log")
+    empunadura = logging.FileHandler("logs/migracion_sibed.log")
     empunadura.setFormatter(formato)
     bitacora.addHandler(empunadura)
 

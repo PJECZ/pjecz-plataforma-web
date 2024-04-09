@@ -1,6 +1,7 @@
 """
 Tareas, modelos
 """
+
 from flask import current_app
 import redis
 import rq
@@ -22,9 +23,21 @@ class Tarea(db.Model, UniversalMixin):
     usuario = db.relationship("Usuario", back_populates="tareas")
 
     # Columnas
-    nombre = db.Column(db.String(128), index=True)
-    descripcion = db.Column(db.String(128), default="", server_default="")
+    archivo = db.Column(db.String(256), nullable=False, default="", server_default="")
+    comando = db.Column(db.String(256), nullable=False, index=True)
     ha_terminado = db.Column(db.Boolean, nullable=False, default=False)
+    mensaje = db.Column(db.String(1024), nullable=False, default="", server_default="")
+    url = db.Column(db.String(512), nullable=False, default="", server_default="")
+
+    @property
+    def nombre(self):
+        """Antes la columna comando era nombre"""
+        return self.comando
+
+    @property
+    def descripcion(self):
+        """Antes la columna mensaje era descripcion"""
+        return self.mensaje
 
     def get_rq_job(self):
         """Helper method that loads the RQ Job instance"""

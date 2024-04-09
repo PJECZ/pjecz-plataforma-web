@@ -392,24 +392,6 @@ def download():
     return current_app.response_class(archivo, mimetype=media_type)
 
 
-@listas_de_acuerdos.route("/listas_de_acuerdos/refrescar/<int:autoridad_id>")
-@permission_required(MODULO, Permiso.ADMINISTRAR)
-def refresh(autoridad_id):
-    """Refrescar Listas de Acuerdos"""
-    autoridad = Autoridad.query.get_or_404(autoridad_id)
-    if current_user.get_task_in_progress("listas_de_acuerdos.tasks.refrescar"):
-        flash("Debe esperar porque hay una tarea en el fondo sin terminar.", "warning")
-    else:
-        tarea = current_user.launch_task(
-            nombre="listas_de_acuerdos.tasks.refrescar",
-            descripcion=f"Refrescar listas de acuerdos de {autoridad.clave}",
-            usuario_id=current_user.id,
-            autoridad_id=autoridad.id,
-        )
-        flash(f"{tarea.descripcion} está corriendo en el fondo.", "info")
-    return redirect(url_for("listas_de_acuerdos.list_autoridad_listas_de_acuerdos", autoridad_id=autoridad.id))
-
-
 @listas_de_acuerdos.route("/listas_de_acuerdos/<int:lista_de_acuerdo_id>")
 def detail(lista_de_acuerdo_id):
     """Detalle de una Lista de Acuerdos"""

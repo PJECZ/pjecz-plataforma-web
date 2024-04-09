@@ -12,6 +12,7 @@
     {% call f.card() %}
         {% call f.form_tag('materias.new', fid='materia_form') %}
             {% call f.form_group(form.nombre) %}{% endcall %}
+            {% call f.form_group(form.descripcion) %}{% endcall %}
             {% call f.form_group(form.guardar) %}{% endcall %}
         {% endcall %}
     {% endcall %}

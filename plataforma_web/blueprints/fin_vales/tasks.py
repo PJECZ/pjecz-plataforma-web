@@ -1,6 +1,7 @@
 """
 Financieros Vales, tareas en el fondo
 """
+
 from datetime import datetime
 import json
 import logging
@@ -28,7 +29,7 @@ TIMEOUT = 24  # Segundos de espera para la respuesta del motor de firma
 bitacora = logging.getLogger(__name__)
 bitacora.setLevel(logging.INFO)
 formato = logging.Formatter("%(asctime)s:%(levelname)s:%(message)s")
-empunadura = logging.FileHandler("fin_vales.log")
+empunadura = logging.FileHandler("logs/fin_vales.log")
 empunadura.setFormatter(formato)
 bitacora.addHandler(empunadura)
 
@@ -82,6 +83,10 @@ def solicitar(fin_vale_id: int, usuario_id: int, contrasena: str):
         mensaje = f"El usuario {solicita.email} no tiene registro en el motor de firma"
         bitacora.error(mensaje)
         return set_task_error(mensaje)
+
+    # Iniciar tarea
+    mensaje_inicial = f"Inicia solicitar del vale {fin_vale_id}"
+    set_task_progress(0, mensaje_inicial)
 
     # Juntar los elementos del vale para armar la cadena
     elementos = {
@@ -190,8 +195,8 @@ def solicitar(fin_vale_id: int, usuario_id: int, contrasena: str):
     fin_vale.save()
 
     # Terminar tarea
-    mensaje_final = f"Vale {fin_vale_id} solicitado"
-    set_task_progress(100)
+    mensaje_final = f"Termina solicitar del vale {fin_vale_id}"
+    set_task_progress(100, mensaje_final)
     bitacora.info(mensaje_final)
     return mensaje_final
 
@@ -242,6 +247,10 @@ def cancelar_solicitar(fin_vale_id: int, contrasena: str, motivo: str):
         mensaje = f"El usuario {fin_vale.solicito_email} no tiene registro en el motor de firma"
         bitacora.error(mensaje)
         return set_task_error(mensaje)
+
+    # Iniciar tarea
+    mensaje_inicial = f"Inicia cancelar_solicitar del vale {fin_vale_id}"
+    set_task_progress(0, mensaje_inicial)
 
     # Preparar los datos que se van a enviar al motor de firma
     data = {
@@ -314,8 +323,8 @@ def cancelar_solicitar(fin_vale_id: int, contrasena: str, motivo: str):
     fin_vale.save()
 
     # Terminar tarea
-    mensaje_final = f"Vale {fin_vale_id} cancelado su solicitud"
-    set_task_progress(100)
+    mensaje_final = f"Termina cancelar_solicitar del vale {fin_vale_id}"
+    set_task_progress(100, mensaje_final)
     bitacora.info(mensaje_final)
     return mensaje_final
 
@@ -366,6 +375,10 @@ def autorizar(fin_vale_id: int, usuario_id: int, contrasena: str):
         mensaje = f"El usuario {autoriza.email} no tiene registro en el motor de firma"
         bitacora.error(mensaje)
         return set_task_error(mensaje)
+
+    # Iniciar tarea
+    mensaje_inicial = f"Inicia autorizar del vale {fin_vale_id}"
+    set_task_progress(0, mensaje_inicial)
 
     # Juntar los elementos del vale para armar la cadena
     elementos = {
@@ -479,8 +492,8 @@ def autorizar(fin_vale_id: int, usuario_id: int, contrasena: str):
     # Enviar un mensaje via correo electrónico al usuario para que vaya a recoger el vale
 
     # Terminar tarea
-    mensaje_final = f"Vale {fin_vale_id} autorizado"
-    set_task_progress(100)
+    mensaje_final = f"Termina autorizar del vale {fin_vale_id}"
+    set_task_progress(100, mensaje_final)
     bitacora.info(mensaje_final)
     return mensaje_final
 
@@ -531,6 +544,10 @@ def cancelar_autorizar(fin_vale_id: int, contrasena: str, motivo: str):
         mensaje = f"El usuario {fin_vale.autorizo_email} no tiene registro en el motor de firma"
         bitacora.error(mensaje)
         return set_task_error(mensaje)
+
+    # Iniciar tarea
+    mensaje_inicial = f"Inicia cancelar_autorizar del vale {fin_vale_id}"
+    set_task_progress(0, mensaje_inicial)
 
     # Preparar los datos que se van a enviar al motor de firma
     data = {
@@ -603,7 +620,7 @@ def cancelar_autorizar(fin_vale_id: int, contrasena: str, motivo: str):
     fin_vale.save()
 
     # Terminar tarea
-    mensaje_final = f"Vale {fin_vale_id} cancelado su autorizacion"
-    set_task_progress(100)
+    mensaje_final = f"Termina cancelar_autorizar del vale {fin_vale_id}"
+    set_task_progress(100, mensaje_final)
     bitacora.info(mensaje_final)
     return mensaje_final

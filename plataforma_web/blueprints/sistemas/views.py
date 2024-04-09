@@ -1,6 +1,7 @@
 """
 Sistemas, vistas
 """
+
 from datetime import date, datetime, timedelta
 
 from flask import Blueprint, redirect, render_template, url_for
@@ -11,6 +12,7 @@ from plataforma_web.blueprints.edictos.models import Edicto
 from plataforma_web.blueprints.listas_de_acuerdos.models import ListaDeAcuerdo
 from plataforma_web.blueprints.usuarios_roles.models import UsuarioRol
 from plataforma_web.blueprints.sentencias.models import Sentencia
+from plataforma_web.blueprints.usuarios_datos.models import UsuarioDato
 
 sistemas = Blueprint("sistemas", __name__, template_folder="templates")
 
@@ -26,7 +28,8 @@ TARJETAS_LIMITE_REGISTROS = 5
 # Roles que deben estar en la base de datos
 ROL_ADMINISTRADOR = "ADMINISTRADOR"
 ROL_NOTARIA = "NOTARIA"
-ROL_SOPORTE_TECNICO = "SOPORTE USUARIO"
+ROL_SOPORTE_USUARIO = "SOPORTE USUARIO"
+ROL_VALIDADORES = "VALIDADORES DE DATOS Y DOCUMENTOS PERSONALES"
 
 
 @sistemas.route("/inicio/audiencias_json")
@@ -209,14 +212,28 @@ def start():
 
     # Si el usuario está autenticado, mostrar la página de inicio
     if current_user.is_authenticated:
-        mostrar_portal_soporte = False
+        mostrar_actualizar_mis_datos_personales = False
+        mostrar_mis_recibos_de_nomina = False
         mostrar_portal_notarias = False
+        mostrar_portal_soporte = False
+        estado_documentos_personales = None
 
         # Consultar los roles del usuario
         current_user_roles = current_user.get_roles()
 
+        # Si tiene el rol administrador o soporte-usuario mostrar_mis_recibos_de_nomina
+        if ROL_ADMINISTRADOR in current_user_roles or ROL_SOPORTE_USUARIO in current_user_roles:
+            mostrar_mis_recibos_de_nomina = True
+
+        # Si tiene el rol administrador o validadores mostrar_actualizar_mis_datos_personales
+        if ROL_ADMINISTRADOR in current_user_roles or ROL_VALIDADORES in current_user_roles:
+            mostrar_actualizar_mis_datos_personales = True
+            usuario_dato = UsuarioDato.query.filter_by(usuario=current_user).order_by(UsuarioDato.id.desc()).first()
+            if usuario_dato:
+                estado_documentos_personales = usuario_dato.estado_general
+
         # Si tiene el rol administrador o soporte-usuario mostrar los accesos a crear tickets y directorio
-        if ROL_ADMINISTRADOR in current_user_roles or ROL_SOPORTE_TECNICO in current_user_roles:
+        if ROL_ADMINISTRADOR in current_user_roles or ROL_SOPORTE_USUARIO in current_user_roles:
             mostrar_portal_soporte = True
 
         # Si tiene el rol administrador o notaria mostrar los accesos a edictos, escrituras y mensajes
@@ -226,8 +243,11 @@ def start():
         # Entregar
         return render_template(
             "sistemas/start.jinja2",
-            mostrar_portal_soporte=mostrar_portal_soporte,
             mostrar_portal_notarias=mostrar_portal_notarias,
+            mostrar_portal_soporte=mostrar_portal_soporte,
+            mostrar_mis_recibos_de_nomina=mostrar_mis_recibos_de_nomina,
+            mostrar_actualizar_mis_datos_personales=mostrar_actualizar_mis_datos_personales,
+            estado_documentos_personales=estado_documentos_personales,
         )
 
     # No está autenticado, mostrar la página de inicio de sesión

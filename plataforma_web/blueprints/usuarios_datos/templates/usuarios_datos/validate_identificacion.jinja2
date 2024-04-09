@@ -1,0 +1,33 @@
+{% extends 'layouts/app.jinja2' %}
+{% import 'macros/form.jinja2' as f with context %}
+{% import 'macros/topbar.jinja2' as topbar %}
+
+{% block title %}Validar Identificación Oficial{% endblock %}
+
+{% block topbar_actions %}
+    {{ topbar.page('Validar - Identificación Oficial de ' + usuario_dato.usuario.nombre) }}
+{% endblock %}
+
+{% block content %}
+    {# Preview #}
+    {% call f.card('Datos a validar') %}
+        {% if archivo %}
+            <object data="{{ url_for('usuarios_datos.download_file', usuario_dato_id=usuario_dato.id, usuario_documento_id=usuario_dato.adjunto_identificacion_id) }}" type="application/pdf" width="100%" height="600"></object>
+        {% endif %}
+    {% endcall %}
+
+    {% call f.card("Respuesta") %}
+        {% set form_kwargs = {'usuario_dato_id': usuario_dato.id} %}
+        {% call f.form_tag('usuarios_datos.validate_identificacion', fid='usuario_dato_form', **form_kwargs) %}
+            <label for="mensaje">Mensaje de respuesta cuando no es válido el contenido pedido</label>
+            <textarea class="form-control mb-3 bg-outline-danger" name="mensaje" style="height: 100px">{{ usuario_dato.mensaje_identificacion if usuario_dato.mensaje_identificacion else "" }}</textarea>
+            <div class="row">
+                <div class="col-md-auto">
+                    <input class="btn btn-primary" id="valido" name="valido" type="submit" value="Válido">
+                    <a class="btn btn-secondary ms-3" href="{{url_for('usuarios_datos.detail', usuario_dato_id=usuario_dato.id)}}">Cancelar</a>
+                    <input class="btn btn-danger ms-3" id="no_valido" name="no_valido" type="submit" value="No válido">
+                </div>
+            </div>
+        {% endcall %}
+    {% endcall %}
+{% endblock %}

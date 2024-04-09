@@ -1,5 +1,6 @@
 {% extends 'layouts/app.jinja2' %}
 {% import 'macros/detail.jinja2' as detail %}
+{% import 'macros/help.jinja2' as help %}
 {% import 'macros/modals.jinja2' as modals %}
 {% import 'macros/topbar.jinja2' as topbar %}
 
@@ -70,6 +71,10 @@
             </table>
         {% endcall %}
     {% endif %}
+{% endblock %}
+
+{% block content_help %}
+    {{ help.help_button('https://www.pjecz.gob.mx/pjecz-plataforma-web/listas_de_acuerdos/#detalle-de-una-lista-de-acuerdos') }}
 {% endblock %}
 
 {% block custom_javascript %}

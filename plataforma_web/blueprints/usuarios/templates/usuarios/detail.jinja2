@@ -40,6 +40,7 @@
                 {{ detail.label_value('Puesto', usuario.puesto) }}
                 {{ detail.label_value('CURP', usuario.curp) }}
                 {{ detail.label_value('e-mail', usuario.email) }}
+                {{ detail.label_value('e-mail personal', usuario.email_personal) }}
                 {% if current_user.can_view("DISTRITOS") %}
                     {{ detail.label_value('Distrito', usuario.autoridad.distrito.nombre, url_for('distritos.detail', distrito_id=usuario.autoridad.distrito_id)) }}
                 {% else %}

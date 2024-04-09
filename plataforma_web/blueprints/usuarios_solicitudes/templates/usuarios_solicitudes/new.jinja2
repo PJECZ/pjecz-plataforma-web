@@ -1,0 +1,26 @@
+{% extends 'layouts/app.jinja2' %}
+{% import 'macros/form.jinja2' as f with context %}
+{% import 'macros/topbar.jinja2' as topbar %}
+
+{% block title %}Actualización de datos personales{% endblock %}
+
+{% block topbar_actions %}
+    {{ topbar.page('Actualización de mi email y teléfono personal') }}
+{% endblock %}
+
+{% block content %}
+    {% call f.card() %}
+        <p class="lead">Hola {{ usuario.nombre }}.</p>
+        {% call f.form_tag('usuarios_solicitudes.new', fid='usuario_solicitud_form') %}
+            {% call f.form_group(form.usuario_email, readOnly=true) %}{% endcall %}
+            {# call f.form_group(form.usuario_nombre, readOnly=true) %}{% endcall #}
+            {% call f.form_group(form.email_personal) %}{% endcall %}
+            {% call f.form_group(form.telefono_celular) %}{% endcall %}
+            <p class="lead">
+                Después de enviar este formulario, en un tiempo no mayor a una hora, recibirás en tu correo electrónico y
+                en tu teléfono celular un enlace y un token de seis dígitos para validar. Debes hacer la validación antes de 24 horas.
+            </p>
+            {% call f.form_group(form.enviar) %}{% endcall %}
+        {% endcall %}
+    {% endcall %}
+{% endblock %}
