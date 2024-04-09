@@ -56,7 +56,18 @@
             {% call f.form_group(form.demandado) %}{% endcall %}
             {% call f.form_group(form.juicio) %}{% endcall %}
             {% call f.form_group(form.tipo_juzgado) %}{% endcall %}
+            <hr />
+            <p class="h6 bg-info p-3"><strong>Instrucciones:</strong> Para agregar instancias de origen a un expediente debe
+            seleccionar una instancia de origen y presionar el botón de <i>Agregar Juzgado</i> el cual
+            ira añadiendo juzgados de origen al campo que se almacenará llamado: <i>Instancias de Origen</i>.
+            </p>
             {% call f.form_group(form.juzgado_origen) %}{% endcall %}
+            <div class="form-group mb-2">
+                <a class="btn btn-success" onclick="agregar_instancia_origen();">Agregar Instancia</a>
+                <a class="btn btn-danger" onclick="limpiar_instancias_origen();">Limpiar</a>
+            </div>
+            {% call f.form_group(form.juzgados_origen, readonly=true) %}{% endcall %}
+            <hr />
             {% call f.form_group(form.tipo) %}{% endcall %}
             {% if form.ubicacion_readonly %}
                 {% call f.form_group(form.ubicacion_readonly, readonly=true) %}{% endcall %}
@@ -154,5 +165,36 @@
             $('#juzgado_id').append(newJuzgadoOption).trigger('change');
         });
     {% endif %}
+    </script>
+    <script>
+        function limpiar_instancias_origen() {
+            document.getElementById("juzgados_origen").value = "";
+        };
+
+        function agregar_instancia_origen() {
+            const instancias_origen = document.getElementById("juzgados_origen");
+            const juzgado_origen = document.getElementById("juzgado_origen");
+
+            // Limpiar el texto.
+            const juzgado_origen_index = juzgado_origen.selectedIndex;
+            let juzgado_origen_texto = juzgado_origen.options[juzgado_origen_index].text;
+            const indice = juzgado_origen_texto.indexOf(" : ");
+            juzgado_origen_texto = juzgado_origen_texto.slice(0, indice);
+
+            // Revisar que no este ya concatendao este valor
+            const lista_valores = instancias_origen.value.split(", ");
+            if( lista_valores.includes(juzgado_origen_texto) ) {
+                alert("Este valor ya está agregado.")
+                return 0;
+            }
+
+            // Concatenar con el texto anterior
+            if( instancias_origen.value != "" ) {
+                juzgado_origen_texto = instancias_origen.value + ', ' + juzgado_origen_texto;
+            }
+
+            // Entregamos el texto concatenado
+            instancias_origen.value = juzgado_origen_texto;
+        };
     </script>
 {% endblock %}

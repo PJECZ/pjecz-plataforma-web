@@ -46,6 +46,7 @@ class ArcDocumento(db.Model, UniversalMixin):
     expediente = db.Column(db.String(16), index=True, nullable=False)  # dígitos/YYYY-XXX
     expediente_numero = db.Column(db.Integer)  # TODO: nullable=False
     juicio = db.Column(db.String(128))
+    arc_juzgados_origen_claves = db.Column(db.String(512))
     fojas = db.Column(db.Integer, nullable=False)
     tipo_juzgado = db.Column(
         db.Enum(*TIPO_JUZGADOS, name="tipo_juzgados", native_enum=False),
