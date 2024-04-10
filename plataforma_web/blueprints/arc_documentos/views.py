@@ -83,6 +83,8 @@ def datatable_json():
         consulta = consulta.filter_by(autoridad_id=int(request.form["juzgado_id"]))
     if "juzgado_extinto_id" in request.form:
         consulta = consulta.filter_by(arc_juzgado_origen_id=int(request.form["juzgado_extinto_id"]))
+    if "juzgado_extinto_clave" in request.form:
+        consulta = consulta.filter(ArcDocumento.arc_juzgados_origen_claves.contains(request.form["juzgado_extinto_clave"]))
     if "distrito_id" in request.form:
         distrito_id = int(request.form["distrito_id"])
         consulta = consulta.join(Autoridad)
