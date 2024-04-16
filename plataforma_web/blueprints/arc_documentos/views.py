@@ -23,6 +23,7 @@ from plataforma_web.blueprints.modulos.models import Modulo
 from plataforma_web.blueprints.permisos.models import Permiso
 from plataforma_web.blueprints.arc_solicitudes.models import ArcSolicitud
 from plataforma_web.blueprints.arc_documentos_tipos.models import ArcDocumentoTipo
+from plataforma_web.blueprints.arc_juzgados_extintos.models import ArcJuzgadoExtinto 
 
 from plataforma_web.blueprints.arc_documentos.forms import (
     ArcDocumentoNewArchivoForm,
@@ -425,6 +426,7 @@ def edit(arc_documento_id):
     form.tipo.data = documento.arc_documento_tipo
     form.fojas.data = documento.fojas
     form.notas.data = documento.notas
+    listado_instancias = ArcJuzgadoExtinto.query.filter_by(estatus='A').order_by(ArcJuzgadoExtinto.clave).all()
     if isinstance(form, ArcDocumentoEditArchivoForm):
         form.juzgado_id.data = documento.autoridad_id
         form.ubicacion.data = documento.ubicacion
@@ -434,7 +436,7 @@ def edit(arc_documento_id):
     else:
         form.juzgado_readonly.data = f"{current_user.autoridad.clave} : {current_user.autoridad.descripcion_corta}"
         form.ubicacion_readonly.data = documento.ubicacion
-    return render_template("arc_documentos/edit.jinja2", form=form, documento=documento)
+    return render_template("arc_documentos/edit.jinja2", form=form, documento=documento, instancias=listado_instancias)
 
 
 @arc_documentos.route("/arc_documentos/buscar", methods=["GET", "POST"])
