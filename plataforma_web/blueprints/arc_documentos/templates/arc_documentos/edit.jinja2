@@ -54,7 +54,7 @@
             {% call f.form_group(form.juicio) %}{% endcall %}
             {% call f.form_group(form.tipo_juzgado) %}{% endcall %}
             <hr />
-            <p class="lean"></p>
+            <p class="lead">Instrucciones: </p>
             <div class="mb-6 row">
                 <div class="mb-6 col">
                     <label for="listado_instancias" class="col-form-label">Listado de instancias de origen</label>
@@ -72,7 +72,7 @@
                     </select>
                 </div>
                 <div class="mb-6 col">
-                    <textarea class="form-control" id="juzgados_origen" name="juzgados_origen" rows="5" readonly></textarea>
+                    <textarea class="form-control" id="juzgados_origen" name="juzgados_origen" rows="5" readonly>{{ documento.arc_juzgados_origen_claves }}</textarea>
                 </div>
             </div>
             <div class="mb-6 row m-2">
@@ -83,7 +83,6 @@
                     <a class="btn btn-danger" onclick="limpiar_instancias_origen();">Limpiar Todo</a>
                 </div>
             </div>
-
             <hr />
             {% call f.form_group(form.tipo) %}{% endcall %}
             {% if form.ubicacion_readonly %}

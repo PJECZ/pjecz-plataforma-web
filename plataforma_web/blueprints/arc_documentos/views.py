@@ -261,7 +261,7 @@ def new():
             flash("La instancia seleccionada NO existe", "warning")
         elif tipo_documento is None:
             flash("Este tipo de documento no sé conoce")
-        elif ArcDocumento.query.filter_by(expediente=expediente).filter_by(autoridad_id=juzgado_id).filter_by(arc_documento_tipo=tipo_documento).filter_by(arc_juzgado_origen=form.juzgado_origen.data).filter_by(estatus="A").first():
+        elif ArcDocumento.query.filter_by(expediente=expediente).filter_by(autoridad_id=juzgado_id).filter_by(arc_documento_tipo=tipo_documento).filter_by(estatus="A").first():
             flash("El número de expediente ya está en uso para la INSTANCIA con ese mismo TIPO y misma INSTANCIA DE ORIGEN. Debe de ser único.", "warning")
         elif anio < 1900 or anio > date.today().year:
             flash(f"El Año debe ser una fecha entre 1900 y el año actual {date.today().year}", "warning")
@@ -282,7 +282,6 @@ def new():
                 demandado=safe_string(form.demandado.data, save_enie=True),
                 juicio=safe_string(form.juicio.data, save_enie=True),
                 tipo_juzgado=safe_string(form.tipo_juzgado.data),
-                #arc_juzgado_origen=form.juzgado_origen.data,
                 arc_juzgados_origen_claves=form.juzgados_origen.data,
                 arc_documento_tipo_id=int(form.tipo.data),
                 fojas=int(form.fojas.data),
@@ -306,6 +305,8 @@ def new():
             bitacora.save()
             flash(bitacora.descripcion, "success")
             return redirect(bitacora.url)
+    # listado de instancias de origen
+    listado_instancias = ArcJuzgadoExtinto.query.filter_by(estatus='A').order_by(ArcJuzgadoExtinto.clave).all()
     # Bloquear campos según el ROL
     if isinstance(form, ArcDocumentoNewArchivoForm):
         form.ubicacion.data = "ARCHIVO"
@@ -314,7 +315,7 @@ def new():
     else:
         form.juzgado_readonly.data = f"{current_user.autoridad.clave} : {current_user.autoridad.descripcion_corta}"
         form.ubicacion_readonly.data = "JUZGADO"
-    return render_template("arc_documentos/new.jinja2", form=form, mostrar_secciones=mostrar_secciones)
+    return render_template("arc_documentos/new.jinja2", form=form, mostrar_secciones=mostrar_secciones, instancias=listado_instancias)
 
 
 @arc_documentos.route("/arc_documentos/edicion/<int:arc_documento_id>", methods=["GET", "POST"])
@@ -391,7 +392,6 @@ def edit(arc_documento_id):
             documento.demandado = safe_string(form.demandado.data, save_enie=True)
             documento.juicio = safe_string(form.juicio.data, save_enie=True)
             documento.tipo_juzgado = safe_string(form.tipo_juzgado.data)
-            #documento.arc_juzgado_origen = form.juzgado_origen.data
             documento.arc_juzgados_origen_claves = form.juzgados_origen.data
             documento.arc_documento_tipo_id = int(form.tipo.data)
             documento.fojas = fojas
@@ -419,8 +419,6 @@ def edit(arc_documento_id):
     form.anio.data = documento.anio
     form.actor.data = documento.actor
     form.demandado.data = documento.demandado
-    form.juzgado_origen.data = documento.arc_juzgado_origen
-    form.juzgados_origen.data = documento.arc_juzgados_origen_claves
     form.juicio.data = documento.juicio
     form.tipo_juzgado.data = documento.tipo_juzgado
     form.tipo.data = documento.arc_documento_tipo
