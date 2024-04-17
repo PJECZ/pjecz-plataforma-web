@@ -261,7 +261,7 @@ def new():
             flash("La instancia seleccionada NO existe", "warning")
         elif tipo_documento is None:
             flash("Este tipo de documento no sé conoce")
-        elif ArcDocumento.query.filter_by(expediente=expediente).filter_by(autoridad_id=juzgado_id).filter_by(arc_documento_tipo=tipo_documento).filter_by(estatus="A").first():
+        elif ArcDocumento.query.filter_by(expediente=expediente).filter_by(autoridad_id=juzgado_id).filter_by(arc_documento_tipo=tipo_documento).filter_by(arc_juzgados_origen_claves=form.juzgados_origen.data).filter_by(estatus="A").first():
             flash("El número de expediente ya está en uso para la INSTANCIA con ese mismo TIPO y misma INSTANCIA DE ORIGEN. Debe de ser único.", "warning")
         elif anio < 1900 or anio > date.today().year:
             flash(f"El Año debe ser una fecha entre 1900 y el año actual {date.today().year}", "warning")
