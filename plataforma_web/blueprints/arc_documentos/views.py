@@ -117,8 +117,7 @@ def datatable_json():
                     "clave_actual": resultado.autoridad.clave,
                     "nombre_actual": resultado.autoridad.descripcion_corta,
                     "url_actual": url_for("autoridades.detail", autoridad_id=resultado.autoridad.id) if current_user.can_view("AUTORIDADES") else "",
-                    "clave_origen": resultado.arc_juzgado_origen.clave if resultado.arc_juzgado_origen_id != None else "",
-                    "nombre_origen": resultado.arc_juzgado_origen.descripcion_corta if resultado.arc_juzgado_origen_id != None else "",
+                    "origenes": resultado.arc_juzgados_origen_claves if resultado.arc_juzgados_origen_claves != None else "",
                 },
                 "anio": resultado.anio,
                 "tipo": resultado.arc_documento_tipo.nombre,
@@ -280,7 +279,8 @@ def new():
                 demandado=safe_string(form.demandado.data, save_enie=True),
                 juicio=safe_string(form.juicio.data, save_enie=True),
                 tipo_juzgado=safe_string(form.tipo_juzgado.data),
-                arc_juzgado_origen=form.juzgado_origen.data,
+                #arc_juzgado_origen=form.juzgado_origen.data,
+                arc_juzgados_origen_claves=form.juzgados_origen.data,
                 arc_documento_tipo_id=int(form.tipo.data),
                 fojas=int(form.fojas.data),
                 notas=safe_message(form.notas.data, default_output_str=None),
@@ -388,7 +388,8 @@ def edit(arc_documento_id):
             documento.demandado = safe_string(form.demandado.data, save_enie=True)
             documento.juicio = safe_string(form.juicio.data, save_enie=True)
             documento.tipo_juzgado = safe_string(form.tipo_juzgado.data)
-            documento.arc_juzgado_origen = form.juzgado_origen.data
+            #documento.arc_juzgado_origen = form.juzgado_origen.data
+            documento.arc_juzgados_origen_claves = form.juzgados_origen.data
             documento.arc_documento_tipo_id = int(form.tipo.data)
             documento.fojas = fojas
             documento.notas = safe_message(form.notas.data, default_output_str=None)
@@ -416,6 +417,7 @@ def edit(arc_documento_id):
     form.actor.data = documento.actor
     form.demandado.data = documento.demandado
     form.juzgado_origen.data = documento.arc_juzgado_origen
+    form.juzgados_origen.data = documento.arc_juzgados_origen_claves
     form.juicio.data = documento.juicio
     form.tipo_juzgado.data = documento.tipo_juzgado
     form.tipo.data = documento.arc_documento_tipo

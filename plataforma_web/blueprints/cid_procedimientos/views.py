@@ -1,6 +1,7 @@
 """
 CID Procedimientos, vistas
 """
+
 import json
 from delta import html
 from flask import abort, Blueprint, flash, redirect, render_template, request, url_for
@@ -12,7 +13,7 @@ from lib.safe_string import safe_email, safe_string, safe_message
 
 from plataforma_web.blueprints.autoridades.models import Autoridad
 from plataforma_web.blueprints.bitacoras.models import Bitacora
-from plataforma_web.blueprints.cid_procedimientos.forms import CIDProcedimientoForm, CIDProcedimientoAcceptRejectForm, CIDProcedimientoEditAdminForm, CIDProcedimientoSearchForm
+from plataforma_web.blueprints.cid_procedimientos.forms import CIDProcedimientoForm, CIDProcedimientoAcceptRejectForm, CIDProcedimientoEditAdminForm, CIDProcedimientoSearchForm, CIDProcedimientoCambiarAreaForm
 from plataforma_web.blueprints.cid_procedimientos.models import CIDProcedimiento
 from plataforma_web.blueprints.cid_areas.models import CIDArea
 from plataforma_web.blueprints.cid_areas_autoridades.models import CIDAreaAutoridad
@@ -346,6 +347,7 @@ def detail(cid_procedimiento_id):
         control_cambios=cid_procedimiento.control_cambios,
         cid_formatos=cid_formatos,
         show_button_edit_admin=current_user.can_admin(MODULO) or ROL_COORDINADOR in current_user.get_roles(),
+        show_button_cambiar_area=current_user.can_admin(MODULO) or ROL_COORDINADOR in current_user.get_roles(),
     )
 
 
@@ -593,6 +595,34 @@ def edit_admin(cid_procedimiento_id):
         distritos=distritos,
         autoridades=autoridades,
     )
+
+
+# Cambiar el Área del procedimiento
+@cid_procedimientos.route("/cid_procedimientos/cambiar_area/<int:cid_procedimiento_id>", methods=["GET", "POST"])
+@permission_required(MODULO, Permiso.MODIFICAR)
+def cambiar_area(cid_procedimiento_id):
+    """Cambiar Área Procedimiento"""
+    # Consultar el procedimiento
+    cid_procedimiento = CIDProcedimiento.query.get_or_404(cid_procedimiento_id)
+    form = CIDProcedimientoCambiarAreaForm()
+    if form.validate_on_submit():
+        cid_procedimiento.cid_area = form.cid_area.data
+        cid_procedimiento.save()
+        # Registrar en bitacora
+        bitacora = Bitacora(
+            modulo=Modulo.query.filter_by(nombre=MODULO).first(),
+            usuario=current_user,
+            descripcion=safe_message(f"Cambiada el Área del Procedimiento {cid_procedimiento_id}."),
+            url=url_for("cid_procedimientos.detail", cid_procedimiento_id=cid_procedimiento.id),
+        )
+        bitacora.save()
+        flash(bitacora.descripcion, "success")
+        return redirect(bitacora.url)
+    # mostrar
+    form.titulo_procedimiento.data = cid_procedimiento.titulo_procedimiento
+    form.codigo.data = cid_procedimiento.codigo
+    form.cid_area_original.data = cid_procedimiento.cid_area.nombre
+    return render_template("cid_procedimientos/cambiar_area.jinja2", form=form, cid_procedimiento=cid_procedimiento)
 
 
 def validate_json_quill_not_empty(data):

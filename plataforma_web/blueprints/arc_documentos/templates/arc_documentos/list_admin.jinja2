@@ -145,9 +145,12 @@
                         texto =  '<a href="' + data.url_actual + '">' + data.clave_actual + '</a>';
                     }
                     texto = '<span title="' + data.nombre_actual + '">' + texto + '</span>';
-                    if (data.clave_origen != ""){
-                        texto += '<br /><strong>Origen:</strong> ';
-                        texto += '<span title="' + data.nombre_origen + '">' + data.clave_origen + '</span>';
+                    if (data.origenes != ""){
+                        texto += '<br /><strong>Origenes:</strong><br />';
+                        const origenes_claves = data.origenes.split(", ");
+                        for( let i=0; i<=origenes_claves.length-1; i++ )  {
+                            texto += ' - ' + origenes_claves[i] + '<br/>';
+                        }
                     }
                     return texto;
                 }
