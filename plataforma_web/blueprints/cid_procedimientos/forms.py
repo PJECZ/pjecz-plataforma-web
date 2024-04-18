@@ -1,6 +1,7 @@
 """
 CID Procedimientos, formularios
 """
+
 from flask_wtf import FlaskForm
 from wtforms import DateField, IntegerField, StringField, SubmitField, SelectField
 from wtforms.ext.sqlalchemy.fields import QuerySelectField
@@ -8,12 +9,18 @@ from wtforms.validators import DataRequired, Length, Optional
 
 from lib.wtforms import JSONField
 from plataforma_web.blueprints.usuarios.models import Usuario
+from plataforma_web.blueprints.cid_areas.models import CIDArea
 
 
 def usuarios_email_opciones():
     """Seleccionar correo electronico de usuarios: opciones para select"""
     # TODO: Optimizar la consulta de usuarios porque son muchos
     return ""  # Usuario.query.filter_by(estatus="A").order_by(Usuario.email).all()
+
+
+def cid_area_opciones():
+    """CIDArea: opciones para select"""
+    return CIDArea.query.filter_by(estatus="A").order_by(CIDArea.nombre).all()
 
 
 class CIDProcedimientoForm(FlaskForm):
@@ -78,6 +85,16 @@ class CIDProcedimientoEditAdminForm(FlaskForm):
     titulo_procedimiento = StringField("Título")  # Read only
     codigo = StringField("Código")  # Read only
     revision = IntegerField("Revisión (Número entero apartir de 1)")  # Read only
+    guardar = SubmitField("Guardar")
+
+
+class CIDProcedimientoCambiarAreaForm(FlaskForm):
+    """Formulario CIDProcedimientoCambiarArea"""
+
+    titulo_procedimiento = StringField("Título")  # Read only
+    codigo = StringField("Código")  # Read only
+    cid_area_original = StringField("Área Original")
+    cid_area = QuerySelectField("Área", query_factory=cid_area_opciones, get_label="nombre", validators=[DataRequired()])
     guardar = SubmitField("Guardar")
 
 

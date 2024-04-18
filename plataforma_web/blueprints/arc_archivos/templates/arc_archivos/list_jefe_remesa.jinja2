@@ -93,7 +93,7 @@
                             <label for="documentoInput_solicitud">No. Doc</label>
                         </div>
                     </div>
-                    <div class="col-4">
+                    <div class="col-2">
                         <div class="form-floating">
                             <select class="form-select" id="estadoSelect_solicitud" name="estadoSelect_solicitud" aria-label="Estado" onchange="filtros_solicitudes.buscar(); return false;" style="flex: inherit;">
                                 <option selected value=""></option>
@@ -104,7 +104,18 @@
                             <label for="estadoSelect_solicitud">Estado</label>
                         </div>
                     </div>
-                    <div class="col-6">
+                    <div class="col-3">
+                        <div class="form-floating">
+                            <select class="form-select" id="distritoSelect_solicitud" name="distritoSelect_solicitud" aria-label="Distrito" onchange="filtros_solicitudes.buscar(); return false;" style="flex: inherit;">
+                                <option selected value=""></option>
+                                {% for distrito in distritos_solicitudes %}
+                                    <option value="{{distrito.id}}">{{distrito.nombre_corto}}</option>
+                                {% endfor %}
+                            </select>
+                            <label for="distritoSelect_solicitud">Distrito</label>
+                        </div>
+                    </div>
+                    <div class="col-5">
                         <div class="form-floating">
                             <select id="asignadoInput_solicitud" class="form-control js-select2-filter" onchange="filtros_solicitudes.buscar(); return false;" style="text-transform: uppercase"></select>
                             <label for="asignadoInput_solicitud">Asignado</label>
@@ -299,6 +310,7 @@
         filtros_solicitudes.add_input('juzgadoInput_solicitud', 'juzgado_id');
         filtros_solicitudes.add_input('asignadoInput_solicitud', 'asignado_id');
         filtros_solicitudes.add_input('estadoSelect_solicitud', 'estado');
+        filtros_solicitudes.add_input('distritoSelect_solicitud', 'distrito_id');
         // Precarga de los valores de los inputs mantenidos después de la carga de la página.
         filtros_solicitudes.precarga();
     </script>
