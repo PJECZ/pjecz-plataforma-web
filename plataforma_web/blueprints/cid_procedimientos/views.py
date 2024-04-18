@@ -14,7 +14,7 @@ from lib.safe_string import safe_email, safe_string, safe_message
 
 from plataforma_web.blueprints.autoridades.models import Autoridad
 from plataforma_web.blueprints.bitacoras.models import Bitacora
-from plataforma_web.blueprints.cid_procedimientos.forms import CIDProcedimientoForm, CIDProcedimientoAcceptRejectForm, CIDProcedimientoEditAdminForm, CIDProcedimientoSearchForm, CIDProcedimientoCambiarAreaForm
+from plataforma_web.blueprints.cid_procedimientos.forms import CIDProcedimientoForm, CIDProcedimientoAcceptRejectForm, CIDProcedimientoEditAdminForm, CIDProcedimientoSearchForm, CIDProcedimientoCambiarAreaForm, CIDProcedimientosNewReview
 from plataforma_web.blueprints.cid_procedimientos.models import CIDProcedimiento
 from plataforma_web.blueprints.cid_areas.models import CIDArea
 from plataforma_web.blueprints.cid_areas_autoridades.models import CIDAreaAutoridad
