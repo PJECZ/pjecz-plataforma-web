@@ -31,6 +31,7 @@ class CIDProcedimientoForm(FlaskForm):
     codigo = StringField("Código", validators=[DataRequired(), Length(max=16)])
     revision = IntegerField("Revisión (Número entero apartir de 1)", validators=[DataRequired()])
     fecha = DateField("Fecha de elaboración", validators=[DataRequired()])
+    cid_area = StringField("Área")  # Read Only
     # Step Objetivo
     objetivo = JSONField("Objetivo", validators=[Optional()])
     # Step Alcance
@@ -67,6 +68,7 @@ class CIDProcedimientoAcceptRejectForm(FlaskForm):
 
     titulo_procedimiento = StringField("Título", validators=[DataRequired(), Length(max=256)])
     codigo = StringField("Código", validators=[DataRequired(), Length(max=16)])
+    cid_area = StringField("Área")  # Read Only
     revision = IntegerField("Revisión", validators=[DataRequired()])
     seguimiento = StringField("Seguimiento", validators=[DataRequired()])
     seguimiento_posterior = StringField("Seguimiento posterior", validators=[DataRequired()])

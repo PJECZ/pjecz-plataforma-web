@@ -51,9 +51,9 @@
             {{ detail.label_value('Distrito', cid_procedimiento.autoridad.distrito.nombre_corto) }}
             {{ detail.label_value('Autoridad', cid_procedimiento.autoridad.descripcion_corta) }}
             {% if current_user.can_view('CID AREAS') %}
-                {{ detail.label_value('Área', cid_procedimiento.cid_area.clave + ' - ' + cid_procedimiento.cid_area.nombre, url_for('cid_areas.detail', cid_area_id=cid_procedimiento.cid_area_id)) }}
+                {{ detail.label_value('Área', cid_procedimiento.cid_area.nombre, url_for('cid_areas.detail', cid_area_id=cid_procedimiento.cid_area_id)) }}
             {% else %}
-                {{ detail.label_value('Área', cid_procedimiento.cid_area.clave + ' - ' + cid_procedimiento.cid_area.nombre) }}
+                {{ detail.label_value('Área', cid_procedimiento.cid_area.nombre) }}
             {% endif %}
         {% endcall %}
         {% call accordion.item('objetivos_item', 'Objetivo', accordion_id, estatus=cid_procedimiento.estatus) %}

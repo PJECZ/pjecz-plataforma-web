@@ -296,7 +296,7 @@ def list_all_inactive():
     return render_template(
         "cid_procedimientos/list_admin.jinja2",
         titulo="Todos los procedimientos eliminados",
-        filtros=json.dumps({"estatus": "A"}),
+        filtros=json.dumps({"estatus": "B"}),
         estatus="B",
         show_button_list_owned=True,
         show_button_list_all=True,
@@ -475,7 +475,6 @@ def edit(cid_procedimiento_id):
         cid_procedimiento.aprobo_puesto = safe_string(form.aprobo_puesto.data)
         cid_procedimiento.aprobo_email = safe_email(aprobo_email)
         cid_procedimiento.control_cambios = control_cambios
-        cid_procedimiento.cid_area_id = 1
         cid_procedimiento.save()
         bitacora = Bitacora(
             modulo=Modulo.query.filter_by(nombre=MODULO).first(),
@@ -490,6 +489,7 @@ def edit(cid_procedimiento_id):
     form.titulo_procedimiento.data = cid_procedimiento.titulo_procedimiento
     form.codigo.data = cid_procedimiento.codigo
     form.revision.data = cid_procedimiento.revision
+    form.cid_area.data = cid_procedimiento.cid_area
     form.fecha.data = cid_procedimiento.fecha
     form.objetivo.data = cid_procedimiento.objetivo
     form.alcance.data = cid_procedimiento.alcance
@@ -818,7 +818,7 @@ def accept_reject(cid_procedimiento_id):
                 firma="",
                 archivo="",
                 url="",
-                cid_area_id=1,
+                cid_area=original.cid_area,
             ).save()
             # Actualizar el anterior
             if original.seguimiento == "ELABORADO":
@@ -839,7 +839,7 @@ def accept_reject(cid_procedimiento_id):
                         descripcion=cid_formato.descripcion,
                         archivo=cid_formato.archivo,
                         url=cid_formato.url,
-                        cid_area_id=1,
+                        cid_area_id=cid_formato.cid_area,
                     ).save()
             # Bitacora
             bitacora = Bitacora(
