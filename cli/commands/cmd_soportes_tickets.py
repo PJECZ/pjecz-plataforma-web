@@ -1,5 +1,7 @@
 """
 Soportes Tickets
+
+- reporte: Reporte de tickets terminados y cerrados a un archivo CSV
 """
 
 import re
@@ -7,6 +9,7 @@ from pathlib import Path
 
 import csv
 import click
+from sqlalchemy import or_
 
 from plataforma_web.app import create_app
 from plataforma_web.extensions import db
@@ -24,9 +27,9 @@ def cli():
 @click.command()
 @click.argument("desde", type=str)
 @click.argument("hasta", type=str)
-@click.option("--output", default="soportes_tickets.csv", type=str, help="Archivo CSV a escribir")
-def respaldar(desde, hasta, output):
-    """Respaldar Soportes Tickets a un archivo CSV"""
+@click.option("--output", default="tickets_terminados_cerrados.csv", type=str, help="Archivo CSV a escribir")
+def reporte(desde, hasta, output):
+    """Reporte Tickets terminados y cerrados a un archivo CSV"""
     # Validar el archivo CSV a escribir, que no exista
     ruta = Path(output)
     if ruta.exists():
@@ -45,14 +48,15 @@ def respaldar(desde, hasta, output):
         click.echo(f"ERROR: {desde} es mayor que {hasta}")
         return
     # Consultar soportes tickets
-    click.echo("Respaldando soportes tickets...")
+    click.echo("Elaborando reporte de tickets...")
     contador = 0
-    soportes_tickets = SoporteTicket.query.order_by(SoporteTicket.id)
+    soportes_tickets = SoporteTicket.query
     if desde:
         soportes_tickets = soportes_tickets.filter(SoporteTicket.creado >= f"{desde} 00:00:00")
     if hasta:
         soportes_tickets = soportes_tickets.filter(SoporteTicket.creado <= f"{hasta} 23:59:59")
-    soportes_tickets = soportes_tickets.all()
+    soportes_tickets = soportes_tickets.filter(or_(SoporteTicket.estado == "TERMINADO", SoporteTicket.estado == "CERRADO"))
+    soportes_tickets = soportes_tickets.order_by(SoporteTicket.id).all()
     with open(ruta, "w", encoding="utf8") as puntero:
         respaldo = csv.writer(puntero)
         respaldo.writerow(
@@ -89,4 +93,4 @@ def respaldar(desde, hasta, output):
     click.echo(f"  {contador} en {ruta.name}")
 
 
-cli.add_command(respaldar)
+cli.add_command(reporte)
