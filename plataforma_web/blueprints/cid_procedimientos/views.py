@@ -599,6 +599,7 @@ def cambiar_area(cid_procedimiento_id):
     form.titulo_procedimiento.data = cid_procedimiento.titulo_procedimiento
     form.codigo.data = cid_procedimiento.codigo
     form.cid_area_original.data = cid_procedimiento.cid_area.nombre
+    form.cid_area.data = cid_procedimiento.cid_area
     return render_template("cid_procedimientos/cambiar_area.jinja2", form=form, cid_procedimiento=cid_procedimiento)
 
 
