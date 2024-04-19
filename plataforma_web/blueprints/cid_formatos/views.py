@@ -1,6 +1,7 @@
 """
 CID Formatos, vistas
 """
+
 import json
 from flask import Blueprint, flash, redirect, render_template, request, url_for
 from flask_login import current_user, login_required
@@ -50,26 +51,32 @@ def datatable_json():
     draw, start, rows_per_page = get_datatable_parameters()
     # Consultar
     consulta = CIDFormato.query
+    # Primero hacer el join si se necesita
+    if "cid_areas[]" in request.form or "seguimiento" in request.form:
+        consulta = consulta.join(CIDProcedimiento)
+    # Si viene el filtro con un listado de ids de areas, filtrar por ellas
+    if "cid_areas[]" in request.form:
+        areas_a_filtrar = request.form.getlist("cid_areas[]")
+        listado_areas_ids = [int(area_id) for area_id in areas_a_filtrar]
+        consulta = consulta.filter(CIDProcedimiento.id == CIDFormato.procedimiento_id)
+        consulta = consulta.filter(CIDProcedimiento.cid_area_id.in_(listado_areas_ids))
+    # Filtrar
     if "estatus" in request.form:
         consulta = consulta.filter_by(estatus=request.form["estatus"])
     else:
         consulta = consulta.filter_by(estatus="A")
+    if "cid_formato_id" in request.form:
+        try:
+            cid_formato_id = int(request.form["cid_formato_id"])
+            consulta = consulta.filter_by(id=cid_formato_id)
+        except ValueError:
+            pass
     if "descripcion" in request.form:
         consulta = consulta.filter(CIDFormato.descripcion.contains(safe_string(request.form["descripcion"])))
-    if "cid_procedimiento" in request.form:
-        consulta = consulta.join(CIDProcedimiento)
-        consulta = consulta.filter(CIDProcedimiento.titulo_procedimiento.contains(safe_string(request.form["cid_procedimiento"])))
     if "seguimiento" in request.form:
-        consulta = consulta.join(CIDProcedimiento)
         consulta = consulta.filter(CIDProcedimiento.seguimiento == request.form["seguimiento"])
     if "usuario_id" in request.form:
-        consulta = consulta.join(CIDProcedimiento)
         consulta = consulta.filter(CIDProcedimiento.usuario_id == request.form["usuario_id"])
-    # Si viene el filtro con un listado de ids de areas, filtrar por ellas
-    if "cid_areas[]" in request.form:
-        # Se convierte el parametro (numeros separados por comas) a una lista
-        listado_areas_ids = request.form["cid_areas[]"].split(",")
-        consulta = consulta.filter(CIDProcedimiento.cid_area_id.in_(listado_areas_ids))
     registros = consulta.order_by(CIDFormato.descripcion).offset(start).limit(rows_per_page).all()
     total = consulta.count()
     # Elaborar datos para DataTable
@@ -108,26 +115,32 @@ def datatable_json_admin():
     draw, start, rows_per_page = get_datatable_parameters()
     # Consultar
     consulta = CIDFormato.query
+    # Primero hacer el join si se necesita
+    if "cid_areas[]" in request.form or "seguimiento" in request.form:
+        consulta = consulta.join(CIDProcedimiento)
+    # Si viene el filtro con un listado de ids de areas, filtrar por ellas
+    if "cid_areas[]" in request.form:
+        areas_a_filtrar = request.form.getlist("cid_areas[]")
+        listado_areas_ids = [int(area_id) for area_id in areas_a_filtrar]
+        consulta = consulta.filter(CIDProcedimiento.id == CIDFormato.procedimiento_id)
+        consulta = consulta.filter(CIDProcedimiento.cid_area_id.in_(listado_areas_ids))
+    # Filtrar
     if "estatus" in request.form:
         consulta = consulta.filter_by(estatus=request.form["estatus"])
     else:
         consulta = consulta.filter_by(estatus="A")
+    if "cid_formato_id" in request.form:
+        try:
+            cid_formato_id = int(request.form["cid_formato_id"])
+            consulta = consulta.filter_by(id=cid_formato_id)
+        except ValueError:
+            pass
     if "descripcion" in request.form:
         consulta = consulta.filter(CIDFormato.descripcion.contains(safe_string(request.form["descripcion"])))
-    if "cid_procedimiento" in request.form:
-        consulta = consulta.join(CIDProcedimiento)
-        consulta = consulta.filter(CIDProcedimiento.titulo_procedimiento.contains(safe_string(request.form["cid_procedimiento"])))
     if "seguimiento" in request.form:
-        consulta = consulta.join(CIDProcedimiento)
         consulta = consulta.filter(CIDProcedimiento.seguimiento == request.form["seguimiento"])
     if "usuario_id" in request.form:
-        consulta = consulta.join(CIDProcedimiento)
         consulta = consulta.filter(CIDProcedimiento.usuario_id == request.form["usuario_id"])
-    # Si viene el filtro con un listado de ids de areas, filtrar por ellas
-    if "cid_areas[]" in request.form:
-        # Se convierte el parametro (numeros separados por comas) a una lista
-        listado_areas_ids = request.form["cid_areas[]"].split(",")
-        consulta = consulta.filter(CIDProcedimiento.cid_area_id.in_(listado_areas_ids))
     registros = consulta.order_by(CIDFormato.id.desc()).offset(start).limit(rows_per_page).all()
     total = consulta.count()
     # Elaborar datos para DataTable
@@ -163,7 +176,7 @@ def datatable_json_admin():
 def list_active():
     """Listado de formatos autorizados de mis áreas"""
     # Consultar las areas del usuario
-    cid_areas = CIDArea.query.join(CIDAreaAutoridad).filter(CIDAreaAutoridad.autoridad_id == current_user.autoridad.id).all()
+    cid_areas = CIDArea.query.join(CIDAreaAutoridad).filter(CIDAreaAutoridad.autoridad_id == current_user.autoridad.id).filter(CIDAreaAutoridad.estatus == "A").filter(CIDArea.estatus == "A").all()
     # Definir listado de ids de areas
     cid_areas_ids = [cid_area.id for cid_area in cid_areas]
     # Si no tiene areas asignadas, redirigir a la lista de formatos autorizados
