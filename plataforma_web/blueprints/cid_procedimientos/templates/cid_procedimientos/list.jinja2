@@ -31,22 +31,22 @@
         <div class="row">
             <div class="col">
                 <form class="row g-1 mb-3" id="filtradorForm" onsubmit="filtrosCidProcedimientos.buscar(); return false;">
-                    <div class="col-3">
+                    <div class="col-2">
+                        <div class="form-floating">
+                            <input id="filtroId" type="text" class="form-control" aria-label="Id">
+                            <label for="filtroId">ID</label>
+                        </div>
+                    </div>
+                    <div class="col-4">
                         <div class="form-floating">
                             <input id="filtroCodigo" type="text" class="form-control" aria-label="Codigo" style="text-transform: uppercase;">
                             <label for="filtroCodigo">Código</label>
                         </div>
                     </div>
-                    <div class="col-3">
-                        <div class="form-floating">
-                            <input id="filtroSeguimiento" type="text" class="form-control" aria-label="Seguimiento" style="text-transform: uppercase;">
-                            <label for="filtroSeguimiento">Seguimiento</label>
-                        </div>
-                    </div>
                     <div class="col-4">
                         <div class="form-floating">
-                            <input id="filtroTitulo" type="text" class="form-control" aria-label="Titulo" style="text-transform: uppercase;">
-                            <label for="filtroTitulo">Titulo procedimiento</label>
+                            <input id="filtroTituloProcedimiento" type="text" class="form-control" aria-label="Procedimiento" style="text-transform: uppercase;">
+                            <label for="filtroTituloProcedimiento">Procedimiento</label>
                         </div>
                     </div>
                     <div class="col-2 text-end">
@@ -61,8 +61,8 @@
             <thead>
                 <tr>
                     <th>ID</th>
-                    <th>Procedimiento</th>
                     <th>Código</th>
+                    <th>Procedimiento</th>
                     <th>Fecha</th>
                     <th>Usuario</th>
                     <th>Seguimiento</th>
@@ -84,8 +84,8 @@
         configDTCidProcedimientos['ajax']['data'] = {{ filtros }};
         configDTCidProcedimientos['columns'] = [
             { data: 'detalle' },
-            { data: 'titulo_procedimiento' },
             { data: 'codigo' },
+            { data: 'titulo_procedimiento' },
             { data: 'fecha' },
             { data: 'usuario' },
             { data: 'seguimiento' },
@@ -100,7 +100,7 @@
                 }
             },
             {
-                targets: 1, // titulo_procedimiento
+                targets: 2, // titulo_procedimiento
                 data: null,
                 render: function(data, type, row, meta) {
                     if (data.length > 64)
@@ -136,9 +136,9 @@
         ];
         // Filtros Cid Procedimientos
         const filtrosCidProcedimientos = new FiltrosDataTable('#cid_procedimientos_datatable', configDTCidProcedimientos);
+        filtrosCidProcedimientos.agregarInput('filtroId', 'cid_procedmiento_id');
         filtrosCidProcedimientos.agregarInput('filtroCodigo', 'codigo');
-        filtrosCidProcedimientos.agregarInput('filtroSeguimiento', 'seguimiento');
-        filtrosCidProcedimientos.agregarInput('filtroTitulo', 'titulo_procedimiento');
+        filtrosCidProcedimientos.agregarInput('filtroTituloProcedimiento', 'titulo_procedimiento');
         filtrosCidProcedimientos.precargar();
     </script>
 {% endblock %}
