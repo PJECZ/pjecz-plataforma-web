@@ -368,7 +368,7 @@ def edit(arc_documento_id):
             ArcDocumento.query.filter_by(expediente=expediente)
             .filter_by(autoridad_id=juzgado_id)
             .filter_by(arc_documento_tipo=tipo_documento)
-            .filter_by(arc_juzgado_origen=form.juzgado_origen.data)
+            .filter_by(arc_juzgados_origen_claves=form.juzgados_origen.data)
             .filter(ArcDocumento.id != arc_documento_id)
             .filter_by(estatus="A")
             .first()
