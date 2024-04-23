@@ -54,16 +54,36 @@
             {% call f.form_group(form.juicio) %}{% endcall %}
             {% call f.form_group(form.tipo_juzgado) %}{% endcall %}
             <hr />
-            <p class="h6 bg-info p-3"><strong>Instrucciones:</strong> Para agregar instancias de origen a un expediente debe
-            seleccionar una instancia de origen y presionar el botón de <i>Agregar Juzgado</i> el cual
-            ira añadiendo juzgados de origen al campo que se almacenará llamado: <i>Instancias de Origen</i>.
-            </p>
-            {% call f.form_group(form.juzgado_origen) %}{% endcall %}
-            <div class="form-group mb-2">
-                <a class="btn btn-success" onclick="agregar_instancia_origen();">Agregar Instancia</a>
-                <a class="btn btn-danger" onclick="limpiar_instancias_origen();">Limpiar</a>
+            <p class="text-muted"><strong>Instrucciones:</strong> Seleccione una instancia del listado y agregela presionando el botón "Agregar" al campo de instancias de origen, que se encuentra al lado derecho. Estos serán los valores a guardar.
+            Utilice el botón "Limpiar Todo" para borrar el campo y comenzar de nuevo.</p>
+            <div class="mb-6 row">
+                <div class="mb-6 col">
+                    <label for="listado_instancias" class="col-form-label">Listado de instancias de origen</label>
+                </div>
+                <div class="mb-6 col">
+                    <label for="inputInstancias" class="col-form-label">Instancias de origen</label>
+                </div>
             </div>
-            {% call f.form_group(form.juzgados_origen, readonly=true) %}{% endcall %}
+            <div class="mb-6 row">
+                <div class="mb-6 col">
+                    <select id="listado_instancias" class="form-control" size="5">
+                        {% for intancia in instancias %}
+                            <option value="{{ intancia.clave }}">{{ intancia.clave }}</option>
+                        {% endfor %}
+                    </select>
+                </div>
+                <div class="mb-6 col">
+                    <textarea class="form-control" id="juzgados_origen" name="juzgados_origen" rows="5" readonly>{{ documento.arc_juzgados_origen_claves }}</textarea>
+                </div>
+            </div>
+            <div class="mb-6 row m-2">
+                <div class="mb-6 col">
+                    <a class="btn btn-success" onclick="agregar_instancia_origen();">Agregar <span class="iconify" data-icon="mdi:chevron-double-right"></span></a>
+                </div>
+                <div class="mb-6 col">
+                    <a class="btn btn-danger" onclick="limpiar_instancias_origen();">Limpiar Todo</a>
+                </div>
+            </div>
             <hr />
             {% call f.form_group(form.tipo) %}{% endcall %}
             {% if form.ubicacion_readonly %}
@@ -147,13 +167,11 @@
 
         function agregar_instancia_origen() {
             const instancias_origen = document.getElementById("juzgados_origen");
-            const juzgado_origen = document.getElementById("juzgado_origen");
+            const juzgado_origen = document.getElementById("listado_instancias");
 
             // Limpiar el texto.
             const juzgado_origen_index = juzgado_origen.selectedIndex;
             let juzgado_origen_texto = juzgado_origen.options[juzgado_origen_index].text;
-            const indice = juzgado_origen_texto.indexOf(" : ");
-            juzgado_origen_texto = juzgado_origen_texto.slice(0, indice);
 
             // Revisar que no este ya concatendao este valor
             const lista_valores = instancias_origen.value.split(", ");

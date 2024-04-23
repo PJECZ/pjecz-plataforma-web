@@ -208,3 +208,21 @@ def query_juzgados_extintos_json():
             }
         )
     return {"results": results, "pagination": {"more": False}}
+
+
+@arc_juzgados_extintos.route("/arc_juzgados_extintos/juzgados_extintos_claves_json", methods=["POST"])
+def query_juzgados_extintos_claves_json():
+    """Proporcionar el JSON de autoridades para elegir Juzgados con un Select2"""
+    consulta = ArcJuzgadoExtinto.query.filter(ArcJuzgadoExtinto.estatus == "A")
+    if "clave" in request.form:
+        texto = safe_string(request.form["clave"]).upper()
+        consulta = consulta.filter(ArcJuzgadoExtinto.clave.contains(texto))
+    results = []
+    for juzgado in consulta.order_by(ArcJuzgadoExtinto.id).limit(15).all():
+        results.append(
+            {
+                "id": juzgado.clave,
+                "text": juzgado.clave + "  : " + juzgado.descripcion_corta,
+            }
+        )
+    return {"results": results, "pagination": {"more": False}}
