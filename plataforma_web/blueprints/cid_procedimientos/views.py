@@ -69,8 +69,8 @@ def datatable_json():
         consulta = consulta.filter(CIDProcedimiento.seguimiento == request.form["seguimiento"])
     if "titulo_procedimiento" in request.form:
         consulta = consulta.filter(CIDProcedimiento.titulo_procedimiento.contains(safe_string(request.form["titulo_procedimiento"])))
-    # if "usuario_id" in request.form:
-    #     consulta = consulta.filter(CIDProcedimiento.usuario_id == request.form["usuario_id"])
+    if "usuario_id" in request.form:
+        consulta = consulta.filter(CIDProcedimiento.usuario_id == request.form["usuario_id"])
     # if "seguimiento_filtro" in request.form:
     #     consulta = consulta.filter(CIDProcedimiento.seguimiento.contains(request.form["seguimiento_filtro"]))
     # if "fecha_desde" in request.form:
@@ -143,8 +143,8 @@ def datatable_json_admin():
         consulta = consulta.filter(CIDProcedimiento.seguimiento == request.form["seguimiento"])
     if "titulo_procedimiento" in request.form:
         consulta = consulta.filter(CIDProcedimiento.titulo_procedimiento.contains(safe_string(request.form["titulo_procedimiento"])))
-    # if "usuario_id" in request.form:
-    #     consulta = consulta.filter(CIDProcedimiento.usuario_id == request.form["usuario_id"])
+    if "usuario_id" in request.form:
+        consulta = consulta.filter(CIDProcedimiento.usuario_id == request.form["usuario_id"])
     # if "seguimiento_filtro" in request.form:
     #     consulta = consulta.filter(CIDProcedimiento.seguimiento.contains(request.form["seguimiento_filtro"]))
     # if "fecha_desde" in request.form:
