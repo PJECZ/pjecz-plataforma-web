@@ -2,6 +2,7 @@
 CID Procedimientos, tareas en el fondo
 
 - crear_pdf: Crear PDF
+- exportar_xlsx: Exportar Procedimientos a un archivo XLSX
 """
 
 import json
@@ -10,6 +11,7 @@ import logging
 import os
 from pathlib import Path
 import random
+from typing import Tuple
 
 from delta import html
 from jinja2 import Environment, FileSystemLoader
@@ -316,3 +318,18 @@ def crear_pdf(cid_procedimiento_id: int, usuario_id: int = None, accept_reject_u
     set_task_progress(100, mensaje_final)
     bitacora.info(mensaje_final)
     return mensaje_final
+
+
+def exportar_xlsx() -> Tuple[str, str, str]:
+    """Exportar Procedimientos a un archivo XLSX"""
+    bitacora.info("Inicia exportar Usuarios Datos a un archivo XLSX")
+
+    # Pruebas
+    contador = 23
+    nombre_archivo_xlsx = "cid_procedimientos.xlsx"
+    public_url = "https://storage.googleapis.com/pjecz-plataforma-web/cid_procedimientos/cid_procedimientos.xlsx"
+
+    # Entregar mensaje de termino, el nombre del archivo XLSX y la URL publica
+    mensaje_termino = f"Se exportaron {contador} Usuarios-Datos a {nombre_archivo_xlsx}"
+    bitacora.info(mensaje_termino)
+    return mensaje_termino, nombre_archivo_xlsx, public_url
