@@ -1,8 +1,7 @@
 """
 Estados
 
-- alimentar_estados: Alimentar desde un archivo CSV
-- alimentar_municipios: Alimentar desde un archivo CSV
+- alimentar: Alimentar desde un archivo CSV
 """
 from pathlib import Path
 import csv
