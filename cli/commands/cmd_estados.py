@@ -52,7 +52,7 @@ def alimentar(entrada_csv):
                 contador_omitidos += 1
                 continue
             datos = {
-                "clave": clave,
+                "clave": clave.zfill(2),
                 "nombre": safe_string(nombre),
             }
             Estado(**datos).save()

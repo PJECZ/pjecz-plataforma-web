@@ -57,7 +57,7 @@ def alimentar(entrada_csv):
                 click.echo(f"  AVISO: El municipio {municipio_nombre} con clave {municipio_clave} ya se encuentra alimentado")
                 continue
             datos = {
-                "clave": municipio_clave,
+                "clave": municipio_clave.zfill(3),
                 "nombre": safe_string(municipio_nombre),
                 "estado": estado,
             }
