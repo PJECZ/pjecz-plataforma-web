@@ -332,8 +332,8 @@ def crear_pdf(cid_procedimiento_id: int, usuario_id: int = None, accept_reject_u
 
 
 def exportar_xlsx() -> Tuple[str, str, str]:
-    """Exportar Procedimientos a un archivo XLSX"""
-    bitacora.info("Inicia exportar Usuarios Datos a un archivo XLSX")
+    """Exportar Lista Maestra a un archivo XLSX"""
+    bitacora.info("Inicia exportar Lista Maestra a un archivo XLSX")
 
     # Consultar CIDProcedimientos
     cid_procedimientos = CIDProcedimiento.query.filter_by(seguimiento="AUTORIZADO").filter_by(estatus="A").order_by(CIDProcedimiento.codigo, CIDProcedimiento.revision)
@@ -429,6 +429,25 @@ def exportar_xlsx() -> Tuple[str, str, str]:
                 bitacora.warning(mensaje, str(error))
 
     # Entregar mensaje de termino, el nombre del archivo XLSX y la URL publica
-    mensaje_termino = f"Se exportaron {contador} Usuarios-Datos a {nombre_archivo_xlsx}"
+    mensaje_termino = f"Se exportaron {contador} procedimientos a {nombre_archivo_xlsx}"
     bitacora.info(mensaje_termino)
     return mensaje_termino, nombre_archivo_xlsx, public_url
+
+
+def lanzar_exportar_xlsx():
+    """Lanzar exportar Lista Maestra a un archivo XLSX"""
+
+    # Iniciar la tarea en el fondo
+    set_task_progress(0, "Inicia exportar Lista Maestra a un archivo XLSX")
+
+    # Ejecutar el creador
+    try:
+        mensaje_termino, nombre_archivo_xlsx, public_url = exportar_xlsx()
+    except MyAnyError as error:
+        mensaje_error = str(error)
+        set_task_error(mensaje_error)
+        return mensaje_error
+
+    # Terminar la tarea en el fondo y entregar el mensaje de termino
+    set_task_progress(100, mensaje_termino, nombre_archivo_xlsx, public_url)
+    return mensaje_termino
