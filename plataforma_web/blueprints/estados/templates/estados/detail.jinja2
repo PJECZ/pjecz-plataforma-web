@@ -1,0 +1,23 @@
+{% extends 'layouts/app.jinja2' %}
+{% import 'macros/detail.jinja2' as detail %}
+{% import 'macros/modals.jinja2' as modals %}
+{% import 'macros/topbar.jinja2' as topbar %}
+
+{% block title %}Estado{% endblock %}
+
+{% block topbar_actions %}
+    {% call topbar.page_buttons(estado.nombre) %}
+        {{ topbar.button_previous('Estados', url_for('estados.list_active')) }}
+    {% endcall %}
+{% endblock %}
+
+{% block content %}
+    {% call detail.card(estatus=estado.estatus) %}
+        {{ detail.label_value('Clave', estado.clave) }}
+        {{ detail.label_value('Nombre', estado.nombre) }}
+        {{ detail.label_value('Fecha de creación', estado.creado.strftime('%Y-%m-%d %H:%M')) }}
+    {% endcall %}
+{% endblock %}
+
+{% block custom_javascript %}
+{% endblock %}
