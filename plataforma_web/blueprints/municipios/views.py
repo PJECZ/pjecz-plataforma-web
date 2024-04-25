@@ -14,6 +14,7 @@ from plataforma_web.blueprints.modulos.models import Modulo
 from plataforma_web.blueprints.permisos.models import Permiso
 from plataforma_web.blueprints.usuarios.decorators import permission_required
 from plataforma_web.blueprints.municipios.models import Municipio
+from plataforma_web.blueprints.estados.models import Estado
 
 MODULO = "MUNICIPIOS"
 
@@ -38,6 +39,16 @@ def datatable_json():
         consulta = consulta.filter_by(estatus=request.form["estatus"])
     else:
         consulta = consulta.filter_by(estatus="A")
+    if "municipio_clave" in request.form:
+        consulta = consulta.filter_by(clave=safe_string(request.form["municipio_clave"]))
+    if "municipio_nombre" in request.form:
+        consulta = consulta.filter(Municipio.nombre.contains(safe_string(request.form["municipio_nombre"])))
+    if {"estado_clave", "estado_nombre"}.intersection(request.form):
+        consulta = consulta.join(Estado)
+    if "estado_clave" in request.form:
+        consulta = consulta.filter(Estado.clave==safe_string(request.form["estado_clave"]))
+    if "estado_nombre" in request.form:
+        consulta = consulta.filter(Estado.nombre.contains(safe_string(request.form["estado_nombre"])))
     registros = consulta.order_by(Municipio.id).offset(start).limit(rows_per_page).all()
     total = consulta.count()
     # Elaborar datos para DataTable
@@ -49,7 +60,9 @@ def datatable_json():
                     "clave": resultado.clave,
                     "url": url_for("municipios.detail", municipio_id=resultado.id),
                 },
-                "nombre": resultado.nombre,
+                "municipio_nombre": resultado.nombre,
+                "estado_clave": resultado.estado.clave,
+                "estado_nombre": resultado.estado.nombre,
             }
         )
     # Entregar JSON
