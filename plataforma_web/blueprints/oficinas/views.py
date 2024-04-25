@@ -1,6 +1,7 @@
 """
 Oficinas, vistas
 """
+
 import json
 from flask import Blueprint, flash, redirect, render_template, request, url_for
 from flask_login import current_user, login_required
@@ -34,20 +35,27 @@ def datatable_json():
     draw, start, rows_per_page = get_datatable_parameters()
     # Consultar
     consulta = Oficina.query
+    # Primero filtrar por columnas propias
     if "estatus" in request.form:
         consulta = consulta.filter_by(estatus=request.form["estatus"])
     else:
         consulta = consulta.filter_by(estatus="A")
     if "distrito_id" in request.form:
-        consulta = consulta.filter(Oficina.distrito_id == request.form["distrito_id"])
+        consulta = consulta.filter_by(distrito_id=request.form["distrito_id"])
     if "domicilio_id" in request.form:
         consulta = consulta.filter_by(domicilio_id=request.form["domicilio_id"])
     if "clave" in request.form:
-        consulta = consulta.filter(Oficina.clave.contains(safe_string(request.form["clave"])))
+        try:
+            clave = safe_clave(request.form["clave"], max_len=24)
+            if clave != "":
+                consulta = consulta.filter(Oficina.clave.contains(clave))
+        except ValueError:
+            pass
     if "descripcion" in request.form:
-        consulta = consulta.filter(Oficina.descripcion.contains(safe_string(request.form["descripcion"])))
-    if "tipo" in request.form:
-        consulta = consulta.filter_by(tipo=request.form["tipo"])
+        descripcion = safe_string(request.form["descripcion"], save_enie=True)
+        if descripcion != "":
+            consulta = consulta.filter(Oficina.descripcion.contains(descripcion))
+    # Ordenar y paginar
     registros = consulta.order_by(Oficina.clave).offset(start).limit(rows_per_page).all()
     total = consulta.count()
     # Elaborar datos para DataTable
