@@ -24,6 +24,7 @@ import sendgrid
 from sendgrid.helpers.mail import Email, To, Content, Mail
 
 from lib.exceptions import MyAnyError, MyEmptyError
+from lib.safe_string import safe_string
 from lib.storage import GoogleCloudStorage, NoneFilenameError, NotAllowedExtesionError, UnknownExtesionError, NotConfiguredError
 from lib.tasks import set_task_progress, set_task_error
 from plataforma_web.app import create_app
@@ -358,6 +359,16 @@ def exportar_xlsx() -> Tuple[str, str, str]:
         ]
     )
 
+    # Ajustar el ancho de las columnas
+    hoja.column_dimensions["A"].width = 15
+    hoja.column_dimensions["B"].width = 10
+    hoja.column_dimensions["C"].width = 60
+    hoja.column_dimensions["D"].width = 15
+    hoja.column_dimensions["E"].width = 40
+    hoja.column_dimensions["F"].width = 40
+    hoja.column_dimensions["G"].width = 40
+    hoja.column_dimensions["H"].width = 40
+
     # Inicializar el contador
     contador = 0
 
@@ -368,12 +379,12 @@ def exportar_xlsx() -> Tuple[str, str, str]:
             [
                 cid_procedimiento.codigo,
                 cid_procedimiento.revision,
-                cid_procedimiento.titulo_procedimiento,
+                safe_string(cid_procedimiento.titulo_procedimiento, save_enie=True),
                 cid_procedimiento.fecha.strftime("%d/%m/%Y"),
-                cid_procedimiento.elaboro_nombre,
-                cid_procedimiento.reviso_nombre,
-                cid_procedimiento.aprobo_nombre,
-                cid_procedimiento.cid_area.nombre,
+                safe_string(cid_procedimiento.elaboro_nombre, save_enie=True),
+                safe_string(cid_procedimiento.reviso_nombre, save_enie=True),
+                safe_string(cid_procedimiento.aprobo_nombre, save_enie=True),
+                safe_string(cid_procedimiento.cid_area.nombre, save_enie=True),
             ]
         )
 

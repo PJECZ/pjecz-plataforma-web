@@ -23,7 +23,7 @@
         {% if current_user.can_insert('CID PROCEDIMIENTOS') %}
             {{ topbar.button_new('Nuevo Procedimiento', url_for('cid_procedimientos.new')) }}
         {% endif %}
-        {{ modals.button_modal('Exportar Lista Maestra a XLSX', url_for('cid_procedimientos.exportar_xlsx'), 'ExportXLSX', 'mdi:download', "¿Quiere exportar las Personas como un archivo XLSX?") }}
+        {{ modals.button_modal('Exportar Lista Maestra a XLSX', url_for('cid_procedimientos.exportar_xlsx'), 'ExportXLSX', 'mdi:download', "¿Quiere exportar la Lista Maestra un archivo XLSX?") }}
     {% endcall %}
 {% endblock %}
 
