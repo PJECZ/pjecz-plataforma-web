@@ -1,6 +1,7 @@
 """
 Autoridades, vistas
 """
+
 import json
 from datetime import date, datetime, timedelta
 
@@ -53,6 +54,7 @@ def datatable_json():
     draw, start, rows_per_page = get_datatable_parameters()
     # Consultar
     consulta = Autoridad.query
+    # Primero filtrar por columnas propias
     if "estatus" in request.form:
         consulta = consulta.filter_by(estatus=request.form["estatus"])
     else:
@@ -62,26 +64,22 @@ def datatable_json():
     if "materia_id" in request.form:
         consulta = consulta.filter_by(materia_id=request.form["materia_id"])
     if "clave" in request.form:
-        consulta = consulta.filter(Autoridad.clave.contains(safe_string(request.form["clave"])))
+        try:
+            clave = safe_clave(request.form["clave"], max_len=24)
+            if clave != "":
+                consulta = consulta.filter(Autoridad.clave.contains(clave))
+        except ValueError:
+            pass
     if "descripcion" in request.form:
-        consulta = consulta.filter(Autoridad.descripcion.contains(safe_string(request.form["descripcion"], to_uppercase=False)))
-    if "organo_jurisdiccional" in request.form:
-        consulta = consulta.filter(Autoridad.organo_jurisdiccional == safe_string(request.form["organo_jurisdiccional"]))
-    if "caracteristicas" in request.form:
-        if request.form["caracteristicas"] == "CEMASC":
-            consulta = consulta.filter_by(es_cemasc=True)
-        elif request.form["caracteristicas"] == "DEFENSORIA":
-            consulta = consulta.filter_by(es_defensoria=True)
-        elif request.form["caracteristicas"] == "EXTINTO":
-            consulta = consulta.filter_by(es_extinto=True)
-        elif request.form["caracteristicas"] == "JURISDICCIONAL":
-            consulta = consulta.filter_by(es_jurisdiccional=True)
-        elif request.form["caracteristicas"] == "NOTARIA":
-            consulta = consulta.filter_by(es_notaria=True)
-        elif request.form["caracteristicas"] == "ORGANO_ESPECIALIZADO":
-            consulta = consulta.filter_by(es_organo_especializado=True)
-        elif request.form["caracteristicas"] == "REVISOR_ESCRITURAS":
-            consulta = consulta.filter_by(es_revisor_escrituras=True)
+        descripcion = safe_string(request.form["descripcion"], save_enie=True)
+        if descripcion != "":
+            consulta = consulta.filter(Autoridad.descripcion.contains(descripcion))
+    # Luego filtrar por columnas de otras tablas
+    if "distrito_nombre" in request.form:
+        distrito_nombre = safe_string(request.form["distrito_nombre"], save_enie=True)
+        if distrito_nombre != "":
+            consulta = consulta.join(Distrito).filter(Distrito.nombre.contains(distrito_nombre))
+    # Ordenar y paginar
     registros = consulta.order_by(Autoridad.clave).offset(start).limit(rows_per_page).all()
     total = consulta.count()
     # Elaborar datos para DataTable
