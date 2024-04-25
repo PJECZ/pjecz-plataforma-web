@@ -120,6 +120,7 @@ class CIDProcedimientosNewReview(FlaskForm):
     titulo_procedimiento = StringField("Título Procedimiento", validators=[Optional()])
     codigo = StringField("Código")  # Solo lectura
     revision = IntegerField("Nueva Revisión")  # Solo lectura
+    cid_area = StringField("Área")  # Read Only
     fecha = DateField("Fecha de elaboración", validators=[DataRequired()])
     reviso_nombre = StringField("Nombre", validators=[Optional(), Length(max=256)])
     reviso_puesto = StringField("Puesto", validators=[Optional(), Length(max=256)])

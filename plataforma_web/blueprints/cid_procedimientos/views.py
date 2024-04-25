@@ -3,7 +3,7 @@ CID Procedimientos, vistas
 """
 
 import json
-from datetime import datetime
+from datetime import datetime, timezone
 from delta import html
 from flask import abort, Blueprint, flash, redirect, render_template, request, url_for
 from flask_login import current_user, login_required
@@ -861,7 +861,7 @@ def accept_reject(cid_procedimiento_id):
                         descripcion=cid_formato.descripcion,
                         archivo=cid_formato.archivo,
                         url=cid_formato.url,
-                        cid_area_id=cid_formato.cid_area,
+                        cid_area=cid_formato.cid_area,
                     ).save()
             # Bitacora
             bitacora = Bitacora(
@@ -985,7 +985,7 @@ def copiar_procedimiento_con_revision(cid_procedimiento_id):
         cid_procedimiento.titulo_prcedimiento = safe_string(form.titulo_procedimiento.data)
         cid_procedimiento.codigo = form.codigo.data
         cid_procedimiento.revision = form.revision.data
-        cid_procedimiento.fecha = form.fecha.data if form.fecha.data else datetime.utcnow()
+        cid_procedimiento.fecha = form.fecha.data if form.fecha.data else datetime.now(timezone.utc)
         cid_procedimiento.reviso_nombre = safe_string(reviso_nombre, save_enie=True)
         cid_procedimiento.reviso_puesto = safe_string(form.reviso_puesto.data)
         cid_procedimiento.reviso_email = safe_email(reviso_email)
@@ -1000,7 +1000,7 @@ def copiar_procedimiento_con_revision(cid_procedimiento_id):
             titulo_procedimiento=safe_string(form.titulo_procedimiento.data),
             codigo=form.codigo.data,
             revision=form.revision.data,
-            fecha=form.fecha.data if form.fecha.data else datetime.utcnow(),
+            fecha=form.fecha.data if form.fecha.data else datetime.now(timezone.utc),
             objetivo=cid_procedimiento.objetivo,
             alcance=cid_procedimiento.alcance,
             documentos=cid_procedimiento.documentos,
@@ -1025,11 +1025,24 @@ def copiar_procedimiento_con_revision(cid_procedimiento_id):
             firma="",
             archivo="",
             url="",
-            cid_area_id=1,
+            cid_area=cid_procedimiento.cid_area,
         )
-
         # Guardar la nueva copia en la base de datos
         nueva_copia.save()
+        # Obtener el procedimiento anterior usando su ID, Duplicar los formatos del procedimiento anterior a éste que es el nuevo
+        anterior = CIDProcedimiento.query.get(cid_procedimiento_id)
+        # Verificar si el seguimiento del nuevo procedimiento es "AUTORIZADO"
+        if cid_procedimiento.seguimiento == "AUTORIZADO":
+            # Iterar sobre los formatos del procedimiento anterior
+            for cid_formato in anterior.formatos:
+                # Crear una copia del formato actual y guardarla en la base de datos
+                CIDFormato(
+                    procedimiento=nueva_copia,  # Establecer el nuevo procedimiento como el procedimiento al que pertenecerá este formato
+                    descripcion=cid_formato.descripcion,  # Establecer la descripción del nuevo formato como la misma descripción del formato anterior
+                    archivo=cid_formato.archivo,  # Establecer el archivo del nuevo formato como el mismo archivo del formato anterior
+                    url=cid_formato.url,  # Establecer la URL del nuevo formato como la misma URL del formato anterior
+                    cid_area=cid_formato.cid_area,  # Establecer el área del nuevo formato como la misma área del formato anterior
+                ).save()
         # Bitácora y redirección a la vista de detalle
         bitacora = Bitacora(
             modulo=Modulo.query.filter_by(nombre=MODULO).first(),
@@ -1039,7 +1052,7 @@ def copiar_procedimiento_con_revision(cid_procedimiento_id):
         )
         bitacora.save()
         flash(bitacora.descripcion, "success")
-        # Redireccionar al detalle del nuevo id
+        # Redireccionar a la edicion del nuevo id
         return redirect(url_for("cid_procedimientos.edit", cid_procedimiento_id=nueva_copia.id))
     # Llenar el formulario con los datos del procedimiento original
     form.titulo_procedimiento.data = cid_procedimiento.titulo_procedimiento
@@ -1049,7 +1062,7 @@ def copiar_procedimiento_con_revision(cid_procedimiento_id):
         form.revision.data = ultima_revision.revision + 1
     else:
         form.revision.data = 1  # Si no hay revisiones anteriores, inicia desde 1
-    form.fecha.data = datetime.utcnow()
+    form.fecha.data = datetime.now(timezone.utc)
     form.reviso_nombre.data = cid_procedimiento.reviso_nombre
     form.reviso_puesto.data = cid_procedimiento.reviso_puesto
     form.reviso_email.data = cid_procedimiento.reviso_email
