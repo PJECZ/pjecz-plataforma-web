@@ -3,6 +3,7 @@ Municipios
 
 - alimentar: Alimentar desde un archivo CSV
 """
+
 from pathlib import Path
 import csv
 
@@ -38,13 +39,14 @@ def alimentar(entrada_csv):
         return
     click.echo("Alimentando municipios...")
     contador = 0
+    contador_omitidos = 0
     with open(ruta, encoding="utf8") as puntero:
         rows = csv.DictReader(puntero)
         for row in rows:
             try:
-                estado_clave = row["estado_clave"]
-                municipio_clave = row["municipio_clave"]
-                municipio_nombre = row["municipio_nombre"]
+                estado_clave = row["estado_clave"].zfill(2)
+                municipio_clave = row["municipio_clave"].zfill(3)
+                municipio_nombre = safe_string(row["municipio_nombre"], save_enie=True)
             except (IndexError, ValueError):
                 click.echo("  Dato incorrecto: " + str(row))
                 continue
@@ -52,19 +54,22 @@ def alimentar(entrada_csv):
             if estado is None:
                 click.echo(f"  AVISO: El estado con la clave {estado_clave} no se encuentra")
                 continue
-            municipio = Municipio.query.filter_by(estado=estado).filter_by(clave=municipio_clave).filter_by(estatus='A').first()
+            municipio = Municipio.query.filter_by(estado=estado).filter_by(clave=municipio_clave).filter_by(estatus="A").first()
             if municipio:
                 click.echo(f"  AVISO: El municipio {municipio_nombre} con clave {municipio_clave} ya se encuentra alimentado")
+                contador_omitidos += 1
                 continue
             datos = {
-                "clave": municipio_clave.zfill(3),
-                "nombre": safe_string(municipio_nombre),
+                "clave": municipio_clave,
+                "nombre": municipio_nombre,
                 "estado": estado,
             }
             Municipio(**datos).save()
             contador += 1
             if contador % 100 == 0:
                 click.echo(f"  Van {contador}...")
-    click.echo(f"{contador} municipios alimentados.")
+    click.echo(f"Se han alimentado {contador} municipios.")
+    click.echo(f"Se han omitido {contador_omitidos} renglones.")
+
 
 cli.add_command(alimentar)

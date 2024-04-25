@@ -3,6 +3,7 @@ Estados
 
 - alimentar: Alimentar desde un archivo CSV
 """
+
 from pathlib import Path
 import csv
 
@@ -42,25 +43,24 @@ def alimentar(entrada_csv):
         rows = csv.DictReader(puntero)
         for row in rows:
             try:
-                clave = row["estado_clave"]
-                nombre = row["estado_nombre"]
+                clave = row["estado_clave"].zfill(2)
+                nombre = safe_string(row["estado_nombre"], save_enie=True)
             except (IndexError, ValueError):
                 click.echo("  Dato incorrecto: " + str(row))
                 continue
-            estado = Estado.query.filter_by(clave=clave).filter_by(estatus='A').first()
+            estado = Estado.query.filter_by(clave=clave).filter_by(estatus="A").first()
             if estado:
                 contador_omitidos += 1
                 continue
             datos = {
-                "clave": clave.zfill(2),
-                "nombre": safe_string(nombre),
+                "clave": clave,
+                "nombre": nombre,
             }
             Estado(**datos).save()
             contador += 1
-            if contador % 100 == 0:
-                click.echo(f"  Van {contador}...")
-    click.echo(f"{contador} estados alimentados.")
-    click.echo(f"{contador_omitidos} estados omitidos.")
+            click.echo(f"  {clave} {nombre}")
+    click.echo(f"Se han alimentado {contador} estados.")
+    click.echo(f"Se han omitido {contador_omitidos} renglones.")
 
 
 cli.add_command(alimentar)
