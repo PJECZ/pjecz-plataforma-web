@@ -2,19 +2,24 @@
 CID Procedimientos
 
 - actualizar: Actualizar procedimientos, define cid_area si es ND
+- exportar_xlsx: Exportar Lista Maestra a un archivo xlsx
 - crear_pdf: Crear PDF
 - respaldar: Respaldar procedimientos autorizados a un archivo CSV
 """
+
 import csv
 from datetime import datetime
 from pathlib import Path
+import sys
 
 import click
 
+from lib.exceptions import MyAnyError
 from plataforma_web.blueprints.autoridades.models import Autoridad
 from plataforma_web.blueprints.cid_areas.models import CIDArea
 from plataforma_web.blueprints.cid_areas_autoridades.models import CIDAreaAutoridad
 from plataforma_web.blueprints.cid_procedimientos.models import CIDProcedimiento
+from plataforma_web.blueprints.cid_procedimientos.tasks import exportar_xlsx as task_exportar_xlsx
 
 from plataforma_web.app import create_app
 from plataforma_web.extensions import db
@@ -103,6 +108,21 @@ def crear_pdf(cid_procedimiento_id):
 
 
 @click.command()
+def exportar_xlsx():
+    """Exportar Lista Maestra a un archivo xlsx"""
+
+    # Ejecutar la tarea
+    try:
+        mensaje_termino, _, _ = task_exportar_xlsx()
+    except MyAnyError as error:
+        click.echo(click.style(str(error), fg="red"))
+        sys.exit(1)
+
+    # Mensaje de termino
+    click.echo(click.style(mensaje_termino, fg="green"))
+
+
+@click.command()
 def respaldar():
     """Respaldar procedimientos autorizados a un archivo CSV"""
     click.echo("Respaldando Procedimientos...")
@@ -132,4 +152,5 @@ def respaldar():
 
 cli.add_command(actualizar)
 cli.add_command(crear_pdf)
+cli.add_command(exportar_xlsx)
 cli.add_command(respaldar)
