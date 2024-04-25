@@ -6,12 +6,15 @@
 
 {% block topbar_actions %}
     {% call topbar.page_buttons(titulo) %}
+        {% if current_user.can_view('ESTADOS') %}
+            {{ topbar.button_districts('Estados', url_for('estados.list_active')) }}
+        {% endif %}
     {% endcall %}
 {% endblock %}
 
 {% block content %}
     {% call list.card() %}
-        <!-- Filtros CidFormatos -->
+        <!-- Filtros Municipios -->
         <div class="row">
             <div class="col">
                 <form class="row g-1 mb-3" id="filtradorForm" onsubmit="filtrosMunicipios.buscar(); return false;">
@@ -46,7 +49,7 @@
                 </form>
             </div>
         </div>
-        <!-- Datatable de municipios -->
+        <!-- Datatable Municipios -->
         <table id="municipios_datatable" class="table {% if estatus == 'B'%}table-dark{% endif %} display nowrap" style="width:100%">
             <thead>
                 <tr>
@@ -92,5 +95,4 @@
         filtrosMunicipios.agregarInput('filtroMunicipioNombre', 'municipio_nombre');
         filtrosMunicipios.precargar();
     </script>
-    
 {% endblock %}

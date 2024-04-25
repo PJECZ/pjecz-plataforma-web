@@ -46,7 +46,7 @@ def alimentar(entrada_csv):
             try:
                 estado_clave = row["estado_clave"].zfill(2)
                 municipio_clave = row["municipio_clave"].zfill(3)
-                municipio_nombre = row["municipio_nombre"]
+                municipio_nombre = safe_string(row["municipio_nombre"], save_enie=True)
             except (IndexError, ValueError):
                 click.echo("  Dato incorrecto: " + str(row))
                 continue
@@ -61,7 +61,7 @@ def alimentar(entrada_csv):
                 continue
             datos = {
                 "clave": municipio_clave,
-                "nombre": safe_string(municipio_nombre),
+                "nombre": municipio_nombre,
                 "estado": estado,
             }
             Municipio(**datos).save()
