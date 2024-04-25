@@ -15,7 +15,11 @@
     {% call detail.card(estatus=municipio.estatus) %}
         {{ detail.label_value('Clave del Municipio', municipio.clave) }}
         {{ detail.label_value('Nombre del Muncipio', municipio.nombre) }}
-        {{ detail.label_value('Clave del Estado', municipio.estado.clave) }}
+        {% if current_user.can_view("ESTADOS") %}
+            {{ detail.label_value('Clave del Estado', municipio.estado.clave, url_for('estados.detail', estado_id=municipio.estado_id)) }}
+        {% else %}
+            {{ detail.label_value('Clave del Estado', municipio.estado.clave) }}
+        {% endif %}
         {{ detail.label_value('Nombre del Estado', municipio.estado.nombre) }}
         {{ detail.label_value('Fecha de creación', municipio.creado.strftime('%Y-%m-%d %H:%M')) }}
     {% endcall %}

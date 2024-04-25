@@ -6,6 +6,9 @@
 
 {% block topbar_actions %}
     {% call topbar.page_buttons(titulo) %}
+        {% if current_user.can_view('MUNICIPIOS') %}
+            {{ topbar.button_districts('Municipios', url_for('municipios.list_active')) }}
+        {% endif %}
     {% endcall %}
 {% endblock %}
 
@@ -74,5 +77,5 @@
         filtrosEstados.agregarInput('filtroNombre', 'nombre');
         filtrosEstados.precargar();
     </script>
-    
+
 {% endblock %}
