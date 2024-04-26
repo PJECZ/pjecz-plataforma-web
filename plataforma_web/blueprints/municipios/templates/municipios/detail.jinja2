@@ -1,0 +1,29 @@
+{% extends 'layouts/app.jinja2' %}
+{% import 'macros/detail.jinja2' as detail %}
+{% import 'macros/modals.jinja2' as modals %}
+{% import 'macros/topbar.jinja2' as topbar %}
+
+{% block title %}Municipio{% endblock %}
+
+{% block topbar_actions %}
+    {% call topbar.page_buttons(municipio.nombre) %}
+        {{ topbar.button_previous('Municipios', url_for('municipios.list_active')) }}
+    {% endcall %}
+{% endblock %}
+
+{% block content %}
+    {% call detail.card(estatus=municipio.estatus) %}
+        {{ detail.label_value('Clave del Municipio', municipio.clave) }}
+        {{ detail.label_value('Nombre del Muncipio', municipio.nombre) }}
+        {% if current_user.can_view("ESTADOS") %}
+            {{ detail.label_value('Clave del Estado', municipio.estado.clave, url_for('estados.detail', estado_id=municipio.estado_id)) }}
+        {% else %}
+            {{ detail.label_value('Clave del Estado', municipio.estado.clave) }}
+        {% endif %}
+        {{ detail.label_value('Nombre del Estado', municipio.estado.nombre) }}
+        {{ detail.label_value('Fecha de creación', municipio.creado.strftime('%Y-%m-%d %H:%M')) }}
+    {% endcall %}
+{% endblock %}
+
+{% block custom_javascript %}
+{% endblock %}

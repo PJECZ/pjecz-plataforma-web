@@ -1,0 +1,98 @@
+{% extends 'layouts/app.jinja2' %}
+{% import 'macros/list.jinja2' as list %}
+{% import 'macros/topbar.jinja2' as topbar %}
+
+{% block title %}Municipios{% endblock %}
+
+{% block topbar_actions %}
+    {% call topbar.page_buttons(titulo) %}
+        {% if current_user.can_view('ESTADOS') %}
+            {{ topbar.button_districts('Estados', url_for('estados.list_active')) }}
+        {% endif %}
+    {% endcall %}
+{% endblock %}
+
+{% block content %}
+    {% call list.card() %}
+        <!-- Filtros Municipios -->
+        <div class="row">
+            <div class="col">
+                <form class="row g-1 mb-3" id="filtradorForm" onsubmit="filtrosMunicipios.buscar(); return false;">
+                    <div class="col-1">
+                        <div class="form-floating">
+                            <input id="filtroMunicipioClave" type="text" class="form-control" aria-label="Clave del Municipio">
+                            <label for="filtroMunicipioClave">Clave Municipio</label>
+                        </div>
+                    </div>
+                    <div class="col-4">
+                        <div class="form-floating">
+                            <input id="filtroMunicipioNombre" type="text" class="form-control" aria-label="Nombre del Municipio" style="text-transform: uppercase;">
+                            <label for="filtroMunicipioNombre">Nombre del Municipio</label>
+                        </div>
+                    </div>
+                    <div class="col-1">
+                        <div class="form-floating">
+                            <input id="filtroEstadoClave" type="text" class="form-control" aria-label="Clave del Estado">
+                            <label for="filtroEstadoClave">Clave Estado</label>
+                        </div>
+                    </div>
+                    <div class="col-4">
+                        <div class="form-floating">
+                            <input id="filtroEstadoNombre" type="text" class="form-control" aria-label="Nombre del Estado" style="text-transform: uppercase;">
+                            <label for="filtroEstadoNombre">Nombre del Estado</label>
+                        </div>
+                    </div>
+                    <div class="col-2 text-end">
+                        <button title="Buscar" class="btn btn-primary btn-lg" onclick="filtrosMunicipios.buscar(); return false;" id="button-buscar"><span class="iconify" data-icon="mdi:magnify"></span></button>
+                        <button title="Limpiar" class="btn btn-warning btn-lg" type="reset" onclick="filtrosMunicipios.limpiar();" id="button-limpiar"><span class="iconify" data-icon="mdi:broom"></span></button>
+                    </div>
+                </form>
+            </div>
+        </div>
+        <!-- Datatable Municipios -->
+        <table id="municipios_datatable" class="table {% if estatus == 'B'%}table-dark{% endif %} display nowrap" style="width:100%">
+            <thead>
+                <tr>
+                    <th>Claves del Municipio</th>
+                    <th>Nombres de los Municipios</th>
+                    <th>Claves de Estados</th>
+                    <th>Estados</th>
+                </tr>
+            </thead>
+        </table>
+    {% endcall %}
+{% endblock %}
+
+{% block custom_javascript %}
+    <script src="/static/js/datatables-constructor.js"></script>
+    <script src="/static/js/datatables-filtros.js"></script>
+    <script>
+        // DataTable Municipios
+        const constructorDataTable = new ConfigDataTable( '{{ csrf_token() }}' );
+        let configDTMunicipios = constructorDataTable.config();
+        configDTMunicipios['ajax']['url'] = '/municipios/datatable_json';
+        configDTMunicipios['ajax']['data'] = {{ filtros }};
+        configDTMunicipios['columns'] = [
+            { data: 'detalle' },
+            { data: 'municipio_nombre' },
+            { data: 'estado_clave' },
+            { data: 'estado_nombre' },
+        ];
+        configDTMunicipios['columnDefs'] = [
+            {
+                targets: 0, // detalle
+                data: null,
+                render: function(data, type, row, meta) {
+                    return '<a href="' + data.url + '">' + data.clave + '</a>';
+                }
+            }
+        ];
+        // Filtros Cid Procedimientos
+        const filtrosMunicipios = new FiltrosDataTable('#municipios_datatable', configDTMunicipios);
+        filtrosMunicipios.agregarInput('filtroEstadoClave', 'estado_clave');
+        filtrosMunicipios.agregarInput('filtroEstadoNombre', 'estado_nombre');
+        filtrosMunicipios.agregarInput('filtroMunicipioClave', 'municipio_clave');
+        filtrosMunicipios.agregarInput('filtroMunicipioNombre', 'municipio_nombre');
+        filtrosMunicipios.precargar();
+    </script>
+{% endblock %}
