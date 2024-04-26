@@ -1,12 +1,13 @@
 """
 Permisos, vistas
 """
+
 import json
 from flask import Blueprint, flash, redirect, render_template, request, url_for
 from flask_login import current_user, login_required
 
 from lib.datatables import get_datatable_parameters, output_datatable_json
-from lib.safe_string import safe_message
+from lib.safe_string import safe_message, safe_string
 
 from plataforma_web.blueprints.bitacoras.models import Bitacora
 from plataforma_web.blueprints.modulos.models import Modulo
@@ -34,6 +35,7 @@ def datatable_json():
     draw, start, rows_per_page = get_datatable_parameters()
     # Consultar
     consulta = Permiso.query
+    # Primero filtrar por columnas propias
     if "estatus" in request.form:
         consulta = consulta.filter_by(estatus=request.form["estatus"])
     else:
@@ -42,6 +44,24 @@ def datatable_json():
         consulta = consulta.filter_by(modulo_id=request.form["modulo_id"])
     if "rol_id" in request.form:
         consulta = consulta.filter_by(rol_id=request.form["rol_id"])
+    if "descripcion" in request.form:
+        descripcion = safe_string(request.form["descripcion"], save_enie=True)
+        if descripcion != "":
+            consulta = consulta.filter(Permiso.descripcion.contains(descripcion))
+    if "nivel" in request.form:
+        nivel = safe_string(request.form["nivel"], save_enie=True)
+        if nivel != "":
+            consulta = consulta.filter_by(nivel=nivel)
+    # Luego filtrar por columnas de otras tablas
+    if "rol_nombre" in request.form:
+        rol_nombre = safe_string(request.form["rol_nombre"], save_enie=True)
+        if rol_nombre != "":
+            consulta = consulta.join(Rol).filter(Rol.nombre.contains(rol_nombre))
+    if "modulo_nombre" in request.form:
+        modulo_nombre = safe_string(request.form["modulo_nombre"], save_enie=True)
+        if modulo_nombre != "":
+            consulta = consulta.join(Modulo).filter(Modulo.nombre.contains(modulo_nombre))
+    # Ordenar y paginar
     registros = consulta.order_by(Permiso.nombre).offset(start).limit(rows_per_page).all()
     total = consulta.count()
     # Elaborar datos para DataTable

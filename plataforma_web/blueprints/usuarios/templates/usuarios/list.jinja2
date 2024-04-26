@@ -9,6 +9,9 @@
         {% if current_user.can_view('MODULOS') %}
             {{ topbar.button('Módulos', url_for('modulos.list_active'), 'mdi:toy-brick') }}
         {% endif %}
+        {% if current_user.can_view('PERMISOS') %}
+            {{ topbar.button('Permisos', url_for('permisos.list_active'), 'mdi:lock') }}
+        {% endif %}
         {% if current_user.can_view('ROLES') %}
             {{ topbar.button('Roles', url_for('roles.list_active'), 'mdi:gamepad') }}
         {% endif %}
