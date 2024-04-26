@@ -856,7 +856,7 @@ def accept_reject(cid_procedimiento_id):
                         descripcion=cid_formato.descripcion,
                         archivo=cid_formato.archivo,
                         url=cid_formato.url,
-                        cid_area_id=cid_formato.cid_area,
+                        cid_area=cid_formato.cid_area,
                     ).save()
             # Bitacora
             bitacora = Bitacora(
