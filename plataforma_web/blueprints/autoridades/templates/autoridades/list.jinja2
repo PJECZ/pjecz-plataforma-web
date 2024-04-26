@@ -30,20 +30,20 @@
                 <form class="row g-1 mb-3" id="filtradorForm" onsubmit="filtrosAutoridades.buscar(); return false;">
                     <div class="col-2">
                         <div class="form-floating">
-                            <input id="filtroClave" type="text" class="form-control" aria-label="Clave" style="text-transform: uppercase;">
-                            <label for="filtroClave">Clave</label>
+                            <input id="filtroAutoridadClave" type="text" class="form-control" aria-label="Clave" style="text-transform: uppercase;">
+                            <label for="filtroAutoridadClave">Clave</label>
                         </div>
                     </div>
                     <div class="col-4">
                         <div class="form-floating">
-                            <input id="filtroDescripcion" type="text" class="form-control" aria-label="Descripcion" style="text-transform: uppercase;">
-                            <label for="filtroDescripcion">Descripción</label>
+                            <input id="filtroAutoridadDescripcion" type="text" class="form-control" aria-label="Descripcion" style="text-transform: uppercase;">
+                            <label for="filtroAutoridadDescripcion">Descripción</label>
                         </div>
                     </div>
                     <div class="col-3">
                         <div class="form-floating">
-                            <input id="filtroDistrito" type="text" class="form-control" aria-label="Distrito" style="text-transform: uppercase;">
-                            <label for="filtroDistrito">Distrito</label>
+                            <input id="filtroAutoridadDistritoNombre" type="text" class="form-control" aria-label="Distrito" style="text-transform: uppercase;">
+                            <label for="filtroAutoridadDistritoNombre">Distrito</label>
                         </div>
                     </div>
                     <div class="col-3 text-end">
@@ -118,9 +118,9 @@
         };
         // Filtros autoridades
         const filtrosAutoridades = new FiltrosDataTable('#autoridades_datatable', configDataTable);
-        filtrosAutoridades.agregarInput('filtroClave', 'clave');
-        filtrosAutoridades.agregarInput('filtroDescripcion', 'descripcion');
-        filtrosAutoridades.agregarInput('filtroDistrito', 'distrito_nombre');
+        filtrosAutoridades.agregarInput('filtroAutoridadClave', 'clave');
+        filtrosAutoridades.agregarInput('filtroAutoridadDescripcion', 'descripcion');
+        filtrosAutoridades.agregarInput('filtroAutoridadDistritoNombre', 'distrito_nombre');
         filtrosAutoridades.precargar();
     </script>
 {% endblock %}

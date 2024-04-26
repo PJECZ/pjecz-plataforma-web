@@ -30,14 +30,14 @@
                 <form class="row g-1 mb-3" id="filtradorForm" onsubmit="filtrosDistritos.buscar(); return false;">
                     <div class="col-2">
                         <div class="form-floating">
-                            <input id="filtroClave" type="text" class="form-control" aria-label="Clave" style="text-transform: uppercase;">
-                            <label for="filtroClave">Clave</label>
+                            <input id="filtroDistritoClave" type="text" class="form-control" aria-label="Clave" style="text-transform: uppercase;">
+                            <label for="filtroDistritoClave">Clave</label>
                         </div>
                     </div>
                     <div class="col-4">
                         <div class="form-floating">
-                            <input id="filtroNombre" type="text" class="form-control" aria-label="Nombre" style="text-transform: uppercase;">
-                            <label for="filtroNombre">Nombre</label>
+                            <input id="filtroDistritoNombre" type="text" class="form-control" aria-label="Nombre" style="text-transform: uppercase;">
+                            <label for="filtroDistritoNombre">Nombre</label>
                         </div>
                     </div>
                     <div class="col-6 text-end">
@@ -98,8 +98,8 @@
         ];
         // Filtros distritos
         const filtrosDistritos = new FiltrosDataTable('#distritos_datatable', configDataTable);
-        filtrosDistritos.agregarInput('filtroClave', 'clave');
-        filtrosDistritos.agregarInput('filtroNombre', 'nombre');
+        filtrosDistritos.agregarInput('filtroDistritoClave', 'clave');
+        filtrosDistritos.agregarInput('filtroDistritoNombre', 'nombre');
         filtrosDistritos.precargar();
     </script>
 {% endblock %}
