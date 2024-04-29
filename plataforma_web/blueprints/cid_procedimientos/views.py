@@ -70,8 +70,8 @@ def datatable_json():
         consulta = consulta.filter(CIDProcedimiento.seguimiento == request.form["seguimiento"])
     if "titulo_procedimiento" in request.form:
         consulta = consulta.filter(CIDProcedimiento.titulo_procedimiento.contains(safe_string(request.form["titulo_procedimiento"])))
-    # if "usuario_id" in request.form:
-    #     consulta = consulta.filter(CIDProcedimiento.usuario_id == request.form["usuario_id"])
+    if "usuario_id" in request.form:
+        consulta = consulta.filter(CIDProcedimiento.usuario_id == request.form["usuario_id"])
     # if "seguimiento_filtro" in request.form:
     #     consulta = consulta.filter(CIDProcedimiento.seguimiento.contains(request.form["seguimiento_filtro"]))
     # if "fecha_desde" in request.form:
@@ -144,8 +144,8 @@ def datatable_json_admin():
         consulta = consulta.filter(CIDProcedimiento.seguimiento == request.form["seguimiento"])
     if "titulo_procedimiento" in request.form:
         consulta = consulta.filter(CIDProcedimiento.titulo_procedimiento.contains(safe_string(request.form["titulo_procedimiento"])))
-    # if "usuario_id" in request.form:
-    #     consulta = consulta.filter(CIDProcedimiento.usuario_id == request.form["usuario_id"])
+    if "usuario_id" in request.form:
+        consulta = consulta.filter(CIDProcedimiento.usuario_id == request.form["usuario_id"])
     # if "seguimiento_filtro" in request.form:
     #     consulta = consulta.filter(CIDProcedimiento.seguimiento.contains(request.form["seguimiento_filtro"]))
     # if "fecha_desde" in request.form:
@@ -1096,3 +1096,15 @@ def query_revisores_autorizadores_json():
     for usuario in usuarios.order_by(Usuario.email).limit(10).all():
         results.append({"id": usuario.email, "text": usuario.email, "nombre": usuario.nombre})
     return {"results": results, "pagination": {"more": False}}
+
+
+@cid_procedimientos.route("/cid_procedimientos/exportar_lista_maestra_xlsx")
+@permission_required(MODULO, Permiso.VER)
+def exportar_xlsx():
+    """Lanzar tarea en el fondo para exportar la Lista Maestra a un archivo XLSX"""
+    tarea = current_user.launch_task(
+        comando="cid_procedimientos.tasks.lanzar_exportar_xlsx",
+        mensaje="Exportando la Lista Maestra a un archivo XLSX...",
+    )
+    flash("Se ha lanzado esta tarea en el fondo. Esta página se va a recargar en 30 segundos...", "info")
+    return redirect(url_for("tareas.detail", tarea_id=tarea.id))

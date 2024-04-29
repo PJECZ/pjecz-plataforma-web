@@ -44,7 +44,7 @@ def alimentar(entrada_csv):
         for row in rows:
             try:
                 clave = row["estado_clave"].zfill(2)
-                nombre = row["estado_nombre"]
+                nombre = safe_string(row["estado_nombre"], save_enie=True)
             except (IndexError, ValueError):
                 click.echo("  Dato incorrecto: " + str(row))
                 continue
@@ -54,7 +54,7 @@ def alimentar(entrada_csv):
                 continue
             datos = {
                 "clave": clave,
-                "nombre": safe_string(nombre),
+                "nombre": nombre,
             }
             Estado(**datos).save()
             contador += 1

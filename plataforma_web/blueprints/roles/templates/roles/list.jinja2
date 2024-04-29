@@ -9,6 +9,9 @@
         {% if current_user.can_view('MODULOS') %}
             {{ topbar.button('Módulos', url_for('modulos.list_active'), 'mdi:toy-brick') }}
         {% endif %}
+        {% if current_user.can_view('PERMISOS') %}
+            {{ topbar.button('Permisos', url_for('permisos.list_active'), 'mdi:lock') }}
+        {% endif %}
         {% if current_user.can_view('USUARIOS') %}
             {{ topbar.button('Usuarios', url_for('usuarios.list_active'), 'mdi:account-key') }}
         {% endif %}
@@ -24,6 +27,24 @@
 
 {% block content %}
     {% call list.card() %}
+        <!-- Filtros roles -->
+        <div class="row">
+            <div class="col">
+                <form class="row g-1 mb-3" id="filtradorForm" onsubmit="filtrosRoles.buscar(); return false;">
+                    <div class="col-6">
+                        <div class="form-floating">
+                            <input id="filtroRolNombre" type="text" class="form-control" aria-label="Nombre" style="text-transform: uppercase;">
+                            <label for="filtroRolNombre">Nombre</label>
+                        </div>
+                    </div>
+                    <div class="col-6 text-end">
+                        <button title="Buscar" class="btn btn-primary btn-lg" onclick="filtrosRoles.buscar(); return false;" id="button-buscar"><span class="iconify" data-icon="mdi:magnify"></span></button>
+                        <button title="Limpiar" class="btn btn-warning btn-lg" type="reset" onclick="filtrosRoles.limpiar();" id="button-limpiar"><span class="iconify" data-icon="mdi:broom"></span></button>
+                    </div>
+                </form>
+            </div>
+        </div>
+        <!-- Datatable roles -->
         <table id="roles_datatable" class="table {% if estatus == 'B'%}table-dark{% endif %} display nowrap" style="width:100%">
             <thead>
                 <tr>
@@ -35,8 +56,12 @@
 {% endblock %}
 
 {% block custom_javascript %}
-    {{ list.config_datatable() }}
+    <script src="/static/js/datatables-constructor.js"></script>
+    <script src="/static/js/datatables-filtros.js"></script>
     <script>
+        // DataTable roles
+        const constructorDataTable = new ConfigDataTable( '{{ csrf_token() }}' );
+        let configDataTable = constructorDataTable.config();
         configDataTable['ajax']['url'] = '/roles/datatable_json';
         configDataTable['ajax']['data'] = {{ filtros }};
         configDataTable['columns'] = [
@@ -51,6 +76,9 @@
                 }
             }
         ];
-        $('#roles_datatable').DataTable(configDataTable);
+        // Filtros roles
+        const filtrosRoles = new FiltrosDataTable('#roles_datatable', configDataTable);
+        filtrosRoles.agregarInput('filtroRolNombre', 'nombre');
+        filtrosRoles.precargar();
     </script>
 {% endblock %}

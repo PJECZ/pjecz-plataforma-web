@@ -1,5 +1,7 @@
 """
 Usuarios Datos, tareas en el fondo
+
+- exportar_xlsx: Exportar Usuarios-Datos a un archivo XLSX
 """
 
 import logging
