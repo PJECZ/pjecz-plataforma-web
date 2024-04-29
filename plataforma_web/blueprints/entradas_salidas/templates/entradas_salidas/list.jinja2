@@ -17,6 +17,24 @@
 
 {% block content %}
     {% call list.card() %}
+        <!-- Filtros entradas_salidas -->
+        <div class="row">
+            <div class="col">
+                <form class="row g-1 mb-3" id="filtradorForm" onsubmit="filtrosEntradasSalidas.buscar(); return false;">
+                    <div class="col-6">
+                        <div class="form-floating">
+                            <input id="filtroEntradaSalidaUsuarioEmail" type="text" class="form-control" aria-label="e-mail">
+                            <label for="filtroEntradaSalidaUsuarioEmail">e-mail</label>
+                        </div>
+                    </div>
+                    <div class="col-6 text-end">
+                        <button title="Buscar" class="btn btn-primary btn-lg" onclick="filtrosEntradasSalidas.buscar(); return false;" id="button-buscar"><span class="iconify" data-icon="mdi:magnify"></span></button>
+                        <button title="Limpiar" class="btn btn-warning btn-lg" type="reset" onclick="filtrosEntradasSalidas.limpiar();" id="button-limpiar"><span class="iconify" data-icon="mdi:broom"></span></button>
+                    </div>
+                </form>
+            </div>
+        </div>
+        <!-- Datatable entradas_salidas -->
         <table id="entradas_salidas_datatable" class="table display nowrap" style="width:100%">
             <thead>
                 <tr>
@@ -30,8 +48,12 @@
 {% endblock %}
 
 {% block custom_javascript %}
-    {{ list.config_datatable() }}
+    <script src="/static/js/datatables-constructor.js"></script>
+    <script src="/static/js/datatables-filtros.js"></script>
     <script>
+        // DataTable entradas_salidas
+        const constructorDataTable = new ConfigDataTable( '{{ csrf_token() }}' );
+        let configDataTable = constructorDataTable.config();
         configDataTable['ajax']['url'] = '/entradas_salidas/datatable_json';
         configDataTable['ajax']['data'] = {}; // Sin filtros
         configDataTable['columns'] = [
@@ -55,6 +77,9 @@
                 }
             }
         ];
-        $('#entradas_salidas_datatable').DataTable(configDataTable);
+        // Filtros bitacoras
+        const filtrosEntradasSalidas = new FiltrosDataTable('#entradas_salidas_datatable', configDataTable);
+        filtrosEntradasSalidas.agregarInput('filtroEntradaSalidaUsuarioEmail', 'usuario_email');
+        filtrosEntradasSalidas.precargar();
     </script>
 {% endblock %}
