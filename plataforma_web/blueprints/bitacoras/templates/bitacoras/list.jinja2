@@ -17,11 +17,36 @@
 
 {% block content %}
     {% call list.card() %}
+        <!-- Filtros bitacoras -->
+        <div class="row">
+            <div class="col">
+                <form class="row g-1 mb-3" id="filtradorForm" onsubmit="filtrosBitacoras.buscar(); return false;">
+                    <div class="col-4">
+                        <div class="form-floating">
+                            <input id="filtroBitacoraUsuarioEmail" type="text" class="form-control" aria-label="e-mail">
+                            <label for="filtroBitacoraUsuarioEmail">e-mail</label>
+                        </div>
+                    </div>
+                    <div class="col-4">
+                        <div class="form-floating">
+                            <input id="filtroBitacoraModuloNombre" type="text" class="form-control" aria-label="Módulo" style="text-transform: uppercase;">
+                            <label for="filtroBitacoraModuloNombre">Módulo</label>
+                        </div>
+                    </div>
+                    <div class="col-4 text-end">
+                        <button title="Buscar" class="btn btn-primary btn-lg" onclick="filtrosBitacoras.buscar(); return false;" id="button-buscar"><span class="iconify" data-icon="mdi:magnify"></span></button>
+                        <button title="Limpiar" class="btn btn-warning btn-lg" type="reset" onclick="filtrosBitacoras.limpiar();" id="button-limpiar"><span class="iconify" data-icon="mdi:broom"></span></button>
+                    </div>
+                </form>
+            </div>
+        </div>
+        <!-- Datatable bitacoras -->
         <table id="bitacoras_datatable" class="table display nowrap" style="width:100%">
             <thead>
                 <tr>
                     <th>Tiempo</th>
                     <th>Usuario</th>
+                    <th>Modulo</th>
                     <th>Descripción</th>
                 </tr>
             </thead>
@@ -30,13 +55,18 @@
 {% endblock %}
 
 {% block custom_javascript %}
-    {{ list.config_datatable() }}
+    <script src="/static/js/datatables-constructor.js"></script>
+    <script src="/static/js/datatables-filtros.js"></script>
     <script>
+        // DataTable bitacoras
+        const constructorDataTable = new ConfigDataTable( '{{ csrf_token() }}' );
+        let configDataTable = constructorDataTable.config();
         configDataTable['ajax']['url'] = '/bitacoras/datatable_json';
         configDataTable['ajax']['data'] = {}; // Sin filtros
         configDataTable['columns'] = [
             { data: "creado" },
             { data: "usuario" },
+            { data: "modulo" },
             { data: "vinculo" }
         ];
         configDataTable['columnDefs'] = [
@@ -55,13 +85,24 @@
                 }
             },
             {
-                targets: 2, // vinculo
+                targets: 2, // modulo
+                data: null,
+                render: function(data, type, row, meta) {
+                    return '<a href="' + data.url + '">' + data.nombre + '</a>';
+                }
+            },
+            {
+                targets: 3, // vinculo
                 data: null,
                 render: function(data, type, row, meta) {
                     return '<a href="' + data.url + '" target="_blank">' + data.descripcion + ' <span class="iconify" data-icon="mdi:open-in-new"></span></a>';
                 }
             }
         ];
-        $('#bitacoras_datatable').DataTable(configDataTable);
+        // Filtros bitacoras
+        const filtrosBitacoras = new FiltrosDataTable('#bitacoras_datatable', configDataTable);
+        filtrosBitacoras.agregarInput('filtroBitacoraUsuarioEmail', 'usuario_email');
+        filtrosBitacoras.agregarInput('filtroBitacoraModuloNombre', 'modulo_nombre');
+        filtrosBitacoras.precargar();
     </script>
 {% endblock %}
