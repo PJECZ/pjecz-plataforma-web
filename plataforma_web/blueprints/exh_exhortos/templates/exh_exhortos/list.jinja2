@@ -7,10 +7,10 @@
 {% block topbar_actions %}
     {% call topbar.page_buttons(titulo) %}
         {% if current_user.can_view('EXH EXHORTOS PARTES') %}
-            {{ topbar.button_districts('Partes', url_for('exh_exhortos_partes.list_active')) }}
+            {{ topbar.button('Partes', url_for('exh_exhortos_partes.list_active'), "mdi:account-multiple") }}
         {% endif %}
         {% if current_user.can_view('EXH EXHORTOS ARCHIVOS') %}
-            {{ topbar.button_districts('Archivos', url_for('exh_exhortos_archivos.list_active')) }}
+            {{ topbar.button('Archivos', url_for('exh_exhortos_archivos.list_active'), "mdi:file-document-multiple") }}
         {% endif %}
     {% endcall %}
 {% endblock %}

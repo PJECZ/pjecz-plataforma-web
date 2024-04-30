@@ -14,6 +14,7 @@ from plataforma_web.blueprints.modulos.models import Modulo
 from plataforma_web.blueprints.permisos.models import Permiso
 from plataforma_web.blueprints.usuarios.decorators import permission_required
 from plataforma_web.blueprints.exh_exhortos.models import ExhExhorto
+from plataforma_web.blueprints.municipios.models import Municipio
 
 MODULO = "EXH EXHORTOS"
 
@@ -46,7 +47,7 @@ def datatable_json():
         data.append(
             {
                 'detalle': {
-                    'nombre': resultado.id,
+                    'id': resultado.id,
                     'url': url_for('exh_exhortos.detail', exh_exhorto_id=resultado.id),
                 },
                 'UUID': resultado.exhorto_origen_id,
@@ -73,5 +74,10 @@ def list_active():
 def detail(exh_exhorto_id):
     """ Detalle de un Exh Exhorto """
     exh_exhorto = ExhExhorto.query.get_or_404(exh_exhorto_id)
-    return render_template('exh_exhortos/detail.jinja2', exh_exhorto=exh_exhorto)
+    
+    # Localiza el municipio destino por su ID
+    municipio_destino = Municipio.query.filter_by(id=exh_exhorto.municipio_destino_id).filter_by(estatus='A').first()
+    
+    # Renderiza la página de detalle
+    return render_template('exh_exhortos/detail.jinja2', exh_exhorto=exh_exhorto, municipio_destino=municipio_destino)
 

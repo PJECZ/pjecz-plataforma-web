@@ -7,10 +7,10 @@
 {% block topbar_actions %}
     {% call topbar.page_buttons(titulo) %}
         {% if current_user.can_view('EXH EXHORTOS') %}
-            {{ topbar.button_districts('Exhortos', url_for('exh_exhortos.list_active')) }}
+            {{ topbar.button('Exhortos', url_for('exh_exhortos.list_active'), 'mdi:email-fast') }}
         {% endif %}
         {% if current_user.can_view('EXH EXHORTOS ARCHIVOS') %}
-            {{ topbar.button_districts('Archivos', url_for('archivos.list_active')) }}
+            {{ topbar.button('Archivos', url_for('exh_exhortos_archivos.list_active'), 'mdi:file-document-multiple') }}
         {% endif %}
     {% endcall %}
 {% endblock %}
@@ -20,8 +20,8 @@
         <table id="exh_exhortos_partes_datatable" class="table {% if estatus == 'B'%}table-dark{% endif %} display nowrap" style="width:100%">
             <thead>
                 <tr>
-                    <th>ID</th>
                     <th>Nombre</th>
+                    <th>Tipo</th>
                 </tr>
             </thead>
         </table>
@@ -34,17 +34,8 @@
         configDataTable['ajax']['url'] = '/exh_exhortos_partes/datatable_json';
         configDataTable['ajax']['data'] = {{ filtros }};
         configDataTable['columns'] = [
-            { data: 'detalle' },
-            { data: 'nombre' },
-        ];
-        configDataTable['columnDefs'] = [
-            {
-                targets: 0, // detalle
-                data: null,
-                render: function(data, type, row, meta) {
-                    return '<a href="' + data.url + '">' + data.id + '</a>';
-                }
-            }
+            { data: 'nombre_completo' },
+            { data: 'tipo_parte' },
         ];
         $('#exh_exhortos_partes_datatable').DataTable(configDataTable);
     </script>
