@@ -53,6 +53,11 @@ class ExhExhortoParte(db.Model, UniversalMixin):
     # Aquí se puede especificar el nombre del tipo de parte.
     tipo_parte_nombre = db.Column(db.String(256))
 
+    @property
+    def nombre_completo(self):
+        """Junta nombres, apellido_paterno y apellido materno"""
+        return self.nombre + " " + self.apellido_paterno + " " + self.apellido_materno
+
     def __repr__(self):
         """Representación"""
         return f"<ExhExhortoParte {self.id}>"
