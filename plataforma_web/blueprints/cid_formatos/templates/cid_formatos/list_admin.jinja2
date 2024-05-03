@@ -1,5 +1,6 @@
 {% extends 'layouts/app.jinja2' %}
 {% import 'macros/list.jinja2' as list %}
+{% import 'macros/modals.jinja2' as modals %}
 {% import 'macros/topbar.jinja2' as topbar %}
 
 {% block title %}{{titulo}}{% endblock %}
@@ -19,6 +20,7 @@
             {% if estatus == 'A' %}{{ topbar.button_list_inactive('Inactivos', url_for('cid_formatos.list_all_inactive')) }}{% endif %}
             {% if estatus == 'B' %}{{ topbar.button_list_active('Activos', url_for('cid_formatos.list_all_active')) }}{% endif %}
         {% endif %}
+        {{ modals.button_modal('Exportar Lista Maestra a XLSX', url_for('cid_formatos.exportar_xlsx'), 'ExportXLSX', 'mdi:download', "¿Quiere exportar la Lista Maestra a un archivo XLSX?") }}
     {% endcall %}
 {% endblock %}
 
@@ -62,6 +64,7 @@
 {% endblock %}
 
 {% block custom_javascript %}
+    {{ modals.custom_javascript('Exportar a XLSX', '', 'ExportXLSX') }}
     <script src="/static/js/datatables-constructor.js"></script>
     <script src="/static/js/datatables-filtros.js"></script>
     <script>

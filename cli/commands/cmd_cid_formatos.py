@@ -1,16 +1,21 @@
 """
 CID Formatos
 
+- exportar_xlsx: Exportar Lista Maestra a un archivo xlsx
 - respaldar: Respaldar formatos autorizados a un archivo CSV
 """
+
 import csv
 from datetime import datetime
 from pathlib import Path
+import sys
 
 import click
 
+from lib.exceptions import MyAnyError
 from plataforma_web.blueprints.cid_formatos.models import CIDFormato
 from plataforma_web.blueprints.cid_procedimientos.models import CIDProcedimiento
+from plataforma_web.blueprints.cid_formatos.tasks import exportar_xlsx as task_exportar_xlsx
 
 from plataforma_web.app import create_app
 from plataforma_web.extensions import db
@@ -23,6 +28,21 @@ db.app = app
 @click.group()
 def cli():
     """CID Formatos"""
+
+
+@click.command()
+def exportar_xlsx():
+    """Exportar Lista Maestra a un archivo xlsx"""
+
+    # Ejecutar la tarea
+    try:
+        mensaje_termino, _, _ = task_exportar_xlsx()
+    except MyAnyError as error:
+        click.echo(click.style(str(error), fg="red"))
+        sys.exit(1)
+
+    # Mensaje de termino
+    click.echo(click.style(mensaje_termino, fg="green"))
 
 
 @click.command()
@@ -56,3 +76,4 @@ def respaldar():
 
 
 cli.add_command(respaldar)
+cli.add_command(exportar_xlsx)
