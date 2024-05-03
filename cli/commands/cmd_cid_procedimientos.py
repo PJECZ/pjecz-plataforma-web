@@ -1,7 +1,7 @@
 """
 CID Procedimientos
 
-- actualizar: Actualizar procedimientos, define cid_area si es ND
+- actualizar: Actualizar procedimientos, define cid_area si es CRD
 - exportar_xlsx: Exportar Lista Maestra a un archivo xlsx
 - crear_pdf: Crear PDF
 - respaldar: Respaldar procedimientos autorizados a un archivo CSV
@@ -43,12 +43,12 @@ def buscar_cid_area(autoridad_id: int) -> int:
 
 @click.command()
 def actualizar():
-    """Actualizar procedimientos, define cid_area si es ND"""
+    """Actualizar procedimientos, define cid_area si es CRD"""
 
     # Consultar el area ND - NO DEFINIDO
-    cid_area_nd = CIDArea.query.filter_by(clave="ND").first()
+    cid_area_nd = CIDArea.query.filter_by(clave="CRD").first()
     if cid_area_nd is None:
-        click.echo("ERROR: No se encontró el área ND")
+        click.echo("ERROR: No se encontró el área CRD")
         return
 
     # Consultar la autoridad ND - NO DEFINIDO
@@ -60,7 +60,7 @@ def actualizar():
     # Consultar los procedimientos activos que tienen cid_area como NO DEFINIDO
     cid_procedimientos = CIDProcedimiento.query.filter_by(estatus="A").filter_by(cid_area_id=cid_area_nd.id)
     if cid_procedimientos.count() == 0:
-        click.echo("No hay procedimientos con área ND")
+        click.echo("No hay procedimientos con área CRD")
         return
 
     # Bucle por los procedimientos
@@ -77,9 +77,9 @@ def actualizar():
             cid_area_id = buscar_cid_area(cid_procedimiento.usuario.autoridad_id)
             if cid_area_id == cid_area_nd.id:
                 cid_area_id = None
-        # Opcion 3 No queda otra que dejar el cid_area en ND
+        # Opcion 3 No queda otra que dejar el cid_area en CRD
         if cid_area_id is None:
-            click.echo(f"Se quedó en ND el área de {cid_procedimiento.id}: {cid_procedimiento.codigo}")
+            click.echo(f"Se quedó en CRD el área de {cid_procedimiento.id}: {cid_procedimiento.codigo}")
             continue
         # Si hay cid_area_id, actualizar el procedimiento
         cid_procedimiento.cid_area_id = cid_area_id

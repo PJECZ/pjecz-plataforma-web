@@ -1,0 +1,112 @@
+{% extends 'layouts/app.jinja2' %}
+{% import 'macros/detail.jinja2' as detail %}
+{% import 'macros/modals.jinja2' as modals %}
+{% import 'macros/topbar.jinja2' as topbar %}
+
+{% block title %}Exhorto{% endblock %}
+
+{% block topbar_actions %}
+    {% call topbar.page_buttons('Exhorto ' + exh_exhorto.exhorto_origen_id) %}
+        {{ topbar.button_previous('Exhortos', url_for('exh_exhortos.list_active')) }}
+    {% endcall %}
+{% endblock %}
+
+{% block content %}
+    {% call detail.card(estatus=exh_exhorto.estatus) %}
+        {{ detail.label_value('ID', exh_exhorto.id) }}
+        {{ detail.label_value('UUID', exh_exhorto.exhorto_origen_id) }}
+        {% if municipio_destino %}
+            {% if current_user.can_view('MUNICIPIOS') %}
+                {{ detail.label_value('Municipio Destino', municipio_destino.nombre + ', ' + municipio_destino.estado.nombre, url_for('municipios.detail', municipio_id=municipio_destino.id)) }}
+            {% else %}
+                {{ detail.label_value('Municipio Destino', municipio_destino.nombre + ', ' + municipio_destino.estado.nombre) }}
+            {% endif %}
+        {% else %}
+            {{ detail.label_value('Municipio Destino', 'NO DEFINIDO') }}
+        {% endif %}
+        {{ detail.label_value('Materia', exh_exhorto.materia.nombre) }}
+        {% if current_user.can_view('MUNICIPIOS') %}
+            {{ detail.label_value('Municipio Origen', exh_exhorto.municipio_origen.nombre + ', ' + exh_exhorto.municipio_origen.estado.nombre, url_for('municipios.detail', municipio_id=exh_exhorto.municipio_origen_id)) }}
+        {% else %}
+            {{ detail.label_value('Municipio Origen', exh_exhorto.municipio_origen.nombre + ', ' + exh_exhorto.municipio_origen.estado.nombre) }}
+        {% endif %}
+        {{ detail.label_value('No. Expediente Origen', exh_exhorto.numero_expediente_origen) }}
+        {{ detail.label_value('No. Oficio Origen', exh_exhorto.numero_oficio_origen) }}
+        {{ detail.label_value('Tipo de juicio', exh_exhorto.tipo_juicio_asunto_delitos) }}
+        {{ detail.label_value('Juez Exhortante', exh_exhorto.juez_exhortante) }}
+        {{ detail.label_value('Fojas', exh_exhorto.fojas) }}
+        {{ detail.label_value('Días en responder', exh_exhorto.dias_responder) }}
+        {{ detail.label_value('Tipo de diligenciación', exh_exhorto.tipo_diligenciacion_nombre) }}
+        {{ detail.label_value('Fecha de origen', exh_exhorto.fecha_origen) }}
+        {{ detail.label_value('Observaciones', exh_exhorto.observaciones) }}
+    {% endcall %}
+    {# Listado de Partes #}
+    {% call detail.card("Partes")%}
+        <table id="exh_exhortos_partes_datatable" class="table display nowrap" style="width:100%">
+            <thead>
+                <tr>
+                    <th>Nombre</th>
+                    <th>Tipo</th>
+                </tr>
+            </thead>
+        </table>
+    {% endcall %}
+    {# Listado de Archivos #}
+    {% call detail.card("Archivos")%}
+        <table id="exh_exhortos_archivos_datatable" class="table display nowrap" style="width:100%">
+            <thead>
+                <tr>
+                    <th>Nombre</th>
+                    <th>Tipo</th>
+                    <th>URL</th>
+                </tr>
+            </thead>
+        </table>
+    {% endcall %}
+{% endblock %}
+
+{% block custom_javascript %}
+    <script src="/static/js/datatables-constructor.js"></script>
+    <script src="/static/js/datatables-filtros.js"></script>
+    {# Tabla de Partes #}
+    <script>
+        const constructorDataTable = new ConfigDataTable( '{{ csrf_token() }}' );
+    </script>
+    <script>
+        // DataTable Partes
+        let configDTPartes = constructorDataTable.config();
+        configDTPartes['ajax']['url'] = '/exh_exhortos_partes/datatable_json';
+        configDTPartes['ajax']['data'] = {'estatus':'A', 'exh_exhorto_id':{{exh_exhorto.id}}};
+        configDTPartes['columns'] = [
+            { data: 'nombre_completo' },
+            { data: 'tipo_parte' },
+        ];
+        // Filtros Exhortos Partes
+        const filtrosPartes = new FiltrosDataTable('#exh_exhortos_partes_datatable', configDTPartes);
+        filtrosPartes.precargar();
+    </script>
+    {# Tabla de Archivos #}
+    <script>
+        // DataTable Archivos
+        let configDTArchivos = constructorDataTable.config();
+        configDTArchivos['ajax']['url'] = '/exh_exhortos_archivos/datatable_json';
+        configDTArchivos['ajax']['data'] = {'estatus':'A', 'exh_exhorto_id':{{exh_exhorto.id}}};
+        configDTArchivos['columns'] = [
+            { data: 'nombre_archivo' },
+            { data: 'tipo_documento' },
+            { data: 'url' },
+        ];
+        configDTArchivos['columnDefs'] = [
+            {
+                targets: 2, // url
+                data: null,
+                render: function(data, type, row, meta) {
+                    return '<a href="' + data + '" target="blank">Ver <span class="iconify" data-icon="mdi:open-in-new"></span></a>';
+                }
+            }
+        ];
+        // Filtros Exhortos Archivos
+        const filtrosArchivos = new FiltrosDataTable('#exh_exhortos_archivos_datatable', configDTArchivos);
+        filtrosArchivos.precargar();
+    </script>
+{% endblock %}
