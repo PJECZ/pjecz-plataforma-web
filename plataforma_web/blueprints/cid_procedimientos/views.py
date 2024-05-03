@@ -763,6 +763,10 @@ def accept_reject(cid_procedimiento_id):
     if original.seguimiento_posterior in ["EN REVISION", "EN AUTORIZACION"]:
         flash("Este procedimiento ya fue aceptado.", "warning")
         return redirect(url_for("cid_procedimientos.detail", cid_procedimiento_id=original.id))
+    # Validación para procedimientos AUTORIZADO y no poder aceptar de nuevo
+    if original.seguimiento == "REVISADO" and original.seguimiento_posterior == "AUTORIZADO":
+        flash("Este procedimiento ya ha sido AUTORIZADO y no puede ser aceptado nuevamente.", "warning")
+        return redirect(url_for("cid_procedimientos.detail", cid_procedimiento_id=original.id))
     form = CIDProcedimientoAcceptRejectForm()
     if form.validate_on_submit():
         # Si fue aceptado
