@@ -1,6 +1,7 @@
 """
 Usuarios Roles, vistas
 """
+
 import json
 
 from flask import Blueprint, flash, redirect, render_template, request, url_for
@@ -44,6 +45,28 @@ def datatable_json():
         consulta = consulta.filter_by(usuario_id=request.form["usuario_id"])
     if "rol_id" in request.form:
         consulta = consulta.filter_by(rol_id=request.form["rol_id"])
+    # Luego filtrar por columnas de otras tablas
+    email = ""
+    if "email" in request.form:
+        try:
+            email = safe_email(request.form["email"], search_fragment=True)
+        except ValueError:
+            pass
+    nombres = ""
+    if "nombres" in request.form:
+        nombres = safe_string(request.form["nombres"], save_enie=True)
+    apellido_paterno = ""
+    if "apellido_paterno" in request.form:
+        apellido_paterno = safe_string(request.form["apellido_paterno"], save_enie=True)
+    if email != "" or nombres != "" or apellido_paterno != "":
+        consulta = consulta.join(Usuario)
+        if email != "":
+            consulta = consulta.filter(Usuario.email.contains(email))
+        if nombres != "":
+            consulta = consulta.filter(Usuario.nombres.contains(nombres))
+        if apellido_paterno != "":
+            consulta = consulta.filter(Usuario.apellido_paterno.contains(apellido_paterno))
+    # Ordenar y paginar
     registros = consulta.order_by(UsuarioRol.descripcion).offset(start).limit(rows_per_page).all()
     total = consulta.count()
     # Elaborar datos para DataTable

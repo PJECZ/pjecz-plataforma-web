@@ -20,12 +20,45 @@
 {% block content %}
     {% if current_user.can_view('PERMISOS') %}
         {% call detail.card('Permisos') %}
+            <!-- Filtros permisos -->
+            <div class="row">
+                <div class="col">
+                    <form class="row g-1 mb-3" id="filtradorForm" onsubmit="filtrosPermisos.buscar(); return false;">
+                        <div class="col-3">
+                            <div class="form-floating">
+                                <input id="filtroPermisoNombre" type="text" class="form-control" aria-label="Nombre" style="text-transform: uppercase;">
+                                <label for="filtroPermisoNombre">Nombre</label>
+                            </div>
+                        </div>
+                        <div class="col-3">
+                            <div class="form-floating">
+                                <input id="filtroPermisoModuloNombre" type="text" class="form-control" aria-label="Módulo" style="text-transform: uppercase;">
+                                <label for="filtroPermisoModuloNombre">Módulo</label>
+                            </div>
+                        </div>
+                        <div class="col-3">
+                            <select id="filtroPermisoNivel" class="form-select" aria-label="Nivel">
+                                <option selected value="">Todos los niveles</option>
+                                <option value="1">VER</option>
+                                <option value="2">VER y MODIFICAR</option>
+                                <option value="3">VER, MODIFICAR y CREAR</option>
+                                <option value="4">ADMINISTRAR</option>
+                            </select>
+                        </div>
+                        <div class="col-3 text-end">
+                            <button title="Buscar" class="btn btn-primary btn-lg" onclick="filtrosPermisos.buscar(); return false;" id="button-buscar"><span class="iconify" data-icon="mdi:magnify"></span></button>
+                            <button title="Limpiar" class="btn btn-warning btn-lg" type="reset" onclick="filtrosPermisos.limpiar();" id="button-limpiar"><span class="iconify" data-icon="mdi:broom"></span></button>
+                        </div>
+                    </form>
+                </div>
+            </div>
+            <!-- Datatable permisos -->
             <table id="permisos_datatable" class="table display nowrap" style="width:100%">
                 <thead>
                     <tr>
-                        <th>Nombres</th>
-                        <th>Modulos</th>
-                        <th>Niveles</th>
+                        <th>Nombre</th>
+                        <th>Módulo</th>
+                        <th>Nivel</th>
                     </tr>
                 </thead>
             </table>
@@ -36,6 +69,36 @@
     {% endif %}
     {% if current_user.can_view('USUARIOS ROLES') %}
         {% call detail.card('Usuarios') %}
+            <!-- Filtros usuarios-roles -->
+            <div class="row">
+                <div class="col">
+                    <form class="row g-1 mb-3" id="filtradorForm" onsubmit="filtrosUsuarios.buscar(); return false;">
+                        <div class="col-4">
+                            <div class="form-floating">
+                                <input id="filtroEMail" type="text" class="form-control" aria-label="e-mail">
+                                <label for="filtroEMail">e-mail</label>
+                            </div>
+                        </div>
+                        <div class="col-3">
+                            <div class="form-floating">
+                                <input id="filtroNombres" type="text" class="form-control" aria-label="Nombres" style="text-transform: uppercase;">
+                                <label for="filtroNombres">Nombres</label>
+                            </div>
+                        </div>
+                        <div class="col-3">
+                            <div class="form-floating">
+                                <input id="filtroApellidoPrimero" type="text" class="form-control" aria-label="Apellido primero" style="text-transform: uppercase;">
+                                <label for="filtroApellidoPrimero">Apellido primero</label>
+                            </div>
+                        </div>
+                        <div class="col-2 text-end">
+                            <button title="Buscar" class="btn btn-primary btn-lg" onclick="filtrosUsuarios.buscar(); return false;" id="button-buscar"><span class="iconify" data-icon="mdi:magnify"></span></button>
+                            <button title="Limpiar" class="btn btn-warning btn-lg" type="reset" onclick="filtrosUsuarios.limpiar();" id="button-limpiar"><span class="iconify" data-icon="mdi:broom"></span></button>
+                        </div>
+                    </form>
+                </div>
+            </div>
+            <!-- Datatable usuarios-roles -->
             <table id="usuarios_roles_datatable" class="table display nowrap" style="width:100%">
                 <thead>
                     <tr>
@@ -55,23 +118,23 @@
         {% if rol.estatus == 'A' %}{{ modals.custom_javascript_delete('Eliminar', '¿Eliminar a ' + rol.nombre + '?') }}{% endif %}
         {% if rol.estatus == 'B' %}{{ modals.custom_javascript_recover('Recuperar', '¿Recuperar a ' + rol.nombre + '?') }}{% endif %}
     {% endif %}
-    {% if current_user.can_edit('PERMISOS') %}
-        {{ modals.custom_javascript('Eliminar', '¿Eliminar ese permiso del rol?', 'DeletePermiso') }}
-    {% endif %}
-    {% if current_user.can_edit('USUARIOS ROLES') %}
-        {{ modals.custom_javascript('Eliminar', '¿Eliminar ese usuario del rol?', 'DeleteUsuarioRol') }}
-    {% endif %}
-    {{ detail.config_datatable() }}
+    <script src="/static/js/datatables-constructor.js"></script>
+    <script src="/static/js/datatables-filtros.js"></script>
+    <script>
+        const constructorDataTable = new ConfigDataTable( '{{ csrf_token() }}' );
+    </script>
     {% if current_user.can_view('PERMISOS') %}
         <script>
-            configDataTable['ajax']['url'] = '/permisos/datatable_json';
-            configDataTable['ajax']['data'] = { 'estatus': "A", 'rol_id': {{ rol.id }} };
-            configDataTable['columns'] = [
+            // DataTable permisos
+            let configDTPermisos = constructorDataTable.config();
+            configDTPermisos['ajax']['url'] = '/permisos/datatable_json';
+            configDTPermisos['ajax']['data'] = { 'estatus': "A", 'rol_id': {{ rol.id}} };
+            configDTPermisos['columns'] = [
                 { data: "detalle" },
                 { data: "modulo" },
                 { data: "nivel" }
             ];
-            configDataTable['columnDefs'] = [
+            configDTPermisos['columnDefs'] = [
                 {
                     targets: 0, // detalle
                     data: null,
@@ -91,20 +154,27 @@
                     }
                 }
             ];
-            $('#permisos_datatable').DataTable(configDataTable);
+            // Filtros permisos
+            const filtrosPermisos = new FiltrosDataTable('#permisos_datatable', configDTPermisos);
+            filtrosPermisos.agregarInput('filtroPermisoNombre', 'nombre');
+            filtrosPermisos.agregarInput('filtroPermisoModuloNombre', 'modulo_nombre');
+            filtrosPermisos.agregarInput('filtroPermisoNivel', 'nivel');
+            filtrosPermisos.precargar();
         </script>
     {% endif %}
     {% if current_user.can_view('USUARIOS ROLES') %}
         <script>
-            configDataTable['ajax']['url'] = '/usuarios_roles/datatable_json';
-            configDataTable['ajax']['data'] = { 'estatus': "A", 'rol_id': {{ rol.id }} };
-            configDataTable['columns'] = [
+            // DataTable usuarios-roles
+            let configDTUsuarios = constructorDataTable.config();
+            configDTUsuarios['ajax']['url'] = '/usuarios_roles/datatable_json';
+            configDTUsuarios['ajax']['data'] = { 'estatus': "A", 'rol_id': {{ rol.id}} };
+            configDTUsuarios['columns'] = [
                 { data: "detalle" },
                 { data: "usuario" },
                 { data: "usuario_nombre" },
                 { data: "usuario_puesto" }
             ];
-            configDataTable['columnDefs'] = [
+            configDTUsuarios['columnDefs'] = [
                 {
                     targets: 0, // detalle
                     data: null,
@@ -127,11 +197,17 @@
                     targets: [2, 3], // usuario_nombre, usuario_puesto
                     data: null,
                     render: function(data, type, row, meta) {
-                        return (data.length > 24 ? data.substr(0, 24) + '…' : data);
+                        return (data.length > 32 ? data.substr(0, 32) + '…' : data);
                     }
                 }
             ];
-            $('#usuarios_roles_datatable').DataTable(configDataTable);
+            // Filtros usuarios-roles
+            const filtrosUsuarios = new FiltrosDataTable('#usuarios_roles_datatable', configDTUsuarios);
+            filtrosUsuarios.agregarInput('filtroEMail', 'email');
+            filtrosUsuarios.agregarInput('filtroNombres', 'nombres');
+            filtrosUsuarios.agregarInput('filtroApellidoPrimero', 'apellido_paterno');
+            filtrosUsuarios.precargar();
         </script>
     {% endif %}
+    {{ detail.moment_js(moment) }}
 {% endblock %}
