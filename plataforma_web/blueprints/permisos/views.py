@@ -44,10 +44,10 @@ def datatable_json():
         consulta = consulta.filter_by(modulo_id=request.form["modulo_id"])
     if "rol_id" in request.form:
         consulta = consulta.filter_by(rol_id=request.form["rol_id"])
-    if "descripcion" in request.form:
-        descripcion = safe_string(request.form["descripcion"], save_enie=True)
-        if descripcion != "":
-            consulta = consulta.filter(Permiso.descripcion.contains(descripcion))
+    if "nombre" in request.form:
+        nombre = safe_string(request.form["nombre"], save_enie=True)
+        if nombre != "":
+            consulta = consulta.filter(Permiso.nombre.contains(nombre))
     if "nivel" in request.form:
         nivel = safe_string(request.form["nivel"], save_enie=True)
         if nivel != "":

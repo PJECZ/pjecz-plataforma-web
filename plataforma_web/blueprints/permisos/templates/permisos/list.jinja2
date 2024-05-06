@@ -30,8 +30,8 @@
                 <form class="row g-1 mb-3" id="filtradorForm" onsubmit="filtrosPermisos.buscar(); return false;">
                     <div class="col-3">
                         <div class="form-floating">
-                            <input id="filtroPermisoDescripcion" type="text" class="form-control" aria-label="Descripción" style="text-transform: uppercase;">
-                            <label for="filtroPermisoDescripcion">Descripción</label>
+                            <input id="filtroPermisoNombre" type="text" class="form-control" aria-label="Nombre" style="text-transform: uppercase;">
+                            <label for="filtroPermisoNombre">Nombre</label>
                         </div>
                     </div>
                     <div class="col-3">
@@ -124,7 +124,7 @@
         ];
         // Filtros permisos
         const filtrosPermisos = new FiltrosDataTable('#permisos_datatable', configDataTable);
-        filtrosPermisos.agregarInput('filtroPermisoDescripcion', 'descripcion');
+        filtrosPermisos.agregarInput('filtroPermisoNombre', 'nombre');
         filtrosPermisos.agregarInput('filtroPermisoRolNombre', 'rol_nombre');
         filtrosPermisos.agregarInput('filtroPermisoModuloNombre', 'modulo_nombre');
         filtrosPermisos.agregarInput('filtroPermisoNivel', 'nivel');

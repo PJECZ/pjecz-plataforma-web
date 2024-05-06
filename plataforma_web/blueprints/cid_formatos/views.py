@@ -475,3 +475,15 @@ def recover(cid_formato_id):
         bitacora.save()
         flash(bitacora.descripcion, "success")
     return redirect(url_for("cid_formatos.detail", cid_formato_id=cid_formato_id))
+
+
+@cid_formatos.route("/cid_formatos/exportar_lista_maestra_xlsx")
+@permission_required(MODULO, Permiso.VER)
+def exportar_xlsx():
+    """Lanzar tarea en el fondo para exportar la Lista Maestra a un archivo XLSX"""
+    tarea = current_user.launch_task(
+        comando="cid_formatos.tasks.lanzar_exportar_xlsx",
+        mensaje="Exportando la Lista Maestra a un archivo XLSX...",
+    )
+    flash("Se ha lanzado esta tarea en el fondo. Esta página se va a recargar en 30 segundos...", "info")
+    return redirect(url_for("tareas.detail", tarea_id=tarea.id))
