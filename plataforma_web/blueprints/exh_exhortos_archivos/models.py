@@ -9,6 +9,11 @@ from lib.universal_mixin import UniversalMixin
 class ExhExhortoArchivo(db.Model, UniversalMixin):
     """Exhorto Archivo"""
 
+    ESTADOS = {
+        "PENDIENTE": "Pendiente",
+        "RECIBIDO": "Recibido",
+    }
+
     # Nombre de la tabla
     __tablename__ = "exh_exhortos_archivos"
 
@@ -36,6 +41,8 @@ class ExhExhortoArchivo(db.Model, UniversalMixin):
 
     # URL del archivo en Google Storage
     url = db.Column(db.String(512), nullable=False, default="", server_default="")
+
+    estado = db.Column(db.Enum(*ESTADOS, name="exh_exhortos_archivos_estados", native_enum=False), nullable=True)
 
     def __repr__(self):
         """Representación"""
