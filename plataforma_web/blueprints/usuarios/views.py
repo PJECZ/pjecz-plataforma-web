@@ -1,6 +1,7 @@
 """
 Usuarios, vistas
 """
+
 import json
 import os
 import re
@@ -212,6 +213,7 @@ def datatable_json():
         consulta = consulta.filter_by(estatus=request.form["estatus"])
     else:
         consulta = consulta.filter_by(estatus="A")
+    # Primero filtrar por columnas propias
     if "autoridad_id" in request.form:
         consulta = consulta.filter_by(autoridad_id=request.form["autoridad_id"])
     if "oficina_id" in request.form:
@@ -234,6 +236,7 @@ def datatable_json():
         consulta = consulta.filter(Usuario.email.contains(safe_email(request.form["email"], search_fragment=True)))
     if "workspace" in request.form:
         consulta = consulta.filter(Usuario.workspace == safe_string(request.form["email"]))
+    # Ordenar y paginar
     registros = consulta.order_by(Usuario.email).offset(start).limit(rows_per_page).all()
     total = consulta.count()
     # Elaborar datos para DataTable
