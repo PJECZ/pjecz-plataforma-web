@@ -348,6 +348,7 @@ def exportar_xlsx() -> Tuple[str, str, str]:
     # Agregar la fila con las cabeceras de las columnas
     hoja.append(
         [
+            "NO.",
             "CODIGO",
             "REVISION",
             "TITULO",
@@ -360,23 +361,28 @@ def exportar_xlsx() -> Tuple[str, str, str]:
     )
 
     # Ajustar el ancho de las columnas
-    hoja.column_dimensions["A"].width = 15
-    hoja.column_dimensions["B"].width = 10
-    hoja.column_dimensions["C"].width = 60
-    hoja.column_dimensions["D"].width = 15
-    hoja.column_dimensions["E"].width = 40
+    hoja.column_dimensions["A"].width = 10
+    hoja.column_dimensions["B"].width = 15
+    hoja.column_dimensions["C"].width = 10
+    hoja.column_dimensions["D"].width = 60
+    hoja.column_dimensions["E"].width = 15
     hoja.column_dimensions["F"].width = 40
     hoja.column_dimensions["G"].width = 40
     hoja.column_dimensions["H"].width = 40
+    hoja.column_dimensions["I"].width = 40
 
     # Inicializar el contador
     contador = 0
 
     # Iterar sobre los procedimientos
     for cid_procedimiento in cid_procedimientos:
+        # Incrementar el contador
+        contador += 1
+
         # Agregar la fila con los datos
         hoja.append(
             [
+                contador,
                 cid_procedimiento.codigo,
                 cid_procedimiento.revision,
                 safe_string(cid_procedimiento.titulo_procedimiento, save_enie=True),
@@ -388,9 +394,6 @@ def exportar_xlsx() -> Tuple[str, str, str]:
             ]
         )
 
-        # Incrementar el contador
-        contador += 1
-
     # Si el contador es 0, entonces no hay procedimientos
     if contador == 0:
         mensaje_error = "No hay procedimientos para exportar."
@@ -399,7 +402,7 @@ def exportar_xlsx() -> Tuple[str, str, str]:
 
     # Determinar el nombre del archivo XLSX
     ahora = datetime.now(tz=pytz.timezone(TIMEZONE))
-    nombre_archivo_xlsx = f"lista_maestra_{ahora.strftime('%Y-%m-%d_%H%M%S')}.xlsx"
+    nombre_archivo_xlsx = f"procedimientos_lista_maestra_{ahora.strftime('%Y-%m-%d_%H%M%S')}.xlsx"
 
     # Determinar las rutas con directorios con el año y el número de mes en dos digitos
     ruta_local = Path(LOCAL_BASE_DIRECTORY, ahora.strftime("%Y"), ahora.strftime("%m"))
