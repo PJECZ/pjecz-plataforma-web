@@ -18,6 +18,10 @@ class ExhArea(db.Model, UniversalMixin):
     clave = db.Column(db.String(64), unique=True, nullable=False)
     nombre = db.Column(db.String(128), unique=True, nullable=False)
 
+    # Hijos
+    exh_exhortos_archivo = db.relationship('ExhExhortoArchivo', back_populates='exh_area', lazy='noload')
+    
+
     def __repr__(self):
         """ Representación """
         return '<ExhArea> {self.id}'
