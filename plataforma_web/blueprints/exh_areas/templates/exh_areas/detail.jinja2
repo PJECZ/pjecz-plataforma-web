@@ -1,0 +1,25 @@
+{% extends 'layouts/app.jinja2' %}
+{% import 'macros/detail.jinja2' as detail %}
+{% import 'macros/modals.jinja2' as modals %}
+{% import 'macros/topbar.jinja2' as topbar %}
+
+{% block title %}Exh Área{% endblock %}
+
+{% block topbar_actions %}
+    {% call topbar.page_buttons(exh_area.clave) %}
+        {{ topbar.button_previous('Exh Areas', url_for('exh_areas.list_active')) }}
+    {% endcall %}
+{% endblock %}
+
+{% block content %}
+    {% call detail.card(estatus=exh_area.estatus) %}
+        {{ detail.label_value_big('ID', exh_area.id) }}
+        {{ detail.label_value('Clave', exh_area.clave) }}
+        {{ detail.label_value('Nombre', exh_area.nombre) }}
+        {{ detail.label_value('Creado', moment(exh_area.creado, local=True).format('DD MMM YYYY')) }}
+    {% endcall %}
+{% endblock %}
+
+{% block custom_javascript %}
+    {{ detail.moment_js(moment) }}
+{% endblock %}
