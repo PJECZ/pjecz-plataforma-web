@@ -1,15 +1,16 @@
 """
 Exh Areas, modelos
 """
+
 from plataforma_web.extensions import db
 from lib.universal_mixin import UniversalMixin
 
 
 class ExhArea(db.Model, UniversalMixin):
-    """ Area """
+    """Area"""
 
     # Nombre de la tabla
-    __tablename__ = 'exh_areas'
+    __tablename__ = "exh_areas"
 
     # Clave primaria
     id = db.Column(db.Integer, primary_key=True)
@@ -20,8 +21,7 @@ class ExhArea(db.Model, UniversalMixin):
 
     # Hijos
     exh_exhortos = db.relationship('ExhExhorto', back_populates='exh_area', lazy='noload')
-    
 
     def __repr__(self):
-        """ Representación """
-        return '<ExhArea> {self.id}'
+        """Representación"""
+        return "<ExhArea> {self.id}"

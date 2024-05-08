@@ -50,11 +50,8 @@ class ExhExhortoArchivo(db.Model, UniversalMixin):
     # Tamaño del archivo recibido en bytes
     tamano = db.Column(db.Integer, nullable=False)
 
-    # GUID/UUID... que sea único
-    folio = db.Column(db.String(64), nullable=False, unique=True)
-
     # Fecha y hora de recepción del documento
-    fecha_hora_recepcion = db.Column(db.DateTime,  server_default=func.now(), nullable=False)
+    fecha_hora_recepcion = db.Column(db.DateTime, server_default=func.now(), nullable=False)
 
     def __repr__(self):
         """Representación"""

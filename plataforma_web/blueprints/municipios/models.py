@@ -25,8 +25,7 @@ class Municipio(db.Model, UniversalMixin):
 
     # Hijos
     # exh_exhortos_destinos = db.relationship('ExhExhorto', back_populates='municipio_destino', lazy='noload')
-    exh_exhortos_origenes = db.relationship('ExhExhorto', back_populates='municipio_origen', lazy='noload')
-    
+    exh_exhortos_origenes = db.relationship("ExhExhorto", back_populates="municipio_origen")
 
     def __repr__(self):
         """Representación"""
