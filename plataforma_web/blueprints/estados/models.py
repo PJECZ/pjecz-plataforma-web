@@ -20,7 +20,7 @@ class Estado(db.Model, UniversalMixin):
     nombre = db.Column(db.String(256), nullable=False)
 
     # Hijos
-    municipios = db.relationship("Municipio", back_populates="estado", lazy="noload")
+    municipios = db.relationship("Municipio", back_populates="estado")
 
     def __repr__(self):
         """Representación"""

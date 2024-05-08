@@ -75,7 +75,7 @@ class ExhExhorto(db.Model, UniversalMixin):
     exh_exhortos_archivos = db.relationship("ExhExhortoArchivo", back_populates="exh_exhorto")
 
     # GUID/UUID... que sea único
-    folio = db.Column(db.String(64), nullable=False, unique=True)
+    folio_seguimiento = db.Column(db.String(64), nullable=False, unique=True)
 
     def __repr__(self):
         """Representación"""
