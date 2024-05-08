@@ -26,10 +26,6 @@ class ExhExhortoArchivo(db.Model, UniversalMixin):
     exh_exhorto_id = db.Column(db.Integer, db.ForeignKey("exh_exhortos.id"), index=True, nullable=False)
     exh_exhorto = db.relationship("ExhExhorto", back_populates="exh_exhortos_archivos")
 
-    # Área de recepción
-    exh_area_id = db.Column(db.Integer, db.ForeignKey("exh_areas.id"), index=True, nullable=False)
-    exh_area = db.relationship("ExhArea", back_populates="exh_exhortos_archivo")
-
     # Nombre del archivo, como se enviará. Este debe incluir el la extensión del archivo.
     nombre_archivo = db.Column(db.String(256), nullable=False)
 
