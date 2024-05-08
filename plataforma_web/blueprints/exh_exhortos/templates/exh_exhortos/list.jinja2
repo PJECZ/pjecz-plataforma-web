@@ -6,6 +6,9 @@
 
 {% block topbar_actions %}
     {% call topbar.page_buttons(titulo) %}
+        {% if current_user.can_view('EXH AREAS') %}
+            {{ topbar.button('Áreas', url_for('exh_areas.list_active'), "mdi:office-building-marker") }}
+        {% endif %}
         {% if current_user.can_view('EXH EXHORTOS PARTES') %}
             {{ topbar.button('Partes', url_for('exh_exhortos_partes.list_active'), "mdi:account-multiple") }}
         {% endif %}

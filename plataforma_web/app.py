@@ -38,6 +38,7 @@ from plataforma_web.blueprints.est_variables.views import est_variables
 from plataforma_web.blueprints.est_informes.views import est_informes
 from plataforma_web.blueprints.est_informes_registros.views import est_informes_registros
 from plataforma_web.blueprints.estados.views import estados
+from plataforma_web.blueprints.exh_areas.views import exh_areas 
 from plataforma_web.blueprints.exh_exhortos.views import exh_exhortos 
 from plataforma_web.blueprints.exh_exhortos_archivos.views import exh_exhortos_archivos
 from plataforma_web.blueprints.exh_exhortos_partes.views import exh_exhortos_partes  
@@ -143,6 +144,7 @@ def create_app():
     app.register_blueprint(est_informes_registros)
     app.register_blueprint(est_variables)
     app.register_blueprint(estados)
+    app.register_blueprint(exh_areas)
     app.register_blueprint(exh_exhortos)
     app.register_blueprint(exh_exhortos_archivos)
     app.register_blueprint(exh_exhortos_partes)
