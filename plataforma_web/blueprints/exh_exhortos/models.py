@@ -11,6 +11,16 @@ from lib.universal_mixin import UniversalMixin
 class ExhExhorto(db.Model, UniversalMixin):
     """Exhorto Exhorto"""
 
+    ESTADOS = {
+        "PENDIENTE": "Pendiente",
+        "RECIBIDO": "Recibido",
+    }
+
+    REMITENTES = {
+        "INTERNO": "Interno",
+        "EXTERNO": "Externo",
+    }
+
     # Nombre de la tabla
     __tablename__ = "exh_exhortos"
 
@@ -73,6 +83,16 @@ class ExhExhorto(db.Model, UniversalMixin):
     exh_exhortos_partes = db.relationship("ExhExhortoParte", back_populates="exh_exhorto", lazy="noload")
     # ArchivoARecibir[] SI Colección de los datos referentes a los archivos que se van a recibir el Poder Judicial exhortado en el envío del Exhorto.
     exh_exhortos_archivos = db.relationship("ExhExhortoArchivo", back_populates="exh_exhorto", lazy="noload")
+
+    # Área de recepción
+    exh_area_id = db.Column(db.Integer, db.ForeignKey('exh_areas.id'), index=True, nullable=False)
+    exh_area = db.relationship('ExhArea', back_populates='exh_exhortos')
+    
+    # Estado de recepción del documento
+    estado = db.Column(db.Enum(*ESTADOS, name="exh_exhortos_estados", native_enum=False), nullable=True)
+
+    # Campo para saber si es un proceso interno o extorno
+    remitente = db.Column(db.Enum(*REMITENTES, name="exh_exhortos_remitentes", native_enum=False), nullable=True)
 
     def __repr__(self):
         """Representación"""
