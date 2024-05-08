@@ -27,9 +27,9 @@ class ExhExhortoArchivo(db.Model, UniversalMixin):
     exh_exhorto = db.relationship("ExhExhorto", back_populates="exh_exhortos_archivos")
 
     # Área de recepción
-    exh_area_id = db.Column(db.Integer, db.ForeignKey('exh_areas.id'), index=True, nullable=False)
-    exh_area = db.relationship('ExhArea', back_populates='exh_exhortos_archivo')
-    
+    exh_area_id = db.Column(db.Integer, db.ForeignKey("exh_areas.id"), index=True, nullable=False)
+    exh_area = db.relationship("ExhArea", back_populates="exh_exhortos_archivo")
+
     # Nombre del archivo, como se enviará. Este debe incluir el la extensión del archivo.
     nombre_archivo = db.Column(db.String(256), nullable=False)
 
@@ -54,11 +54,8 @@ class ExhExhortoArchivo(db.Model, UniversalMixin):
     # Tamaño del archivo recibido en bytes
     tamano = db.Column(db.Integer, nullable=False)
 
-    # GUID/UUID... que sea único
-    folio = db.Column(db.String(64), nullable=False, unique=True)
-
     # Fecha y hora de recepción del documento
-    fecha_hora_recepcion = db.Column(db.DateTime,  server_default=func.now(), nullable=False)
+    fecha_hora_recepcion = db.Column(db.DateTime, server_default=func.now(), nullable=False)
 
     def __repr__(self):
         """Representación"""

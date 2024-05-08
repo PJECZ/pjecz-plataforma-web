@@ -70,9 +70,12 @@ class ExhExhorto(db.Model, UniversalMixin):
 
     # Hijos
     # PersonaParte[] NO Contiene la definición de las partes del Expediente
-    exh_exhortos_partes = db.relationship("ExhExhortoParte", back_populates="exh_exhorto", lazy="noload")
+    exh_exhortos_partes = db.relationship("ExhExhortoParte", back_populates="exh_exhorto")
     # ArchivoARecibir[] SI Colección de los datos referentes a los archivos que se van a recibir el Poder Judicial exhortado en el envío del Exhorto.
-    exh_exhortos_archivos = db.relationship("ExhExhortoArchivo", back_populates="exh_exhorto", lazy="noload")
+    exh_exhortos_archivos = db.relationship("ExhExhortoArchivo", back_populates="exh_exhorto")
+
+    # GUID/UUID... que sea único
+    folio = db.Column(db.String(64), nullable=False, unique=True)
 
     def __repr__(self):
         """Representación"""
