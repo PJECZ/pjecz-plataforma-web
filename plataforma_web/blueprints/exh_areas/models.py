@@ -20,7 +20,7 @@ class ExhArea(db.Model, UniversalMixin):
     nombre = db.Column(db.String(256), unique=True, nullable=False)
 
     # Hijos
-    exh_exhortos = db.relationship('ExhExhorto', back_populates='exh_area', lazy='noload')
+    exh_exhortos = db.relationship("ExhExhorto", back_populates="exh_area")
 
     def __repr__(self):
         """Representación"""
