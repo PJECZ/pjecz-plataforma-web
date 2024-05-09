@@ -22,6 +22,10 @@ class Modulo(db.Model, UniversalMixin):
     ruta = db.Column(db.String(64), nullable=False)
     en_navegacion = db.Column(db.Boolean, nullable=False, default=True)
     en_portal_notarias = db.Column(db.Boolean, nullable=False, default=False)
+    en_plataforma_carina = db.Column(db.Boolean, nullable=False, default=False)
+    en_plataforma_hercules = db.Column(db.Boolean, nullable=False, default=False)
+    en_plataforma_web = db.Column(db.Boolean, nullable=False, default=False)
+    en_portal_notarias = db.Column(db.Boolean, nullable=False, default=False)
 
     # Hijos
     bitacoras = db.relationship("Bitacora", back_populates="modulo")

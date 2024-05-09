@@ -35,6 +35,8 @@ def datatable_json():
     draw, start, rows_per_page = get_datatable_parameters()
     # Consultar
     consulta = Modulo.query
+    # Solo los modulos en Plataforma Web
+    # consulta = consulta.filter_by(en_plataforma_web=True)
     # Primero filtrar por columnas propias
     if "estatus" in request.form:
         consulta = consulta.filter_by(estatus=request.form["estatus"])
@@ -104,24 +106,29 @@ def new():
         nombre = safe_string(form.nombre.data, save_enie=True)
         if Modulo.query.filter_by(nombre=nombre).first():
             flash("La nombre ya está en uso. Debe de ser único.", "warning")
-        else:
-            modulo = Modulo(
-                nombre=nombre,
-                nombre_corto=safe_string(form.nombre_corto.data, to_uppercase=False, save_enie=True),
-                icono=form.icono.data,
-                ruta=form.ruta.data,
-                en_navegacion=form.en_navegacion.data == 1,
-            )
-            modulo.save()
-            bitacora = Bitacora(
-                modulo=Modulo.query.filter_by(nombre=MODULO).first(),
-                usuario=current_user,
-                descripcion=safe_message(f"Nuevo módulo {modulo.nombre}"),
-                url=url_for("modulos.detail", modulo_id=modulo.id),
-            )
-            bitacora.save()
-            flash(bitacora.descripcion, "success")
-            return redirect(bitacora.url)
+            return render_template("modulos/new.jinja2", form=form)
+        # Guardar
+        modulo = Modulo(
+            nombre=nombre,
+            nombre_corto=safe_string(form.nombre_corto.data, to_uppercase=False, save_enie=True),
+            icono=form.icono.data,
+            ruta=form.ruta.data,
+            en_navegacion=form.en_navegacion.data,
+            en_plataforma_carina=form.en_plataforma_carina.data,
+            en_plataforma_hercules=form.en_plataforma_hercules.data,
+            en_plataforma_web=form.en_plataforma_web.data,
+            en_portal_notarias=form.en_portal_notarias.data,
+        )
+        modulo.save()
+        bitacora = Bitacora(
+            modulo=Modulo.query.filter_by(nombre=MODULO).first(),
+            usuario=current_user,
+            descripcion=safe_message(f"Nuevo módulo {modulo.nombre}"),
+            url=url_for("modulos.detail", modulo_id=modulo.id),
+        )
+        bitacora.save()
+        flash(bitacora.descripcion, "success")
+        return redirect(bitacora.url)
     return render_template("modulos/new.jinja2", form=form)
 
 
@@ -146,7 +153,11 @@ def edit(modulo_id):
             modulo.nombre_corto = safe_string(form.nombre_corto.data, to_uppercase=False, save_enie=True)
             modulo.icono = form.icono.data
             modulo.ruta = form.ruta.data
-            modulo.en_navegacion = form.en_navegacion.data == 1
+            modulo.en_navegacion = form.en_navegacion.data
+            modulo.en_plataforma_carina = form.en_plataforma_carina.data
+            modulo.en_plataforma_hercules = form.en_plataforma_hercules.data
+            modulo.en_plataforma_web = form.en_plataforma_web.data
+            modulo.en_portal_notarias = form.en_portal_notarias.data
             modulo.save()
             bitacora = Bitacora(
                 modulo=Modulo.query.filter_by(nombre=MODULO).first(),
@@ -161,10 +172,11 @@ def edit(modulo_id):
     form.nombre_corto.data = modulo.nombre_corto
     form.icono.data = modulo.icono
     form.ruta.data = modulo.ruta
-    if modulo.en_navegacion:
-        form.en_navegacion.data = 1
-    else:
-        form.en_navegacion.data = 0
+    form.en_navegacion.data = modulo.en_navegacion
+    form.en_plataforma_carina.data = modulo.en_plataforma_carina
+    form.en_plataforma_hercules.data = modulo.en_plataforma_hercules
+    form.en_plataforma_web.data = modulo.en_plataforma_web
+    form.en_portal_notarias.data = modulo.en_portal_notarias
     return render_template("modulos/edit.jinja2", form=form, modulo=modulo)
 
 
