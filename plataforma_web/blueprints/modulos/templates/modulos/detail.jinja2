@@ -23,6 +23,11 @@
         {{ detail.label_value('Icono', modulo.icono) }}
         {{ detail.label_value('Ruta', modulo.ruta) }}
         {{ detail.label_value_boolean('En menú de navegación', modulo.en_navegacion) }}
+        {{ detail.label_value_boolean('En Plataforma Carina', modulo.en_plataforma_carina) }}
+        {{ detail.label_value_boolean('En Plataforma Hércules', modulo.en_plataforma_hercules) }}
+        {{ detail.label_value_boolean('En Plataforma Web', modulo.en_plataforma_web) }}
+        {{ detail.label_value_boolean('En Portal de Notarías', modulo.en_portal_notarias) }}
+        {# detail.label_value('Creado', moment(modulo.creado).format('llll')) #}
     {% endcall %}
     {% if current_user.can_view('PERMISOS') %}
         {% call detail.card('Permisos') %}
