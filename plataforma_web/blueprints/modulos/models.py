@@ -25,7 +25,6 @@ class Modulo(db.Model, UniversalMixin):
     en_plataforma_carina = db.Column(db.Boolean, nullable=False, default=False)
     en_plataforma_hercules = db.Column(db.Boolean, nullable=False, default=False)
     en_plataforma_web = db.Column(db.Boolean, nullable=False, default=False)
-    en_portal_notarias = db.Column(db.Boolean, nullable=False, default=False)
 
     # Hijos
     bitacoras = db.relationship("Bitacora", back_populates="modulo")
