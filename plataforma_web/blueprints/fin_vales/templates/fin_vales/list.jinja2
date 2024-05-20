@@ -30,14 +30,55 @@
 
 {% block content %}
     {% call list.card() %}
+        <!-- Filtros Fin Vales -->
+        <div class="row">
+            <div class="col">
+                <form class="row g-1 mb-3" id="filtradorForm" onsubmit="filtrosFinVales.buscar(); return false;">
+                    <div class="col-2">
+                        <div class="form-floating">
+                            <input id="filtroFinValeId" type="text" class="form-control" aria-label="ID">
+                            <label for="filtroFinValeId">ID</label>
+                        </div>
+                    </div>
+                    <div class="col-4">
+                        <select id="filtroFinValeEstado" class="form-select" aria-label="Estado">
+                            <option selected value="">Filtro Estado</option>
+                            <option value="CREADO">CREADO</option>
+                            <option value="SOLICITADO">SOLICITADO</option>
+                            <option value="CANCELADO POR SOLICITANTE">CANCELADO POR SOLICITANTE</option>
+                            <option value="AUTORIZADO">AUTORIZADO</option>
+                            <option value="CANCELADO POR AUTORIZANTE">CANCELADO POR AUTORIZANTE</option>
+                            <option value="ENTREGADO">ENTREGADO</option>
+                            <option value="POR REVISAR">POR REVISAR</option>
+                            <option value="ARCHIVADO">ARCHIVADO</option>
+                        </select>
+                    </div>
+                    <div class="col-2">
+                        <select id="filtroDistrito" class="form-select" aria-label="Distrito">
+                            <option selected value="">Filtro Distrito</option>
+                        </select>
+                    </div>
+                    <div class="col-2">
+                        <select id="filtroAutoridad" class="form-select" aria-label="Autoridad">
+                            <option selected value="">Filtro Autoridad</option>
+                        </select>
+                    </div>
+                    <div class="col-2 text-end">
+                        <button title="Buscar" class="btn btn-primary btn-lg" onclick="filtrosFinVales.buscar(); return false;" id="button-buscar"><span class="iconify" data-icon="mdi:magnify"></span></button>
+                        <button title="Limpiar" class="btn btn-warning btn-lg" type="reset" onclick="filtrosFinVales.limpiar();" id="button-limpiar"><span class="iconify" data-icon="mdi:broom"></span></button>
+                    </div>
+                </form>
+            </div>
+        </div>
+        <!-- DataTable Fin Vales -->
         <table id="fin_vales_datatable" class="table {% if estatus == 'B'%}table-dark{% endif %} display nowrap" style="width:100%">
             <thead>
                 <tr>
                     <th>ID</th>
                     <th>Estado</th>
-                    <th>Oficina</th>
-                    <th>Creado por</th>
-                    <th>Justificacion</th>
+                    <th>Distrito</th>
+                    <th>Autoridad</th>
+                    <th>Usuario</th>
                     <th>Monto</th>
                 </tr>
             </thead>
@@ -50,16 +91,52 @@
 {% endblock %}
 
 {% block custom_javascript %}
-    {{ list.config_datatable() }}
+    <!-- Cargar distritos y autoridades -->
     <script>
+        // Llamar a /distritos/select_json para cargar el select distrito
+        fetch('/distritos/select_json')
+            .then(response => response.json())
+            .then(data => {
+                const distritoSelect = document.getElementById('filtroDistrito');
+                data.forEach(distrito => {
+                    const option = document.createElement('option');
+                    option.value = distrito.id;
+                    option.text = distrito.nombre_corto;
+                    distritoSelect.appendChild(option);
+                });
+            });
+        // Llamar a /autoridades/select_json para cargar el select autoridad, si el distrito cambia
+        document.getElementById('filtroDistrito').addEventListener('change', () => {
+            const distritoId = document.getElementById('filtroDistrito').value;
+            fetch(`/autoridades/select_json/${distritoId}?es_notaria=false`)
+                .then(response => response.json())
+                .then(data => {
+                    const autoridadSelect = document.getElementById('filtroAutoridad');
+                    autoridadSelect.innerHTML = '';
+                    data.forEach(autoridad => {
+                        const option = document.createElement('option');
+                        option.value = autoridad.id;
+                        option.text = autoridad.descripcion_corta;
+                        autoridadSelect.appendChild(option);
+                    });
+                });
+        });
+    </script>
+    <!-- DataTable Fin Vales -->
+    <script src="/static/js/datatables-constructor.js"></script>
+    <script src="/static/js/datatables-filtros.js"></script>
+    <script>
+        // DataTable Fin Vales
+        const constructorDataTable = new ConfigDataTable( '{{ csrf_token() }}' );
+        let configDataTable = constructorDataTable.config();
         configDataTable['ajax']['url'] = '/fin_vales/datatable_json';
         configDataTable['ajax']['data'] = {{ filtros }};
         configDataTable['columns'] = [
             { data: 'detalle' },
             { data: 'estado' },
-            { data: 'usuario_oficina_clave' },
+            { data: 'distrito_nombre_corto' },
+            { data: 'autoridad_descripcion_corta' },
             { data: 'usuario_nombre' },
-            { data: 'justificacion' },
             { data: 'monto' }
         ];
         configDataTable['columnDefs'] = [
@@ -80,15 +157,6 @@
                 }
             },
             {
-                targets: 4, // justificacion
-                data: null,
-                render: function(data, type, row, meta) {
-                    if (data.length > 92)
-                        return '<span title="' + data + '">' + data.substr(0, 92) + '…' + '</span>';
-                    return data;
-                }
-            },
-            {
                 targets: 5, // monto
                 data: null,
                 render: function(data, type, row, meta) {
@@ -96,6 +164,12 @@
                 }
             }
         ];
-        $('#fin_vales_datatable').DataTable(configDataTable);
+        // Filtros Fin Vales
+        const filtrosFinVales = new FiltrosDataTable('#fin_vales_datatable', configDataTable);
+        filtrosFinVales.agregarInput('filtroFinValeId', 'fin_vale_id');
+        filtrosFinVales.agregarInput('filtroFinValeEstado', 'estado');
+        filtrosFinVales.agregarInput('filtroDistrito', 'usuario_distrito_id');
+        filtrosFinVales.agregarInput('filtroAutoridad', 'usuario_autoridad_id');
+        filtrosFinVales.precargar();
     </script>
 {% endblock %}
