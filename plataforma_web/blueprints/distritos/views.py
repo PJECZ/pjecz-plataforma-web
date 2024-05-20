@@ -74,6 +74,24 @@ def datatable_json():
     return output_datatable_json(draw, total, data)
 
 
+@distritos.route("/distritos/select_json", methods=["GET", "POST"])
+def select_json():
+    """Select JSON para Distritos"""
+    # Consultar
+    consulta = Distrito.query.filter_by(estatus="A").order_by(Distrito.nombre)
+    # Elaborar datos para Select
+    data = []
+    for resultado in consulta.all():
+        data.append(
+            {
+                "id": resultado.id,
+                "nombre_corto": resultado.nombre_corto,
+            }
+        )
+    # Entregar JSON
+    return json.dumps(data)
+
+
 @distritos.route("/distritos")
 def list_active():
     """Listado de Distritos activos"""
