@@ -287,6 +287,10 @@ def datatable_json():
         materia_tipo_juicio = MateriaTipoJuicio.query.get(request.form["materia_tipo_juicio_id"])
         if materia_tipo_juicio:
             consulta = consulta.filter_by(materia_tipo_juicio=materia_tipo_juicio)
+    if "tipo_juicio" in request.form:
+        tipo_juicio = safe_string(request.form["tipo_juicio"], save_enie=True)
+        if tipo_juicio != "":
+            consulta = consulta.join(Modulo).filter(MateriaTipoJuicio.descripcion.contains(tipo_juicio))
     registros = consulta.order_by(Sentencia.fecha.desc()).offset(start).limit(rows_per_page).all()
     total = consulta.count()
     # Elaborar datos para DataTable

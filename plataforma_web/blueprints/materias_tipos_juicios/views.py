@@ -1,6 +1,7 @@
 """
 Materias Tipos de Juicios, vistas
 """
+
 import datetime
 import json
 from flask import Blueprint, flash, redirect, render_template, request, url_for
@@ -42,6 +43,8 @@ def datatable_json():
         consulta = consulta.filter_by(estatus="A")
     if "materia_id" in request.form:
         consulta = consulta.filter_by(materia_id=request.form["materia_id"])
+    if "descripcion" in request.form:
+        consulta = consulta.filter_by(descripcion=request.form["descripcion"])
     registros = consulta.order_by(MateriaTipoJuicio.descripcion).offset(start).limit(rows_per_page).all()
     total = consulta.count()
     # Elaborar datos para DataTable

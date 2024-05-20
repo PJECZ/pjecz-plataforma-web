@@ -24,15 +24,54 @@
 {% endblock %}
 
 {% block content %}
-    {# Datatable #}
     {% call list.card() %}
+    <!-- Filtros Sentencias -->
+        <div class="row">
+            <div class="col">
+                <form class="row g-1 mb-3" id="filtradorForm" onsubmit="filtrosSentencias.buscar(); return false;">
+                    <div class="col-3">
+                        <div class="form-floating">
+                            <input id="filtroSentencia" type="text" class="form-control" aria-label="Sentencia" style="text-transform: uppercase;">
+                            <label for="filtroSentencia">Num. Sentencia</label>
+                        </div>
+                    </div>
+                    <div class="col-3">
+                        <div class="form-floating">
+                            <input id="filtroExpediente" type="text" class="form-control" aria-label="Expediente" style="text-transform: uppercase;">
+                            <label for="filtroExpediente">Expediente</label>
+                        </div>
+                    </div>
+                    <div class="col-3">
+                        <div class="form-floating">
+                            <select id="tipoSelect" class="form-control js-select2-filter" onchange="filtrosSentencias.buscar(); return false;" style="text-transform: uppercase;"></select>
+                            <label for="tipoSelect">Tipo</label>
+                        </div>
+                    </div>
+                    {#<div class="col-3">
+                        <div class="form-floating">
+                            <select class="form-control js-select2-filter" id="filtroTipoJuicioSelect" name="filtroTipoJuicioSelect" aria-label="TipoJuicio" onchange="filtrosSentencias.buscar(); return false;" style="flex: inherit;">
+                            <option selected value=""></option>
+                                {% for juicio in juicios %}
+                                    <option value="{{juicio.id}}">{{juicio.descripcion}}</option>
+                                {% endfor %}
+                            </select>
+                            <label for="filtroTipoJuicioSelect">Tipo Juicio</label>
+                        </div>
+                    </div>#}
+                    <div class="col-3 text-end">
+                        <button title="Buscar" class="btn btn-primary btn-lg" onclick="filtrosSentencias.buscar(); return false;" id="button-buscar"><span class="iconify" data-icon="mdi:magnify"></span></button>
+                        <button title="Limpiar" class="btn btn-warning btn-lg" type="reset" onclick="filtrosSentencias.limpiar();" id="button-limpiar"><span class="iconify" data-icon="mdi:broom"></span></button>
+                    </div>
+                </form>
+            </div>
+        </div>
+        <!-- DataTable Sentencias -->
         <table id="sentencias_datatable" class="table {% if estatus == 'B'%}table-dark{% endif %} display nowrap" style="width:100%">
             <thead>
                 <tr>
                     <th>Fecha</th>
                     <th>Sentencia</th>
                     <th>Expediente</th>
-                    <th>Materia</th>
                     <th>Tipo de Juicio</th>
                     <th>P. Género</th>
                     <th>Descargar</th>
@@ -55,68 +94,72 @@
 {% endblock %}
 
 {% block custom_javascript %}
+<script src="/static/js/datatables-constructor.js"></script>
+    <script src="/static/js/datatables-filtros.js"></script>
+    
     <script>
-        $('#sentencias_datatable').DataTable({
-            processing: true,
-            serverSide: true,
-            searching: false,
-            responsive: true,
-            scrollX: true,
-            ajax: {
-                url: "/sentencias/datatable_json",
-                type: "POST",
-                headers: { "X-CSRF-TOKEN": "{{ csrf_token() }}" },
-                dataType: "json",
-                dataSrc: "data",
-                data: {{ filtros }}
-            },
-            columns: [
-                { data: "fecha" },
-                { data: "detalle" },
-                { data: "expediente" },
-                { data: "materia_nombre" },
-                { data: "materia_tipo_juicio_descripcion" },
-                { data: "es_perspectiva_genero" },
-                { data: "archivo" }
-            ],
-            ordering: false,
-            columnDefs: [
-                {
-                    targets: 1, // detalle
-                    data: null,
-                    render: function(data, type, row, meta) {
-                        return '<a href="' + data.url + '">' + data.sentencia + '</a>';
-                    }
-                },
-                {
-                    targets: 4, // materia_tipo_juicio_descripcion
-                    data: null,
-                    render: function(data, type, row, meta) {
-                        return data.length > 20 ? data.substr(0, 40) + '…' : data;
-                    }
-                },
-                {
-                    targets: 6, // archivo
-                    data: null,
-                    render: function(data, type, row, meta) {
-                        return '<a href="' + data.descargar_url + '" target="_blank">PDF</a>';
-                    }
+        // DataTable Sentencias
+        const constructorDataTable = new ConfigDataTable( '{{ csrf_token() }}' );
+        let configDTSentencias = constructorDataTable.config();
+        configDTSentencias['ajax']['url'] = '/sentencias/datatable_json';
+        configDTSentencias['ajax']['data'] = {{ filtros }};
+        configDTSentencias['columns'] = [
+            { data: "fecha" },
+            { data: "detalle" },
+            { data: "expediente" },
+            { data: "materia_tipo_juicio_descripcion" },
+            { data: "es_perspectiva_genero" },
+            { data: "archivo" }
+        ];
+        configDTSentencias['columnDefs'] = [
+            {
+                targets: 1, // detalle
+                data: null,
+                render: function(data, type, row, meta) {
+                    return '<a href="' + data.url + '">' + data.sentencia + '</a>';
                 }
-            ],
-            language: {
-                lengthMenu: "Mostrar _MENU_",
-                search: "Filtrar:",
-                zeroRecords: "No se encontraron registros",
-                info: "Total de registros _TOTAL_ ",
-                infoEmpty: "No hay registros",
-                infoFiltered: "(_TOTAL_ filtrados de _MAX_ registros)",
-                oPaginate: {
-                    sFirst: "Primero",
-                    sLast: "Último",
-                    sNext: "Siguiente",
-                    sPrevious: "Anterior"
+            },
+            {
+                targets: 3, // materia_tipo_juicio_descripcion
+                data: null,
+                render: function(data, type, row, meta) {
+                    return data.length > 20 ? data.substr(0, 40) + '…' : data;
+                }
+            },
+            {
+                targets: 5, // archivo
+                data: null,
+                render: function(data, type, row, meta) {
+                    return '<a href="' + data.descargar_url + '" target="_blank">PDF</a>';
                 }
             }
+        ];
+        // Filtros Inv Marcas
+        const filtrosSentencias = new FiltrosDataTable('#sentencias_datatable', configDTSentencias);
+        filtrosSentencias.agregarInput('filtroSentencia', 'sentencia');
+        filtrosSentencias.agregarInput('filtroExpediente', 'expediente');
+        filtrosSentencias.agregarInput('tipoSelect', 'descripcion');
+        filtrosSentencias.precargar();
+    </script>
+    <!-- Select2 bootstrap -->
+    <script src="https://cdn.jsdelivr.net/npm/select2@4.1.0-rc.0/dist/js/select2.min.js"></script>
+    <script>
+        $(document).ready(function(){
+            $("#tipoSelect").select2({
+                // --- Carga de emails por Ajax --- //
+                ajax: {
+                    url: '/materias_tipos_juicios/datatable_json',
+                    headers: { "X-CSRF-TOKEN": "{{ csrf_token() }}" },
+                    dataType: 'json',
+                    delay: 250,
+                    type: "POST",
+                    data: function (params) {
+                        return { 'descripcion': params.term.toUpperCase() };
+                    }
+                },
+                minimumInputLength: 2,
+                allowClear: true
+            });
         });
     </script>
 {% endblock %}
