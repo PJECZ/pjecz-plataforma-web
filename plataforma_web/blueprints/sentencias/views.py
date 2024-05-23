@@ -4,6 +4,7 @@ Sentencias, vistas
 
 import datetime
 import json
+import re
 from urllib.parse import quote
 
 from flask import Blueprint, current_app, flash, redirect, render_template, request, url_for
@@ -178,79 +179,6 @@ def list_autoridad_sentencias_inactive(autoridad_id):
     )
 
 
-@sentencias.route("/sentencias/buscar", methods=["GET", "POST"])
-def search():
-    """Buscar Sentencias"""
-    if current_user.can_admin("SENTENCIAS"):
-        puede_elegir_autoridad = True
-    elif current_user.autoridad.es_jurisdiccional:
-        puede_elegir_autoridad = False
-    else:
-        puede_elegir_autoridad = True
-    if puede_elegir_autoridad:
-        form_search = SentenciaSearchAdminForm()
-    else:
-        form_search = SentenciaSearchForm()
-    if form_search.validate_on_submit():
-        busqueda = {"estatus": "A"}
-        titulos = []
-        fallo_validacion = False
-        # Autoridad es un campo obligatorio
-        if puede_elegir_autoridad:
-            autoridad = Autoridad.query.get(form_search.autoridad.data)
-            plantilla = "sentencias/list_admin.jinja2"
-        else:
-            autoridad = current_user.autoridad
-            plantilla = "sentencias/list.jinja2"
-        busqueda["autoridad_id"] = autoridad.id
-        titulos.append(autoridad.distrito.nombre_corto + ", " + autoridad.descripcion_corta)
-        # Sentencia
-        try:
-            sentencia = safe_sentencia(form_search.sentencia.data)
-            if sentencia != "":
-                busqueda["sentencia"] = sentencia
-                titulos.append("sentencia " + sentencia)
-        except (IndexError, ValueError):
-            flash("Sentencia incorrecta.", "warning")
-            fallo_validacion = True
-        # Expediente
-        try:
-            expediente = safe_expediente(form_search.expediente.data)
-            if expediente != "":
-                busqueda["expediente"] = expediente
-                titulos.append("expediente " + expediente)
-        except (IndexError, ValueError):
-            flash("Expediente incorrecto.", "warning")
-            fallo_validacion = True
-        # Es perspectiva de genero
-        # Fecha de publicacion
-        if form_search.fecha_desde.data:
-            busqueda["fecha_desde"] = form_search.fecha_desde.data.strftime("%Y-%m-%d")
-            titulos.append("desde " + busqueda["fecha_desde"])
-        if form_search.fecha_hasta.data:
-            busqueda["fecha_hasta"] = form_search.fecha_hasta.data.strftime("%Y-%m-%d")
-            titulos.append("hasta " + busqueda["fecha_hasta"])
-        # Mostrar resultados
-        if not fallo_validacion:
-            return render_template(
-                plantilla,
-                filtros=json.dumps(busqueda),
-                titulo="Sentencias con " + ", ".join(titulos),
-            )
-    # Mostrar buscador donde puede elegir la autoridad
-    if puede_elegir_autoridad:
-        return render_template(
-            "sentencias/search_admin.jinja2",
-            form=form_search,
-            distritos=Distrito.query.filter_by(es_distrito_judicial=True).filter_by(estatus="A").order_by(Distrito.nombre).all(),
-            autoridades=Autoridad.query.filter_by(es_jurisdiccional=True).filter_by(es_notaria=False).filter_by(estatus="A").order_by(Autoridad.clave).all(),
-        )
-    # Mostrar buscador con la autoridad fija
-    form_search.distrito.data = current_user.autoridad.distrito.nombre
-    form_search.autoridad.data = current_user.autoridad.descripcion
-    return render_template("sentencias/search.jinja2", form=form_search)
-
-
 @sentencias.route("/sentencias/datatable_json", methods=["GET", "POST"])
 def datatable_json():
     """DataTable JSON para sentencias"""
@@ -258,35 +186,46 @@ def datatable_json():
     draw, start, rows_per_page = get_datatable_parameters()
     # Consultar
     consulta = Sentencia.query
+    # Primero filtrar por columnas propias
     if "estatus" in request.form:
-        consulta = consulta.filter_by(estatus=request.form["estatus"])
+        consulta = consulta.filter(Sentencia.estatus == request.form["estatus"])
     else:
-        consulta = consulta.filter_by(estatus="A")
+        consulta = consulta.filter(Sentencia.estatus == "A")
     if "autoridad_id" in request.form:
         autoridad = Autoridad.query.get(request.form["autoridad_id"])
         if autoridad:
-            consulta = consulta.filter_by(autoridad=autoridad)
+            consulta = consulta.filter(Sentencia.autoridad_id == autoridad.id)
     if "sentencia" in request.form:
         try:
             sentencia = safe_sentencia(request.form["sentencia"])
-            consulta = consulta.filter_by(sentencia=sentencia)
+            consulta = consulta.filter(Sentencia.sentencia == sentencia)
         except (IndexError, ValueError):
             pass
     if "expediente" in request.form:
         try:
             expediente = safe_expediente(request.form["expediente"])
-            consulta = consulta.filter_by(expediente=expediente)
+            consulta = consulta.filter(Sentencia.expediente == expediente)
         except (IndexError, ValueError):
             pass
-    if "fecha_desde" in request.form:
-        consulta = consulta.filter(Sentencia.fecha >= request.form["fecha_desde"])
-    if "fecha_hasta" in request.form:
-        consulta = consulta.filter(Sentencia.fecha <= request.form["fecha_hasta"])
-    # Filtro para materia tipo juicio
+    # Filtrar por fechas, si vienen invertidas se corrigen
+    fecha_desde = None
+    fecha_hasta = None
+    if "fecha_desde" in request.form and re.match(r"\d{4}-\d{2}-\d{2}", request.form["fecha_desde"]):
+        fecha_desde = request.form["fecha_desde"]
+    if "fecha_hasta" in request.form and re.match(r"\d{4}-\d{2}-\d{2}", request.form["fecha_hasta"]):
+        fecha_hasta = request.form["fecha_hasta"]
+    if fecha_desde and fecha_hasta and fecha_desde > fecha_hasta:
+        fecha_desde, fecha_hasta = fecha_hasta, fecha_desde
+    if fecha_desde:
+        consulta = consulta.filter(Sentencia.fecha >= fecha_desde)
+    if fecha_hasta:
+        consulta = consulta.filter(Sentencia.fecha <= fecha_hasta)
+    # Filtrar por tipo de juicio
     if "materia_tipo_juicio_id" in request.form:
         materia_tipo_juicio = MateriaTipoJuicio.query.get(request.form["materia_tipo_juicio_id"])
         if materia_tipo_juicio:
-            consulta = consulta.filter_by(materia_tipo_juicio=materia_tipo_juicio)
+            consulta = consulta.filter(Sentencia.materia_tipo_juicio == materia_tipo_juicio)
+    # Ordenar y paginar
     registros = consulta.order_by(Sentencia.fecha.desc()).offset(start).limit(rows_per_page).all()
     total = consulta.count()
     # Elaborar datos para DataTable
@@ -320,43 +259,50 @@ def datatable_json_admin():
     draw, start, rows_per_page = get_datatable_parameters()
     # Consultar
     consulta = Sentencia.query
+    # Primero filtrar por columnas propias
     if "estatus" in request.form:
-        consulta = consulta.filter_by(estatus=request.form["estatus"])
+        consulta = consulta.filter(Sentencia.estatus == request.form["estatus"])
     else:
-        consulta = consulta.filter_by(estatus="A")
+        consulta = consulta.filter(Sentencia.estatus == "A")
     if "autoridad_id" in request.form:
         autoridad = Autoridad.query.get(request.form["autoridad_id"])
         if autoridad:
-            consulta = consulta.filter_by(autoridad=autoridad)
+            consulta = consulta.filter(Sentencia.autoridad_id == autoridad.id)
     if "sentencia" in request.form:
         try:
             sentencia = safe_sentencia(request.form["sentencia"])
-            consulta = consulta.filter_by(sentencia=sentencia)
+            consulta = consulta.filter(Sentencia.sentencia == sentencia)
         except (IndexError, ValueError):
             pass
     if "expediente" in request.form:
         try:
             expediente = safe_expediente(request.form["expediente"])
-            consulta = consulta.filter_by(expediente=expediente)
+            consulta = consulta.filter(Sentencia.expediente == expediente)
         except (IndexError, ValueError):
             pass
-    if "fecha_desde" in request.form:
-        consulta = consulta.filter(Sentencia.fecha >= request.form["fecha_desde"])
-    if "fecha_hasta" in request.form:
-        consulta = consulta.filter(Sentencia.fecha <= request.form["fecha_hasta"])
-        # Filtro para obtener materias
+    # Filtrar por fechas, si vienen invertidas se corrigen
+    fecha_desde = None
+    fecha_hasta = None
+    if "fecha_desde" in request.form and re.match(r"\d{4}-\d{2}-\d{2}", request.form["fecha_desde"]):
+        fecha_desde = request.form["fecha_desde"]
+    if "fecha_hasta" in request.form and re.match(r"\d{4}-\d{2}-\d{2}", request.form["fecha_hasta"]):
+        fecha_hasta = request.form["fecha_hasta"]
+    if fecha_desde and fecha_hasta and fecha_desde > fecha_hasta:
+        fecha_desde, fecha_hasta = fecha_hasta, fecha_desde
+    if fecha_desde:
+        consulta = consulta.filter(Sentencia.fecha >= fecha_desde)
+    if fecha_hasta:
+        consulta = consulta.filter(Sentencia.fecha <= fecha_hasta)
+    # Luego filtrar por columnas de otras tablas
     if "materia_id" in request.form:
-        # Obtén la instancia de Materia usando el ID proporcionado
         materia = Materia.query.get(request.form["materia_id"])
         if materia:
-            # filtra las sentencias que tengan un MateriaTipoJuicio asociado con esa Materia
             consulta = consulta.join(MateriaTipoJuicio).filter(MateriaTipoJuicio.materia_id == materia.id)
-    # Filtro para obtener los tipos de juicios
     if "materia_tipo_juicio_id" in request.form:
         materia_tipo_juicio = MateriaTipoJuicio.query.get(request.form["materia_tipo_juicio_id"])
         if materia_tipo_juicio:
-            # Usar filter con una condición más detallada
             consulta = consulta.filter(Sentencia.materia_tipo_juicio_id == materia_tipo_juicio.id)
+    # Ordenar y paginar
     registros = consulta.order_by(Sentencia.id.desc()).offset(start).limit(rows_per_page).all()
     total = consulta.count()
     # Zona horaria local
