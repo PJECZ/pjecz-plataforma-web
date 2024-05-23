@@ -29,6 +29,46 @@
 {% block content %}
     {# Datatable #}
     {% call list.card() %}
+     <!-- Filtros Sentencias -->
+        <div class="row">
+            <div class="col">
+                <form class="row g-1 mb-3" id="filtradorForm" onsubmit="filtrosSentencias.buscar(); return false;">
+                    <div class="col-2">
+                        <div class="form-floating">
+                            <input id="filtroFechaDesde" type="date" class="form-control" aria-label="Fecha Desde" style="text-transform: uppercase;">
+                            <label for="filtroFechaDesde">Fecha Desde</label>
+                        </div>
+                    </div>
+                    <div class="col-2">
+                        <div class="form-floating">
+                            <input id="filtroFechaHasta" type="date" class="form-control" aria-label="Fecha Hasta" style="text-transform: uppercase;">
+                            <label for="filtroFechaHasta">Fecha Hasta</label>
+                        </div>
+                    </div>
+                    <div class="col-3">
+                        <div class="form-floating">
+                            <select id="filtroMateria" class="form-select" aria-label="Materia">
+                                <option selected value="">Filtro Materia</option>
+                            </select>
+                            <label class="form-floating-label">Filtro Materia</label>
+                        </div>
+                    </div>
+                    <div class="col-3">
+                        <div class="form-floating">
+                            <select id="filtroTipoJuicio" class="form-select" aria-label="Tipo Juicio">
+                                <option selected value="">Filtro Tipo Juicio</option>
+                            </select>
+                            <label class="form-floating-label">Filtro Tipo Juicio</label>
+                        </div>
+                    </div>
+                    <div class="col-2 text-end">
+                        <button title="Buscar" class="btn btn-primary btn-lg" onclick="filtrosSentencias.buscar(); return false;" id="button-buscar"><span class="iconify" data-icon="mdi:magnify"></span></button>
+                        <button title="Limpiar" class="btn btn-warning btn-lg" type="reset" onclick="filtrosSentencias.limpiar();" id="button-limpiar"><span class="iconify" data-icon="mdi:broom"></span></button>
+                    </div>
+                </form>
+            </div>
+        </div>
+        <!-- DataTable Sentencias -->
         <table id="sentencias_datatable" class="table {% if estatus == 'B'%}table-dark{% endif %} display nowrap" style="width:100%">
             <thead>
                 <tr>
@@ -61,71 +101,104 @@
 {% endblock %}
 
 {% block custom_javascript %}
+    <script src="/static/js/datatables-constructor.js"></script>
+    <script src="/static/js/datatables-filtros.js"></script>
     <script>
-        $('#sentencias_datatable').DataTable({
-            processing: true,
-            serverSide: true,
-            searching: false,
-            responsive: true,
-            scrollX: true,
-            ajax: {
-                url: "/sentencias/datatable_json_admin",
-                type: "POST",
-                headers: { "X-CSRF-TOKEN": "{{ csrf_token() }}" },
-                dataType: "json",
-                dataSrc: "data",
-                data: {{ filtros }}
-            },
-            columns: [
-                { data: "detalle" },
-                { data: "creado" },
-                { data: "autoridad" },
-                { data: "fecha" },
-                { data: "sentencia" },
-                { data: "expediente" },
-                { data: "materia_nombre" },
-                { data: "materia_tipo_juicio_descripcion" },
-                { data: "es_perspectiva_genero" },
-                { data: "archivo" }
-            ],
-            ordering: false,
-            columnDefs: [
-                {
-                    targets: 0, // detalle
-                    data: null,
-                    render: function(data, type, row, meta) {
-                        return '<a href="' + data.url + '">' + data.id + '</a>';
-                    }
-                },
-                {
-                    targets: 7, // materia_tipo_juicio_descripcion
-                    data: null,
-                    render: function(data, type, row, meta) {
-                        return data.length > 20 ? data.substr(0, 40) + '…' : data;
-                    }
-                },
-                {
-                    targets: 9, // archivo
-                    data: null,
-                    render: function(data, type, row, meta) {
-                        return '<a href="' + data.descargar_url + '" target="_blank">PDF</a>';
-                    }
+        // Llamar a /materia/select_json para cargar el select
+        fetch('/materias/select_json')
+        .then(response => response.json())
+        .then(data => {
+            const materiaSelct = document.getElementById('filtroMateria');
+            data.forEach(materia => {
+                const option = document.createElement('option');
+                option.value = materia.id;
+                option.text = materia.nombre;
+                materiaSelct.appendChild(option);
+            });
+        });
+        // Llamar a /MateruaTipoJuicio/select_json para cargar el select tipo juicio, si la materia cambia
+        document.getElementById('filtroMateria').addEventListener('change', () => {
+            const materiaId = document.getElementById('filtroMateria').value;
+            fetch(`/materias_tipos_juicios/select_json/${materiaId}`)
+            .then(response => response.json())
+            .then(data => {
+                const tipoJuicioSelect = document.getElementById('filtroTipoJuicio');
+                tipoJuicioSelect.innerHTML = '';
+                data.forEach(juicio => {
+                    const option = document.createElement('option');
+                    option.value = juicio.id;
+                    option.text = juicio.descripcion;
+                    tipoJuicioSelect.appendChild(option);
+                });
+            });
+        });
+    </script>
+    <script>
+        // DataTable Sentencias
+        const constructorDataTable = new ConfigDataTable( '{{ csrf_token() }}' );
+        let configDTSentencias = constructorDataTable.config();
+        configDTSentencias['ajax']['url'] = '/sentencias/datatable_json_admin';
+        configDTSentencias['ajax']['data'] = {{ filtros }};
+        configDTSentencias['columns'] = [
+            { data: "detalle" },
+            { data: "creado" },
+            { data: "autoridad" },
+            { data: "fecha" },
+            { data: "sentencia" },
+            { data: "expediente" },
+            { data: "materia_nombre" },
+            { data: "materia_tipo_juicio_descripcion" },
+            { data: "es_perspectiva_genero" },
+            { data: "archivo" }
+        ];
+        configDTSentencias['columnDefs'] = [
+           {
+                targets: 0, // detalle
+                data: null,
+                render: function(data, type, row, meta) {
+                    return '<a href="' + data.url + '">' + data.id + '</a>';
                 }
-            ],
-            language: {
-                lengthMenu: "Mostrar _MENU_",
-                search: "Filtrar:",
-                zeroRecords: "No se encontraron registros",
-                info: "Total de registros _TOTAL_ ",
-                infoEmpty: "No hay registros",
-                infoFiltered: "(_TOTAL_ filtrados de _MAX_ registros)",
-                oPaginate: {
-                    sFirst: "Primero",
-                    sLast: "Último",
-                    sNext: "Siguiente",
-                    sPrevious: "Anterior"
+            },
+            {
+                targets: 7, // materia_tipo_juicio_descripcion
+                data: null,
+                render: function(data, type, row, meta) {
+                    return data.length > 20 ? data.substr(0, 40) + '…' : data;
+                }
+            },
+            {
+                targets: 9, // archivo
+                data: null,
+                render: function(data, type, row, meta) {
+                    return '<a href="' + data.descargar_url + '" target="_blank">PDF</a>';
                 }
             }
-        });
+        ];
+        // Filtros Sentencias
+        const filtrosSentencias = new FiltrosDataTable('#sentencias_datatable', configDTSentencias);
+        filtrosSentencias.agregarInput('filtroFechaDesde', 'fecha_desde');
+        filtrosSentencias.agregarInput('filtroFechaHasta', 'fecha_hasta');
+        filtrosSentencias.agregarInput('filtroMateria', 'materia_id');
+        filtrosSentencias.agregarInput('filtroTipoJuicio', 'materia_tipo_juicio_id');
+        filtrosSentencias.precargar();
+    </script>
+    <script>
+        function limpiarSelects() {
+            // Obtener el select de Tipo Juicio
+            var selectTipoJuicio = document.getElementById('filtroTipoJuicio');
+
+            // Limpiar el select removiendo todas las opciones existentes
+            selectTipoJuicio.innerHTML = '';
+
+            // Crear una nueva instancia de la opción por defecto
+            var defaultOption = new Option("Filtro Tipo Juicio", "");
+
+            // Agregar la opción por defecto al select
+            selectTipoJuicio.appendChild(defaultOption);
+
+            // Establecer el valor del select a la opción por defecto
+            selectTipoJuicio.value = defaultOption.value;
+        }
+        document.getElementById('button-limpiar').addEventListener('click', limpiarSelects);
     </script>
 {% endblock %}
