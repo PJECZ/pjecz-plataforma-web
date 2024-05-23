@@ -13,6 +13,7 @@ from plataforma_web.blueprints.usuarios.decorators import permission_required
 
 from plataforma_web.blueprints.autoridades.models import Autoridad
 from plataforma_web.blueprints.bitacoras.models import Bitacora
+from plataforma_web.blueprints.materias.models import Materia
 from plataforma_web.blueprints.materias_tipos_juicios.models import MateriaTipoJuicio
 from plataforma_web.blueprints.materias_tipos_juicios.forms import MateriaTipoJuicioForm
 from plataforma_web.blueprints.modulos.models import Modulo
@@ -64,6 +65,29 @@ def datatable_json():
         )
     # Entregar JSON
     return output_datatable_json(draw, total, data)
+
+
+@materias_tipos_juicios.route("/materias_tipos_juicios/select_json/<int:materia_id>", methods=["GET", "POST"])
+def select_json(materia_id=None):
+    """Select JSON para materias tipos juicios"""
+    # Si materia_id es None, entonces no se entregan tipos juicios
+    if materia_id is None:
+        return json.dumps([])
+    # Consultar
+    consulta = MateriaTipoJuicio.query.filter_by(materia_id=materia_id, estatus="A")
+    # Ordenar
+    consulta = consulta.order_by(MateriaTipoJuicio.descripcion)
+    # Elaborar datos para Select
+    data = []
+    for resultado in consulta.all():
+        data.append(
+            {
+                "id": resultado.id,
+                "descripcion": resultado.descripcion,
+            }
+        )
+    # Entregar JSON
+    return json.dumps(data)
 
 
 @materias_tipos_juicios.route("/materias_tipos_juicios")

@@ -287,10 +287,6 @@ def datatable_json():
         materia_tipo_juicio = MateriaTipoJuicio.query.get(request.form["materia_tipo_juicio_id"])
         if materia_tipo_juicio:
             consulta = consulta.filter_by(materia_tipo_juicio=materia_tipo_juicio)
-    if "tipo_juicio" in request.form:
-        tipo_juicio = safe_string(request.form["tipo_juicio"], save_enie=True)
-        if tipo_juicio != "":
-            consulta = consulta.join(Modulo).filter(MateriaTipoJuicio.descripcion.contains(tipo_juicio))
     registros = consulta.order_by(Sentencia.fecha.desc()).offset(start).limit(rows_per_page).all()
     total = consulta.count()
     # Elaborar datos para DataTable
@@ -348,11 +344,19 @@ def datatable_json_admin():
         consulta = consulta.filter(Sentencia.fecha >= request.form["fecha_desde"])
     if "fecha_hasta" in request.form:
         consulta = consulta.filter(Sentencia.fecha <= request.form["fecha_hasta"])
-    # Filtro para materia tipo juicio
+        # Filtro para obtener materias
+    if "materia_id" in request.form:
+        # Obtén la instancia de Materia usando el ID proporcionado
+        materia = Materia.query.get(request.form["materia_id"])
+        if materia:
+            # filtra las sentencias que tengan un MateriaTipoJuicio asociado con esa Materia
+            consulta = consulta.join(MateriaTipoJuicio).filter(MateriaTipoJuicio.materia_id == materia.id)
+    # Filtro para obtener los tipos de juicios
     if "materia_tipo_juicio_id" in request.form:
         materia_tipo_juicio = MateriaTipoJuicio.query.get(request.form["materia_tipo_juicio_id"])
         if materia_tipo_juicio:
-            consulta = consulta.filter_by(materia_tipo_juicio=materia_tipo_juicio)
+            # Usar filter con una condición más detallada
+            consulta = consulta.filter(Sentencia.materia_tipo_juicio_id == materia_tipo_juicio.id)
     registros = consulta.order_by(Sentencia.id.desc()).offset(start).limit(rows_per_page).all()
     total = consulta.count()
     # Zona horaria local

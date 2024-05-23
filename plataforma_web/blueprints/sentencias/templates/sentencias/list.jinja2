@@ -41,24 +41,19 @@
                             <label for="filtroExpediente">Expediente</label>
                         </div>
                     </div>
-                    <div class="col-3">
+                    <div class="col-2">
                         <div class="form-floating">
-                            <select id="tipoSelect" class="form-control js-select2-filter" onchange="filtrosSentencias.buscar(); return false;" style="text-transform: uppercase;"></select>
-                            <label for="tipoSelect">Tipo</label>
+                            <input id="filtroFechaDesde" type="date" class="form-control" aria-label="Fecha Desde" style="text-transform: uppercase;">
+                            <label for="filtroFechaDesde">Fecha Desde</label>
                         </div>
                     </div>
-                    {#<div class="col-3">
+                    <div class="col-2">
                         <div class="form-floating">
-                            <select class="form-control js-select2-filter" id="filtroTipoJuicioSelect" name="filtroTipoJuicioSelect" aria-label="TipoJuicio" onchange="filtrosSentencias.buscar(); return false;" style="flex: inherit;">
-                            <option selected value=""></option>
-                                {% for juicio in juicios %}
-                                    <option value="{{juicio.id}}">{{juicio.descripcion}}</option>
-                                {% endfor %}
-                            </select>
-                            <label for="filtroTipoJuicioSelect">Tipo Juicio</label>
+                            <input id="filtroFechaHasta" type="date" class="form-control" aria-label="Fecha Hasta" style="text-transform: uppercase;">
+                            <label for="filtroFechaHasta">Fecha Hasta</label>
                         </div>
-                    </div>#}
-                    <div class="col-3 text-end">
+                    </div>
+                    <div class="col-2 text-end">
                         <button title="Buscar" class="btn btn-primary btn-lg" onclick="filtrosSentencias.buscar(); return false;" id="button-buscar"><span class="iconify" data-icon="mdi:magnify"></span></button>
                         <button title="Limpiar" class="btn btn-warning btn-lg" type="reset" onclick="filtrosSentencias.limpiar();" id="button-limpiar"><span class="iconify" data-icon="mdi:broom"></span></button>
                     </div>
@@ -94,9 +89,8 @@
 {% endblock %}
 
 {% block custom_javascript %}
-<script src="/static/js/datatables-constructor.js"></script>
+    <script src="/static/js/datatables-constructor.js"></script>
     <script src="/static/js/datatables-filtros.js"></script>
-    
     <script>
         // DataTable Sentencias
         const constructorDataTable = new ConfigDataTable( '{{ csrf_token() }}' );
@@ -134,32 +128,12 @@
                 }
             }
         ];
-        // Filtros Inv Marcas
+        // Filtros Sentencias
         const filtrosSentencias = new FiltrosDataTable('#sentencias_datatable', configDTSentencias);
         filtrosSentencias.agregarInput('filtroSentencia', 'sentencia');
         filtrosSentencias.agregarInput('filtroExpediente', 'expediente');
-        filtrosSentencias.agregarInput('tipoSelect', 'descripcion');
+        filtrosSentencias.agregarInput('filtroFechaDesde', 'fecha_desde');
+        filtrosSentencias.agregarInput('filtroFechaHasta', 'fecha_hasta');
         filtrosSentencias.precargar();
-    </script>
-    <!-- Select2 bootstrap -->
-    <script src="https://cdn.jsdelivr.net/npm/select2@4.1.0-rc.0/dist/js/select2.min.js"></script>
-    <script>
-        $(document).ready(function(){
-            $("#tipoSelect").select2({
-                // --- Carga de emails por Ajax --- //
-                ajax: {
-                    url: '/materias_tipos_juicios/datatable_json',
-                    headers: { "X-CSRF-TOKEN": "{{ csrf_token() }}" },
-                    dataType: 'json',
-                    delay: 250,
-                    type: "POST",
-                    data: function (params) {
-                        return { 'descripcion': params.term.toUpperCase() };
-                    }
-                },
-                minimumInputLength: 2,
-                allowClear: true
-            });
-        });
     </script>
 {% endblock %}
