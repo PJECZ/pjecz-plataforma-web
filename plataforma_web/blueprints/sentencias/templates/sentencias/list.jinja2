@@ -19,7 +19,6 @@
                 {{ topbar.button_upload('Subir', url_for('sentencias.new')) }}
             {% endif %}
         {% endif %}
-        {{ topbar.button_search('Buscar', url_for('sentencias.search')) }}
     {% endcall %}
 {% endblock %}
 
@@ -32,7 +31,7 @@
                     <div class="col-3">
                         <div class="form-floating">
                             <input id="filtroSentencia" type="text" class="form-control" aria-label="Sentencia" style="text-transform: uppercase;">
-                            <label for="filtroSentencia">Num. Sentencia</label>
+                            <label for="filtroSentencia">Sentencia</label>
                         </div>
                     </div>
                     <div class="col-3">
@@ -43,14 +42,14 @@
                     </div>
                     <div class="col-2">
                         <div class="form-floating">
-                            <input id="filtroFechaDesde" type="date" class="form-control" aria-label="Fecha Desde" style="text-transform: uppercase;">
-                            <label for="filtroFechaDesde">Fecha Desde</label>
+                            <input id="filtroFechaDesde" type="date" class="form-control" aria-label="F. de Publicación" style="text-transform: uppercase;">
+                            <label for="filtroFechaDesde">F. de Publicación</label>
                         </div>
                     </div>
                     <div class="col-2">
                         <div class="form-floating">
-                            <input id="filtroFechaHasta" type="date" class="form-control" aria-label="Fecha Hasta" style="text-transform: uppercase;">
-                            <label for="filtroFechaHasta">Fecha Hasta</label>
+                            <input id="filtroFechaHasta" type="date" class="form-control" aria-label="F. de Publicación" style="text-transform: uppercase;">
+                            <label for="filtroFechaHasta">F. de Publicación</label>
                         </div>
                     </div>
                     <div class="col-2 text-end">

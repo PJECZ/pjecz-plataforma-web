@@ -22,7 +22,6 @@
                 {% if estatus == 'B' %}{{ topbar.button_list_active('Activos', url_for('sentencias.list_active')) }}{% endif %}
             {% endif %}
         {% endif %}
-        {{ topbar.button_search('Buscar', url_for('sentencias.search')) }}
     {% endcall %}
 {% endblock %}
 
@@ -35,30 +34,30 @@
                 <form class="row g-1 mb-3" id="filtradorForm" onsubmit="filtrosSentencias.buscar(); return false;">
                     <div class="col-2">
                         <div class="form-floating">
-                            <input id="filtroFechaDesde" type="date" class="form-control" aria-label="Fecha Desde" style="text-transform: uppercase;">
-                            <label for="filtroFechaDesde">Fecha Desde</label>
+                            <input id="filtroFechaDesde" type="date" class="form-control" aria-label="F. de Publicación" style="text-transform: uppercase;">
+                            <label for="filtroFechaDesde">F. de Publicación</label>
                         </div>
                     </div>
                     <div class="col-2">
                         <div class="form-floating">
-                            <input id="filtroFechaHasta" type="date" class="form-control" aria-label="Fecha Hasta" style="text-transform: uppercase;">
-                            <label for="filtroFechaHasta">Fecha Hasta</label>
+                            <input id="filtroFechaHasta" type="date" class="form-control" aria-label="F. de Publicación" style="text-transform: uppercase;">
+                            <label for="filtroFechaHasta">F. de Publicación</label>
                         </div>
                     </div>
                     <div class="col-3">
                         <div class="form-floating">
                             <select id="filtroMateria" class="form-select" aria-label="Materia">
-                                <option selected value="">Filtro Materia</option>
+                                <option selected value="">Todas las Materias</option>
                             </select>
-                            <label class="form-floating-label">Filtro Materia</label>
+                            <label class="form-floating-label">Materia</label>
                         </div>
                     </div>
                     <div class="col-3">
                         <div class="form-floating">
-                            <select id="filtroTipoJuicio" class="form-select" aria-label="Tipo Juicio">
-                                <option selected value="">Filtro Tipo Juicio</option>
+                            <select id="filtroTipoJuicio" class="form-select" aria-label="Tipo de Juicio">
+                                <option selected value="">Todos los Tipos de Juicios</option>
                             </select>
-                            <label class="form-floating-label">Filtro Tipo Juicio</label>
+                            <label class="form-floating-label">Tipo de Juicio</label>
                         </div>
                     </div>
                     <div class="col-2 text-end">
@@ -108,12 +107,12 @@
         fetch('/materias/select_json')
         .then(response => response.json())
         .then(data => {
-            const materiaSelct = document.getElementById('filtroMateria');
+            const materiaSelect = document.getElementById('filtroMateria');
             data.forEach(materia => {
                 const option = document.createElement('option');
                 option.value = materia.id;
                 option.text = materia.nombre;
-                materiaSelct.appendChild(option);
+                materiaSelect.appendChild(option);
             });
         });
         // Llamar a /MateruaTipoJuicio/select_json para cargar el select tipo juicio, si la materia cambia
@@ -184,20 +183,11 @@
     </script>
     <script>
         function limpiarSelects() {
-            // Obtener el select de Tipo Juicio
-            var selectTipoJuicio = document.getElementById('filtroTipoJuicio');
-
-            // Limpiar el select removiendo todas las opciones existentes
-            selectTipoJuicio.innerHTML = '';
-
-            // Crear una nueva instancia de la opción por defecto
-            var defaultOption = new Option("Filtro Tipo Juicio", "");
-
-            // Agregar la opción por defecto al select
-            selectTipoJuicio.appendChild(defaultOption);
-
-            // Establecer el valor del select a la opción por defecto
-            selectTipoJuicio.value = defaultOption.value;
+            const selectTipoJuicio = document.getElementById('filtroTipoJuicio'); // Obtener el select de Tipo Juicio
+            selectTipoJuicio.innerHTML = ''; // Remover todas las opciones
+            const defaultOption = new Option("Todos los Tipos de Juicios", ""); // Crear una nueva la opción por defecto
+            selectTipoJuicio.appendChild(defaultOption);// Agregar la opción por defecto al select
+            selectTipoJuicio.value = defaultOption.value; // Establecer el valor del select a la opción por defecto
         }
         document.getElementById('button-limpiar').addEventListener('click', limpiarSelects);
     </script>
