@@ -2,7 +2,6 @@
 Exhortos Partes Persona
 """
 
-from collections import OrderedDict
 from plataforma_web.extensions import db
 from lib.universal_mixin import UniversalMixin
 
@@ -10,12 +9,10 @@ from lib.universal_mixin import UniversalMixin
 class ExhExhortoParte(db.Model, UniversalMixin):
     """Exhorto Parte"""
 
-    GENEROS = OrderedDict(
-        [
-            ("M", "MASCULINO"),
-            ("F", "FEMENINO"),
-        ]
-    )
+    GENEROS = {
+        "M": "MASCULINO",
+        "F": "FEMENINO",
+    }
 
     # Nombre de la tabla
     __tablename__ = "exh_exhortos_partes"
@@ -39,7 +36,7 @@ class ExhExhortoParte(db.Model, UniversalMixin):
     # 'M' = Masculino,
     # 'F' = Femenino.
     # Solo cuando aplique y se quiera especificar (que se tenga el dato). NO aplica para persona moral.
-    genero = db.Column(db.Enum(*GENEROS, name="tipos_generos", native_enum=False), nullable=True)
+    genero = db.Column(db.Enum(*GENEROS, name="exh_exhortos_partes_generos", native_enum=False), nullable=True)
 
     # Valor que indica si la parte es una persona moral.
     es_persona_moral = db.Column(db.Boolean, nullable=False)

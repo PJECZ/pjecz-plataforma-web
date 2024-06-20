@@ -60,10 +60,18 @@ def datatable_json():
         consulta = consulta.filter_by(estatus=request.form["estatus"])
     else:
         consulta = consulta.filter_by(estatus="A")
+    if "fin_vale_id" in request.form:
+        consulta = consulta.filter_by(id=request.form["fin_vale_id"])
     if "usuario_id" in request.form:
         consulta = consulta.filter_by(usuario_id=request.form["usuario_id"])
     if "estado" in request.form:
         consulta = consulta.filter_by(estado=request.form["estado"])
+    # Luego filtrar por columnas de otras tablas
+    if "usuario_autoridad_id" in request.form:
+        usuario_autoridad_id = int(request.form["usuario_autoridad_id"])
+        consulta = consulta.join(Usuario)
+        consulta = consulta.filter(Usuario.autoridad_id == usuario_autoridad_id)
+    # Ordenar y paginar
     registros = consulta.order_by(FinVale.id.desc()).offset(start).limit(rows_per_page).all()
     total = consulta.count()
     # Elaborar datos para DataTable
@@ -76,11 +84,10 @@ def datatable_json():
                     "url": url_for("fin_vales.detail", fin_vale_id=resultado.id),
                 },
                 "estado": resultado.estado,
-                "justificacion": resultado.justificacion,
-                "monto": resultado.monto,
-                "tipo": resultado.tipo,
+                "distrito_nombre_corto": resultado.usuario.autoridad.distrito.nombre_corto,
+                "autoridad_descripcion_corta": resultado.usuario.autoridad.descripcion_corta,
                 "usuario_nombre": resultado.usuario.nombre,
-                "usuario_oficina_clave": resultado.usuario.oficina.clave,
+                "monto": resultado.monto,
             }
         )
     # Entregar JSON

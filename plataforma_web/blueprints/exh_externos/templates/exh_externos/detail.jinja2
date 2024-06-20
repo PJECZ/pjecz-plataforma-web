@@ -1,0 +1,33 @@
+{% extends 'layouts/app.jinja2' %}
+{% import 'macros/detail.jinja2' as detail %}
+{% import 'macros/modals.jinja2' as modals %}
+{% import 'macros/topbar.jinja2' as topbar %}
+
+{% block title %}Externo{% endblock %}
+
+{% block topbar_actions %}
+    {% call topbar.page_buttons(exh_externo.descripcion) %}
+        {{ topbar.button_previous('Externos', url_for('exh_externos.list_active')) }}
+    {% endcall %}
+{% endblock %}
+
+{% block content %}
+    {% call detail.card(estatus=exh_externo.estatus) %}
+        {{ detail.label_value_big('Clave', exh_externo.clave) }}
+        {{ detail.label_value('Descripción', exh_externo.descripcion) }}
+        {{ detail.label_value('Api-Key', exh_externo.api_key) }}
+        <hr />
+        {{ detail.label_value('Consultar Materias', exh_externo.endpoint_consultar_materias) }}
+        {{ detail.label_value('Recibir Exhorto', exh_externo.endpoint_recibir_exhorto) }}
+        {{ detail.label_value('Recibir Exhorto Archivo', exh_externo.endpoint_recibir_exhorto_archivo) }}
+        {{ detail.label_value('Consultar Exhorto', exh_externo.endpoint_consultar_exhorto) }}
+        {{ detail.label_value('Recibir Respuesta Exhorto', exh_externo.endpoint_recibir_respuesta_exhorto) }}
+        {{ detail.label_value('Recibir Respuesta Exhorto Archivo', exh_externo.endpoint_recibir_respuesta_exhorto_archivo) }}
+        {{ detail.label_value('Actualizar Exhorto', exh_externo.endpoint_actualizar_exhorto) }}
+        {{ detail.label_value('Recibir Promoción', exh_externo.endpoint_recibir_promocion) }}
+        {{ detail.label_value('Recibir Promoción Archivo', exh_externo.endpoint_recibir_promocion_archivo) }}
+    {% endcall %}
+{% endblock %}
+
+{% block custom_javascript %}
+{% endblock %}
