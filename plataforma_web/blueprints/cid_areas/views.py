@@ -1,6 +1,7 @@
 """
 CID Areas, vistas
 """
+
 import json
 from flask import Blueprint, flash, redirect, render_template, request, url_for
 from flask_login import current_user, login_required
@@ -18,6 +19,9 @@ from plataforma_web.blueprints.cid_areas.forms import CIDAreaForm
 MODULO = "CID AREAS"
 
 cid_areas = Blueprint("cid_areas", __name__, template_folder="templates")
+
+# Roles que deben estar en la base de datos
+ROL_ADMINISTRADOR = "ADMINISTRADOR"
 
 
 @cid_areas.before_request
@@ -82,7 +86,13 @@ def list_inactive():
 @cid_areas.route("/cid_areas/<int:cid_area_id>")
 def detail(cid_area_id):
     """Detalle de un Area"""
+    # Consultar los roles del usuario
+    current_user_roles = current_user.get_roles()
     cid_area = CIDArea.query.get_or_404(cid_area_id)
+    # Si es administrador, usar detail_admin.jinja2
+    if current_user.can_admin(MODULO) or ROL_ADMINISTRADOR in current_user_roles:
+        return render_template("cid_areas/detail_admin.jinja2", cid_area=cid_area)
+    # De lo contrario, usar detail.jinja2
     return render_template("cid_areas/detail.jinja2", cid_area=cid_area)
 
 

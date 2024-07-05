@@ -45,6 +45,12 @@
             <div class="row">
                 <div class="col">
                     <form class="row g-1 mb-3" id="filtradorForm" onsubmit="filtrosCidProcedimientos.buscar(); return false;">
+                        <div class="col-2">
+                            <div class="form-floating">
+                                <input id="filtroId" type="text" class="form-control" aria-label="Id">
+                                <label for="filtroId">ID</label>
+                            </div>
+                        </div>
                         <div class="col-4">
                             <div class="form-floating">
                                 <input id="filtroCodigo" type="text" class="form-control" aria-label="Codigo" style="text-transform: uppercase;">
@@ -64,12 +70,13 @@
                     </form>
                 </div>
             </div>
-            <!-- Datatable de procedimientos -->
-            <table id="cid_procedimientos_datatable" class="table display nowrap" style="width:100%">
+        <!-- Datatable de procedimientos -->
+            <table id="cid_procedimientos_datatable_admin" class="table display nowrap" style="width:100%">
                 <thead>
                     <tr>
-                        <th>Código</th>
+                        <th>ID</th>
                         <th>Procedimiento</th>
+                        <th>Código</th>
                         <th>Fecha</th>
                         <th>Usuario</th>
                         <th>Seguimiento</th>
@@ -125,11 +132,12 @@
         <script>
             const constructorDataTable = new ConfigDataTable( '{{ csrf_token() }}' );
             let configDTCidProcedimientos = constructorDataTable.config();
-            configDTCidProcedimientos['ajax']['url'] = '/cid_procedimientos/datatable_json';
-            configDTCidProcedimientos['ajax']['data'] = { 'estatus': "A", 'cid_areas': [{{ cid_area.id}}], 'seguimiento': 'AUTORIZADO' };
+            configDTCidProcedimientos['ajax']['url'] = '/cid_procedimientos/datatable_json_admin';
+            configDTCidProcedimientos['ajax']['data'] = { 'estatus': "A", 'cid_areas': [{{ cid_area.id}}] };
             configDTCidProcedimientos['columns'] = [
                 { data: 'detalle' },
                 { data: 'titulo_procedimiento' },
+                { data: 'codigo' },
                 { data: 'fecha' },
                 { data: 'usuario' },
                 { data: 'seguimiento' }
@@ -152,7 +160,7 @@
                     }
                 },
                 {
-                    targets: 3, // usuario
+                    targets: 4, // usuario
                     data: null,
                     render: function(data, type, row, meta) {
                         if (data.nombre.length > 16) {
@@ -167,7 +175,9 @@
                     }
                 }
             ];
-            const filtrosCidProcedimientos = new FiltrosDataTable('#cid_procedimientos_datatable', configDTCidProcedimientos);
+            // Filtros Cid Procedimientos
+            const filtrosCidProcedimientos = new FiltrosDataTable('#cid_procedimientos_datatable_admin', configDTCidProcedimientos);
+            filtrosCidProcedimientos.agregarInput('filtroId', 'cid_procedmiento_id');
             filtrosCidProcedimientos.agregarInput('filtroCodigo', 'codigo');
             filtrosCidProcedimientos.agregarInput('filtroTituloProcedimiento', 'titulo_procedimiento');
             filtrosCidProcedimientos.precargar();

@@ -31,6 +31,7 @@ cid_procedimientos = Blueprint("cid_procedimientos", __name__, template_folder="
 MODULO = "CID PROCEDIMIENTOS"
 
 # Roles que deben estar en la base de datos
+ROL_ADMINISTRADOR = "ADMINISTRADOR"
 ROL_COORDINADOR = "SICGD COORDINADOR"
 ROL_DIRECTOR_JEFE = "SICGD DIRECTOR O JEFE"
 ROL_DUENO_PROCESO = "SICGD DUENO DE PROCESO"
@@ -93,11 +94,10 @@ def datatable_json():
         data.append(
             {
                 "detalle": {
-                    "id": resultado.id,
+                    "id": resultado.codigo,
                     "url": url_for("cid_procedimientos.detail", cid_procedimiento_id=resultado.id),
                 },
                 "titulo_procedimiento": resultado.titulo_procedimiento,
-                "codigo": resultado.codigo,
                 "revision": resultado.revision,
                 "elaboro_nombre": resultado.elaboro_email,
                 "fecha": resultado.fecha.strftime("%Y-%m-%d"),
@@ -205,7 +205,7 @@ def list_active():
     # Consultar los roles del usuario
     current_user_roles = set(current_user.get_roles())
     # Si es administrador, usar list_admin.jinja2
-    if current_user.can_admin(MODULO):
+    if current_user.can_admin(MODULO) and ROL_ADMINISTRADOR in current_user_roles:
         return render_template(
             "cid_procedimientos/list_admin.jinja2",
             titulo="Procedimientos autorizados de mis áreas",
@@ -235,7 +235,7 @@ def list_authorized():
     # Consultar los roles del usuario
     current_user_roles = set(current_user.get_roles())
     # Si es administrador, usar list_admin.jinja2
-    if current_user.can_admin(MODULO):
+    if current_user.can_admin(MODULO) and ROL_ADMINISTRADOR in current_user_roles:
         return render_template(
             "cid_procedimientos/list_admin.jinja2",
             titulo="Todos los procedimientos autorizados",
@@ -265,7 +265,8 @@ def list_owned():
     # Consultar los roles del usuario
     current_user_roles = set(current_user.get_roles())
     # Si es administrador, usar list_admin.jinja2
-    if current_user.can_admin(MODULO):
+    if current_user.can_admin(MODULO) and ROL_ADMINISTRADOR in current_user_roles:
+        print("Usuario Admin")
         return render_template(
             "cid_procedimientos/list_admin.jinja2",
             titulo="Procedimientos propios",
@@ -277,6 +278,7 @@ def list_owned():
             show_button_my_autorized=True,
         )
     # De lo contrario, usar list.jinja2
+    print("Usuario normal")
     return render_template(
         "cid_procedimientos/list.jinja2",
         titulo="Procedimientos propios",
