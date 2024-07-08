@@ -349,7 +349,7 @@ def detail(cid_procedimiento_id):
         cid_formatos=cid_formatos,
         show_button_edit_admin=current_user.can_admin(MODULO) or ROL_COORDINADOR in current_user.get_roles(),
         show_button_cambiar_area=current_user.can_admin(MODULO) or ROL_COORDINADOR in current_user.get_roles(),
-        show_buttom_new_revision=current_user.can_admin(MODULO) or current_user_roles.intersection(ROLES_NUEVA_REVISION),
+        show_buttom_new_revision=current_user_roles.intersection(ROLES_NUEVA_REVISION),
     )
 
 
