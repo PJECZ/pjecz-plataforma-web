@@ -37,6 +37,7 @@ ROL_DIRECTOR_JEFE = "SICGD DIRECTOR O JEFE"
 ROL_DUENO_PROCESO = "SICGD DUENO DE PROCESO"
 ROL_INVOLUCRADO = "SICGD INVOLUCRADO"
 ROLES_CON_PROCEDIMIENTOS_PROPIOS = (ROL_COORDINADOR, ROL_DIRECTOR_JEFE, ROL_DUENO_PROCESO)
+ROLES_NUEVA_REVISION = (ROL_COORDINADOR, ROL_DUENO_PROCESO)
 
 
 @cid_procedimientos.before_request
@@ -329,6 +330,8 @@ def list_all_inactive():
 @cid_procedimientos.route("/cid_procedimientos/<int:cid_procedimiento_id>")
 def detail(cid_procedimiento_id):
     """Detalle de un CID Procedimiento"""
+    # Consultar los roles del usuario
+    current_user_roles = set(current_user.get_roles())
     cid_procedimiento = CIDProcedimiento.query.get_or_404(cid_procedimiento_id)
     cid_formatos = CIDFormato.query.filter(CIDFormato.procedimiento == cid_procedimiento).filter(CIDFormato.estatus == "A").order_by(CIDFormato.id).all()
     return render_template(
@@ -346,6 +349,7 @@ def detail(cid_procedimiento_id):
         cid_formatos=cid_formatos,
         show_button_edit_admin=current_user.can_admin(MODULO) or ROL_COORDINADOR in current_user.get_roles(),
         show_button_cambiar_area=current_user.can_admin(MODULO) or ROL_COORDINADOR in current_user.get_roles(),
+        show_buttom_new_revision=current_user.can_admin(MODULO) or current_user_roles.intersection(ROLES_NUEVA_REVISION),
     )
 
 
