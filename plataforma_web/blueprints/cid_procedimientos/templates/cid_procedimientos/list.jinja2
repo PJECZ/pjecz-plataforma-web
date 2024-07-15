@@ -60,7 +60,6 @@
         <table id="cid_procedimientos_datatable" class="table {% if estatus == 'B'%}table-dark{% endif %} display nowrap" style="width:100%">
             <thead>
                 <tr>
-                    <th>ID</th>
                     <th>Código</th>
                     <th>Procedimiento</th>
                     <th>Fecha</th>
@@ -84,7 +83,6 @@
         configDTCidProcedimientos['ajax']['data'] = {{ filtros }};
         configDTCidProcedimientos['columns'] = [
             { data: 'detalle' },
-            { data: 'codigo' },
             { data: 'titulo_procedimiento' },
             { data: 'fecha' },
             { data: 'usuario' },
@@ -121,6 +119,21 @@
                         return interior;
                     }
                     return '<a href="' + data.url + '">' + interior + '</a>';
+                }
+            },
+            {
+                targets: 5, // seguimiento
+                data: null,
+                render: function(data, type, row, meta) {
+                    switch (data)    {
+                        case "EN ELABORACION": return '<span class="badge rounded-pill bg-yellow text-dark">EN ELABORACION <span class="iconify" data-icon="mdi:account-edit"></span></span>';   break;
+                        case "ELABORADO":     return '<span class="badge rounded-pill bg-warning text-dark">ELABORADO <span class="iconify" data-icon="mdi:account-check"></span></span>';   break;
+                        case "EN REVISION":     return '<span class="badge rounded-pill bg-blue">EN REVISION <span class="iconify" data-icon="mdi:account-search"></span></span>';   break;
+                        case "REVISADO":      return '<span class="badge rounded-pill bg-primary">REVISADO <span class="iconify" data-icon="mdi:file-check"></span></span>';   break;
+                        case "EN AUTORIZACION":  return '<span class="badge rounded-pill bg-green">EN AUTORIZACION <span class="iconify" data-icon="mdi:file-document-check"></span></span>';  break;
+                        case "AUTORIZADO":       return '<span class="badge rounded-pill bg-success">AUTORIZADO <span class="iconify" data-icon="mdi:shield-check"></span></span>';  break;
+                    }
+                    return data;
                 }
             },
             {

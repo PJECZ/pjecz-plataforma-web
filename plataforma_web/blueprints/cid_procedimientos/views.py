@@ -214,7 +214,7 @@ def list_active():
             show_button_list_owned=current_user_roles.intersection(ROLES_CON_PROCEDIMIENTOS_PROPIOS),
             show_button_list_all=True,
             show_button_list_all_autorized=True,
-            show_button_my_autorized=True,
+            show_button_my_autorized=False,
         )
     # De lo contrario, usar list.jinja2
     return render_template(
@@ -223,9 +223,9 @@ def list_active():
         filtros=json.dumps({"estatus": "A", "seguimiento": "AUTORIZADO", "cid_areas": cid_areas_ids}),
         estatus="A",
         show_button_list_owned=current_user_roles.intersection(ROLES_CON_PROCEDIMIENTOS_PROPIOS),
-        show_button_list_all=ROL_COORDINADOR in current_user_roles,
+        show_button_list_all=current_user.can_admin(MODULO) or ROL_COORDINADOR in current_user_roles,
         show_button_list_all_autorized=True,
-        show_button_my_autorized=True,
+        show_button_my_autorized=False,
     )
 
 
@@ -242,8 +242,8 @@ def list_authorized():
             filtros=json.dumps({"estatus": "A", "seguimiento": "AUTORIZADO"}),
             estatus="A",
             show_button_list_owned=current_user_roles.intersection(ROLES_CON_PROCEDIMIENTOS_PROPIOS),
-            show_button_list_all=True,
-            show_button_list_all_autorized=True,
+            show_button_list_all=ROL_COORDINADOR in current_user_roles,
+            show_button_list_all_autorized=False,
             show_button_my_autorized=True,
         )
     # De lo contrario, usar list.jinja2
@@ -253,8 +253,8 @@ def list_authorized():
         filtros=json.dumps({"estatus": "A", "seguimiento": "AUTORIZADO"}),
         estatus="A",
         show_button_list_owned=current_user_roles.intersection(ROLES_CON_PROCEDIMIENTOS_PROPIOS),
-        show_button_list_all=ROL_COORDINADOR in current_user_roles,
-        show_button_list_all_autorized=True,
+        show_button_list_all=current_user.can_admin(MODULO) or ROL_COORDINADOR in current_user_roles,
+        show_button_list_all_autorized=False,
         show_button_my_autorized=True,
     )
 
@@ -271,7 +271,7 @@ def list_owned():
             titulo="Procedimientos propios",
             filtros=json.dumps({"estatus": "A", "usuario_id": current_user.id}),
             estatus="A",
-            show_button_list_owned=current_user_roles.intersection(ROLES_CON_PROCEDIMIENTOS_PROPIOS),
+            show_button_list_owned=False,
             show_button_list_all=ROL_COORDINADOR in current_user_roles,
             show_button_list_all_autorized=True,
             show_button_my_autorized=True,
@@ -282,8 +282,8 @@ def list_owned():
         titulo="Procedimientos propios",
         filtros=json.dumps({"estatus": "A", "usuario_id": current_user.id}),
         estatus="A",
-        show_button_list_owned=current_user_roles.intersection(ROLES_CON_PROCEDIMIENTOS_PROPIOS),
-        show_button_list_all=ROL_COORDINADOR in current_user_roles,
+        show_button_list_owned=False,
+        show_button_list_all=current_user.can_admin(MODULO) or ROL_COORDINADOR in current_user_roles,
         show_button_list_all_autorized=True,
         show_button_my_autorized=True,
     )
@@ -299,7 +299,7 @@ def list_all_active():
         filtros=json.dumps({"estatus": "A"}),
         estatus="A",
         show_button_list_owned=True,
-        show_button_list_all=True,
+        show_button_list_all=False,
         show_button_list_all_autorized=True,
         show_button_my_autorized=True,
     )
@@ -309,13 +309,15 @@ def list_all_active():
 @permission_required(MODULO, Permiso.ADMINISTRAR)
 def list_all_inactive():
     """Listado de procedimientos eliminados, solo para administrador"""
+    # Consultar los roles del usuario
+    current_user_roles = set(current_user.get_roles())
     return render_template(
         "cid_procedimientos/list_admin.jinja2",
         titulo="Todos los procedimientos eliminados",
         filtros=json.dumps({"estatus": "B"}),
         estatus="B",
         show_button_list_owned=True,
-        show_button_list_all=True,
+        show_button_list_all=current_user.can_admin(MODULO) or ROL_COORDINADOR in current_user_roles,
         show_button_list_all_autorized=True,
         show_button_my_autorized=True,
     )

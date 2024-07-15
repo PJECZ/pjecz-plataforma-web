@@ -6,6 +6,23 @@
 
 {% block title %}Procedimiento{% endblock %}
 
+{% block custom_head %}
+    <style>
+    .bg-yellow {
+        color: rgb(6, 6, 6);
+        background-color: #f3ebb3;
+    }
+    .bg-blue {
+        color: rgb(42, 42, 42);
+        background-color: #7ebdf7;
+    }
+    .bg-green {
+        color: rgb(37, 37, 37);
+        background-color: #64cb90;
+    }
+    </style>
+{% endblock %}
+
 {% block topbar_actions %}
     {% call topbar.page_buttons('Procedimiento') %}
         {{ topbar.button_previous('Procedimientos', url_for('cid_procedimientos.list_active')) }}
@@ -42,8 +59,46 @@
             {{ detail.label_value('Código', cid_procedimiento.codigo) }}
             {{ detail.label_value('Revisión', cid_procedimiento.revision) }}
             {{ detail.label_value('Fecha', cid_procedimiento.fecha) }}
-            {{ detail.label_value('Seguimiento', cid_procedimiento.seguimiento) }}
-            {{ detail.label_value('Seguimiento posterior', cid_procedimiento.seguimiento_posterior) }}
+            <div class="row">
+                <div class="col-md-3 text-end">Seguimiento</div>
+                <div class="col-md-9">
+                    {% if cid_procedimiento.seguimiento == "EN ELABORACION" %}
+                        <span class="badge rounded-pill bg-yellow">{{ cid_procedimiento.seguimiento }} <span class="iconify" data-icon="mdi:account-edit"></span></span>
+                    {% elif cid_procedimiento.seguimiento == "ELABORADO" %}
+                        <span class="badge rounded-pill bg-warning text-dark">{{ cid_procedimiento.seguimiento }} <span class="iconify" data-icon="mdi:account-check"></span></span>
+                    {% elif cid_procedimiento.seguimiento == "EN REVISION" %}
+                        <span class="badge rounded-pill bg-blue">{{ cid_procedimiento.seguimiento }} <span class="iconify" data-icon="mdi:account-search"></span></span>
+                    {% elif cid_procedimiento.seguimiento == "REVISADO" %}
+                        <span class="badge rounded-pill bg-primary">{{ cid_procedimiento.seguimiento }} <span class="iconify" data-icon="mdi:file-check"></span></span>
+                    {% elif cid_procedimiento.seguimiento == "EN AUTORIZACION" %}
+                        <span class="badge rounded-pill bg-green">{{ cid_procedimiento.seguimiento }} <span class="iconify" data-icon="mdi:file-document-check"></span></span>
+                    {% elif cid_procedimiento.seguimiento == "AUTORIZADO" %}
+                        <span class="badge rounded-pill bg-success">{{ cid_procedimiento.seguimiento }} <span class="iconify" data-icon="mdi:shield-check"></span></span>
+                    {% else %}
+                        <strong>{{ cid_procedimiento.seguimiento }}</strong>
+                    {% endif %}
+                </div>
+            </div>
+                <div class="row">
+                <div class="col-md-3 text-end">Seguimiento posterior</div>
+                <div class="col-md-9">
+                    {% if cid_procedimiento.seguimiento_posterior == "EN ELABORACION" %}
+                        <span class="badge rounded-pill bg-yellow">{{ cid_procedimiento.seguimiento_posterior }} <span class="iconify" data-icon="mdi:account-edit"></span></span>
+                    {% elif cid_procedimiento.seguimiento_posterior == "ELABORADO" %}
+                        <span class="badge rounded-pill bg-warning text-dark">{{ cid_procedimiento.seguimiento_posterior }} <span class="iconify" data-icon="mdi:account-check"></span></span>
+                    {% elif cid_procedimiento.seguimiento_posterior == "EN REVISION" %}
+                        <span class="badge rounded-pill bg-blue">{{ cid_procedimiento.seguimiento_posterior }} <span class="iconify" data-icon="mdi:account-search"></span></span>
+                    {% elif cid_procedimiento.seguimiento_posterior == "REVISADO" %}
+                        <span class="badge rounded-pill bg-primary">{{ cid_procedimiento.seguimiento_posterior }} <span class="iconify" data-icon="mdi:file-check"></span></span>
+                    {% elif cid_procedimiento.seguimiento_posterior == "EN AUTORIZACION" %}
+                        <span class="badge rounded-pill bg-green">{{ cid_procedimiento.seguimiento_posterior }} <span class="iconify" data-icon="mdi:file-document-check"></span></span>
+                    {% elif cid_procedimiento.seguimiento_posterior == "AUTORIZADO" %}
+                        <span class="badge rounded-pill bg-success">{{ cid_procedimiento.seguimiento_posterior }} <span class="iconify" data-icon="mdi:shield-check"></span></span>
+                    {% else %}
+                        <strong>{{ cid_procedimiento.seguimiento_posterior }}</strong>
+                    {% endif %}
+                </div>
+            </div>
             {{ detail.label_value('Usuario', cid_procedimiento.usuario.nombre) }}
             {{ detail.label_value('Firma guardada', cid_procedimiento.firma) }}
             {{ detail.label_value('Firma al vuelo', firma_al_vuelo) }}
