@@ -753,7 +753,7 @@ def sign_for_maker(cid_procedimiento_id):
             cid_procedimiento_id=cid_procedimiento.id,
             accept_reject_url=url_for("cid_procedimientos.accept_reject", cid_procedimiento_id=cid_procedimiento.id),
         )
-        flash(f"{tarea.descripcion} está corriendo en el fondo.", "info")
+        flash(f"Está corriendo en el fondo una tarea. Esta página se va recargar en 20 segundos...", "info")
     return redirect(url_for("cid_procedimientos.detail", cid_procedimiento_id=cid_procedimiento.id))
 
 
