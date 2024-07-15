@@ -4,6 +4,23 @@
 
 {% block title %}{{ titulo }}{% endblock %}
 
+{% block custom_head %}
+    <style>
+    .bg-yellow {
+        color: rgb(6, 6, 6);
+        background-color: #f3ebb3;
+    }
+    .bg-blue {
+        color: rgb(42, 42, 42);
+        background-color: #7ebdf7;
+    }
+    .bg-green {
+        color: rgb(37, 37, 37);
+        background-color: #64cb90;
+    }
+    </style>
+{% endblock %}
+
 {% block topbar_actions %}
     {% call topbar.page_buttons(titulo) %}
         {% if show_button_my_autorized %}
@@ -11,6 +28,9 @@
         {% endif %}
         {% if show_button_list_all_autorized %}
             {{ topbar.button('Todos los autorizados', url_for('cid_procedimientos.list_authorized'), 'mdi:table-star') }}
+        {% endif %}
+        {% if show_button_list_all %}
+            <a class="btn btn-sm btn-outline-info" href="{{url_for('cid_procedimientos.list_all_active')}}"><span class="iconify" data-icon="mdi:archive-check"></span> Todos los procedimientos</a>
         {% endif %}
         {% if show_button_list_owned %}
             {{ topbar.button('Propios', url_for('cid_procedimientos.list_owned'), 'mdi:table-heart') }}
@@ -116,7 +136,7 @@
                 }
             },
             {
-                targets: 5, // seguimiento
+                targets: 4, // seguimiento
                 data: null,
                 render: function(data, type, row, meta) {
                     switch (data)    {
@@ -131,7 +151,7 @@
                 }
             },
             {
-                targets: 6, // cid_area
+                targets: 5, // cid_area
                 data: null,
                 render: function(data, type, row, meta) {
                     if (data.url == '') {

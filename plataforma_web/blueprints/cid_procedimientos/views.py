@@ -268,7 +268,6 @@ def list_owned():
     current_user_roles = set(current_user.get_roles())
     # Si es administrador, usar list_admin.jinja2
     if current_user.can_admin(MODULO) and ROL_ADMINISTRADOR in current_user_roles:
-        print("Usuario Admin")
         return render_template(
             "cid_procedimientos/list_admin.jinja2",
             titulo="Procedimientos propios",
@@ -280,7 +279,6 @@ def list_owned():
             show_button_my_autorized=True,
         )
     # De lo contrario, usar list.jinja2
-    print("Usuario normal")
     return render_template(
         "cid_procedimientos/list.jinja2",
         titulo="Procedimientos propios",
@@ -298,9 +296,21 @@ def list_owned():
 def list_all_active():
     """Listado de procedimientos activos, solo para administrador"""
     # Consultar los roles del usuario
-    current_user_roles = current_user.get_roles()
+    current_user_roles = set(current_user.get_roles())
+    # Si es administrador, usar list_admin.jinja2
+    if current_user.can_admin(MODULO) and ROL_ADMINISTRADOR in current_user_roles:
+        return render_template(
+            "cid_procedimientos/list_admin.jinja2",
+            titulo="Todos los procedimientos activos",
+            filtros=json.dumps({"estatus": "A"}),
+            estatus="A",
+            show_button_list_owned=True,
+            show_button_list_all=False,
+            show_button_list_all_autorized=True,
+            show_button_my_autorized=True,
+        )
     return render_template(
-        "cid_procedimientos/list_admin.jinja2",
+        "cid_procedimientos/list.jinja2",
         titulo="Todos los procedimientos activos",
         filtros=json.dumps({"estatus": "A"}),
         estatus="A",
