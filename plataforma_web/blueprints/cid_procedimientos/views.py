@@ -748,12 +748,12 @@ def sign_for_maker(cid_procedimiento_id):
     else:
         tarea = current_user.launch_task(
             comando="cid_procedimientos.tasks.crear_pdf",
-            mensaje=f"Crear archivo PDF de {cid_procedimiento.titulo_procedimiento}",
+            mensaje=f"Se esta creando PDF de {cid_procedimiento.titulo_procedimiento}",
             usuario_id=current_user.id,
             cid_procedimiento_id=cid_procedimiento.id,
             accept_reject_url=url_for("cid_procedimientos.accept_reject", cid_procedimiento_id=cid_procedimiento.id),
         )
-        flash(f"Está corriendo en el fondo una tarea. Esta página se va recargar en 20 segundos...", "info")
+        flash(f"{tarea.descripcion} y esta corriendo en el fondo. Esta página se va recargar en 20 segundos...", "info")
     return redirect(url_for("cid_procedimientos.detail", cid_procedimiento_id=cid_procedimiento.id))
 
 
