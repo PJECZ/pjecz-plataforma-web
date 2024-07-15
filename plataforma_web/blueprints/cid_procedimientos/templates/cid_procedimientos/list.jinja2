@@ -31,12 +31,6 @@
         <div class="row">
             <div class="col">
                 <form class="row g-1 mb-3" id="filtradorForm" onsubmit="filtrosCidProcedimientos.buscar(); return false;">
-                    <div class="col-2">
-                        <div class="form-floating">
-                            <input id="filtroId" type="text" class="form-control" aria-label="Id">
-                            <label for="filtroId">ID</label>
-                        </div>
-                    </div>
                     <div class="col-4">
                         <div class="form-floating">
                             <input id="filtroCodigo" type="text" class="form-control" aria-label="Codigo" style="text-transform: uppercase;">
@@ -49,7 +43,7 @@
                             <label for="filtroTituloProcedimiento">Procedimiento</label>
                         </div>
                     </div>
-                    <div class="col-2 text-end">
+                    <div class="col-4 text-end">
                         <button title="Buscar" class="btn btn-primary btn-lg" onclick="filtrosCidProcedimientos.buscar(); return false;" id="button-buscar"><span class="iconify" data-icon="mdi:magnify"></span></button>
                         <button title="Limpiar" class="btn btn-warning btn-lg" type="reset" onclick="filtrosCidProcedimientos.limpiar();" id="button-limpiar"><span class="iconify" data-icon="mdi:broom"></span></button>
                     </div>
@@ -98,7 +92,7 @@
                 }
             },
             {
-                targets: 2, // titulo_procedimiento
+                targets: 1, // titulo_procedimiento
                 data: null,
                 render: function(data, type, row, meta) {
                     if (data.length > 64)
@@ -107,7 +101,7 @@
                 }
             },
             {
-                targets: 4, // usuario
+                targets: 3, // usuario
                 data: null,
                 render: function(data, type, row, meta) {
                     if (data.nombre.length > 16) {
@@ -149,7 +143,6 @@
         ];
         // Filtros Cid Procedimientos
         const filtrosCidProcedimientos = new FiltrosDataTable('#cid_procedimientos_datatable', configDTCidProcedimientos);
-        filtrosCidProcedimientos.agregarInput('filtroId', 'cid_procedmiento_id');
         filtrosCidProcedimientos.agregarInput('filtroCodigo', 'codigo');
         filtrosCidProcedimientos.agregarInput('filtroTituloProcedimiento', 'titulo_procedimiento');
         filtrosCidProcedimientos.precargar();

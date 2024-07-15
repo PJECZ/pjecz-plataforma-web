@@ -29,6 +29,10 @@
         {% if show_button_cambiar_area %}
             {{ topbar.button_edit('Editar Área', url_for('cid_procedimientos.cambiar_area', cid_procedimiento_id=cid_procedimiento.id)) }}
         {% endif %}
+        <!-- Muestra el botón de NUEVA REVISION solo si esta dentro de los roles seleccionados y tambien si el procedimientos esta AUTORIZADO -->
+        {% if show_buttom_new_revision and cid_procedimiento.seguimiento == "AUTORIZADO" %}
+            {{topbar.button('Nueva revisión', url_for('cid_procedimientos.copiar_procedimiento_con_revision', cid_procedimiento_id=cid_procedimiento.id),'mdi:content-copy')}}
+        {% endif %}
         {# {% if show_button_edit_admin %}
             {{ topbar.button_edit('Editar Autoridad', url_for('cid_procedimientos.edit_admin', cid_procedimiento_id=cid_procedimiento.id)) }}
         {% endif %} #}
@@ -145,16 +149,16 @@
         {% endcall %}
         {% call accordion.item('control_cambios_item', 'Control de Cambios', accordion_id, estatus=cid_procedimiento.estatus) %}
             <table id="control_dataTable1_detail" class="table table-striped responsive" width="100%">
-                    <thead>
-                        <th>No. Revisión</th>
-                        <th>Cambios y/o Actualizaciónes</th>
-                        <th>Solicitud de cambio No.</th>
-                        <th>Fecha</th>
-                    </thead>
-                    <tbody>
+                <thead>
+                    <th>No. Revisión</th>
+                    <th>Cambios y/o Actualizaciónes</th>
+                    <th>Solicitud de cambio No.</th>
+                    <th>Fecha</th>
+                </thead>
+                <tbody>
 
-                    </tbody>
-                </table>
+                </tbody>
+            </table>
         {% endcall %}
         {% call accordion.item('autorizaciones', 'Autorizaciones', accordion_id, estatus=cid_procedimiento.estatus) %}
             {{ detail.label_value('Elaboró nombre', cid_procedimiento.elaboro_nombre) }}
