@@ -5,6 +5,23 @@
 
 {% block title %}{{ titulo }}{% endblock %}
 
+{% block custom_head %}
+    <style>
+    .bg-yellow {
+        color: rgb(6, 6, 6);
+        background-color: #f3ebb3;
+    }
+    .bg-blue {
+        color: rgb(42, 42, 42);
+        background-color: #7ebdf7;
+    }
+    .bg-green {
+        color: rgb(37, 37, 37);
+        background-color: #64cb90;
+    }
+    </style>
+{% endblock %}
+
 {% block topbar_actions %}
     {% call topbar.page_buttons(titulo) %}
         {% if show_button_my_autorized %}
@@ -12,6 +29,9 @@
         {% endif %}
         {% if show_button_list_all_autorized %}
             {{ topbar.button('Todos los autorizados', url_for('cid_procedimientos.list_authorized'), 'mdi:table-star') }}
+        {% endif %}
+        {% if show_button_list_all %}
+            <a class="btn btn-sm btn-outline-info" href="{{url_for('cid_procedimientos.list_all_active')}}"><span class="iconify" data-icon="mdi:archive-check"></span> Todos los procedimientos</a>
         {% endif %}
         {% if show_button_list_owned %}
             {{ topbar.button('Propios', url_for('cid_procedimientos.list_owned'), 'mdi:table-heart') }}
@@ -124,6 +144,21 @@
                         return interior;
                     }
                     return '<a href="' + data.url + '">' + interior + '</a>';
+                }
+            },
+            {
+                targets: 5, // seguimiento
+                data: null,
+                render: function(data, type, row, meta) {
+                    switch (data)    {
+                        case "EN ELABORACION": return '<span class="badge rounded-pill bg-yellow text-dark">EN ELABORACION <span class="iconify" data-icon="mdi:account-edit"></span></span>';   break;
+                        case "ELABORADO":     return '<span class="badge rounded-pill bg-warning text-dark">ELABORADO <span class="iconify" data-icon="mdi:account-check"></span></span>';   break;
+                        case "EN REVISION":     return '<span class="badge rounded-pill bg-blue">EN REVISION <span class="iconify" data-icon="mdi:account-search"></span></span>';   break;
+                        case "REVISADO":      return '<span class="badge rounded-pill bg-primary">REVISADO <span class="iconify" data-icon="mdi:file-check"></span></span>';   break;
+                        case "EN AUTORIZACION":  return '<span class="badge rounded-pill bg-green">EN AUTORIZACION <span class="iconify" data-icon="mdi:file-document-check"></span></span>';  break;
+                        case "AUTORIZADO":       return '<span class="badge rounded-pill bg-success">AUTORIZADO <span class="iconify" data-icon="mdi:shield-check"></span></span>';  break;
+                    }
+                    return data;
                 }
             },
             {
