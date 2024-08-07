@@ -38,22 +38,6 @@
 {% endblock %}
 
 {% block content %}
-    {# Muestra el área actual como un pill #}
-    <div class="mb-3">
-        <span class="badge rounded-pill
-            {% if cid_procedimiento.cid_area.estatus == 'A' %}
-                bg-success 
-            {% elif cid_procedimiento.cid_area.estatus == 'B' %}
-                bg-warning 
-            {% else %}
-                bg-secondary 
-            {% endif %}
-            p-2
-        ">
-            {{ cid_procedimiento.cid_area.nombre }}
-        </span>
-        <a href="#"><span class="iconify" data-icon="mdi:file-document-edit" style="font-size: 20px;"></span></a>
-    </div>
     {% set accordion_id = 'procedimiento_accordion' %}
     {% call accordion.div(accordion_id, estatus=cid_procedimiento.estatus) %}
         {% call accordion.item('generales_item', 'Generales', accordion_id, expanded=True, estatus=cid_procedimiento.estatus) %}

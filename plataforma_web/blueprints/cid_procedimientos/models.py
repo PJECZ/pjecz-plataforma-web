@@ -1,6 +1,7 @@
 """
 CID Procedimientos, modelos
 """
+
 from collections import OrderedDict
 import hashlib
 
@@ -24,6 +25,7 @@ class CIDProcedimiento(db.Model, UniversalMixin):
             ("EN AUTORIZACION", "En Autorización"),
             ("CANCELADO POR AUTORIZADOR", "Cancelado por autorizador"),
             ("AUTORIZADO", "Autorizado"),
+            ("ARCHIVADO", "Archivado"),
         ]
     )
 

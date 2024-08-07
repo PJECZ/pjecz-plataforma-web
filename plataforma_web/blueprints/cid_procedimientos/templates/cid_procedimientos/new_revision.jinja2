@@ -16,7 +16,7 @@
 {% endblock %}
 
 {% block content %}
-    {% call detail.card(estatus=cid_procedimiento.estatus, title="Nueva revisión de datos del procedimiento " +  (cid_procedimiento.revision) | string) %}
+    {% call detail.card(estatus=cid_procedimiento.estatus, title="Procedimiento vigente ") %}
         {{ detail.label_value('Revisión Actual', cid_procedimiento.revision) }}
         {{ detail.label_value('Título', cid_procedimiento.titulo_procedimiento) }}
         {{ detail.label_value('Código', cid_procedimiento.codigo) }}
@@ -61,7 +61,15 @@
                     </div>
                 </div>
             </div>
-            {% call f.form_group(form.guardar) %}{% endcall %}
+            <div class="row">          
+                <div class="col-md-2">              
+                    {% call f.form_group(form.guardar) %}{% endcall %}
+                </div>
+                <div class="col-md-4"> 
+                    <a href="{{url_for('cid_procedimientos.list_active')}}" class="btn btn-danger">Cancelar</a>
+                </div>
+                <div class="col-md-6"></div>              
+            </div>
         {% endcall %}
     {% endcall %}
 {% endblock %}

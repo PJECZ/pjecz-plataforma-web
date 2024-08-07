@@ -7,7 +7,7 @@ from datetime import datetime, timezone
 from delta import html
 from flask import abort, Blueprint, flash, redirect, render_template, request, url_for
 from flask_login import current_user, login_required
-from sqlalchemy import or_
+from sqlalchemy import or_, not_
 
 from lib.datatables import get_datatable_parameters, output_datatable_json
 from lib.safe_string import safe_clave, safe_email, safe_string, safe_message
@@ -74,6 +74,8 @@ def datatable_json():
         consulta = consulta.filter(CIDProcedimiento.titulo_procedimiento.contains(safe_string(request.form["titulo_procedimiento"])))
     if "usuario_id" in request.form:
         consulta = consulta.filter(CIDProcedimiento.usuario_id == request.form["usuario_id"])
+    if "seguimiento_posterior" in request.form:
+        consulta = consulta.filter(CIDProcedimiento.seguimiento_posterior != request.form["seguimiento_posterior"])
     # if "seguimiento_filtro" in request.form:
     #     consulta = consulta.filter(CIDProcedimiento.seguimiento.contains(request.form["seguimiento_filtro"]))
     # if "fecha_desde" in request.form:
@@ -147,6 +149,8 @@ def datatable_json_admin():
         consulta = consulta.filter(CIDProcedimiento.titulo_procedimiento.contains(safe_string(request.form["titulo_procedimiento"])))
     if "usuario_id" in request.form:
         consulta = consulta.filter(CIDProcedimiento.usuario_id == request.form["usuario_id"])
+    if "seguimiento_posterior" in request.form:
+        consulta = consulta.filter(CIDProcedimiento.seguimiento_posterior != request.form["seguimiento_posterior"])
     # if "seguimiento_filtro" in request.form:
     #     consulta = consulta.filter(CIDProcedimiento.seguimiento.contains(request.form["seguimiento_filtro"]))
     # if "fecha_desde" in request.form:
@@ -222,7 +226,7 @@ def list_active():
     return render_template(
         "cid_procedimientos/list.jinja2",
         titulo="Procedimientos autorizados de mis áreas",
-        filtros=json.dumps({"estatus": "A", "seguimiento": "AUTORIZADO", "cid_areas": cid_areas_ids}),
+        filtros=json.dumps({"estatus": "A", "seguimiento": "AUTORIZADO", "cid_areas": cid_areas_ids, "seguimiento_posterior": "ARCHIVADO"}),
         estatus="A",
         show_button_list_owned=current_user_roles.intersection(ROLES_CON_PROCEDIMIENTOS_PROPIOS),
         show_button_list_all=ROL_COORDINADOR in current_user_roles,
@@ -241,7 +245,7 @@ def list_authorized():
         return render_template(
             "cid_procedimientos/list_admin.jinja2",
             titulo="Todos los procedimientos autorizados",
-            filtros=json.dumps({"estatus": "A", "seguimiento": "AUTORIZADO"}),
+            filtros=json.dumps({"estatus": "A", "seguimiento": "AUTORIZADO", "seguimiento_posterior": "ARCHIVADO"}),
             estatus="A",
             show_button_list_owned=current_user_roles.intersection(ROLES_CON_PROCEDIMIENTOS_PROPIOS),
             show_button_list_all=ROL_COORDINADOR in current_user_roles,
@@ -252,7 +256,7 @@ def list_authorized():
     return render_template(
         "cid_procedimientos/list.jinja2",
         titulo="Todos los procedimientos autorizados",
-        filtros=json.dumps({"estatus": "A", "seguimiento": "AUTORIZADO"}),
+        filtros=json.dumps({"estatus": "A", "seguimiento": "AUTORIZADO", "seguimiento_posterior": "ARCHIVADO"}),
         estatus="A",
         show_button_list_owned=current_user_roles.intersection(ROLES_CON_PROCEDIMIENTOS_PROPIOS),
         show_button_list_all=ROL_COORDINADOR in current_user_roles,
@@ -264,15 +268,17 @@ def list_authorized():
 @cid_procedimientos.route("/cid_procedimientos/propios")
 def list_owned():
     """Listado de procedimientos propios"""
+
     # Consultar los roles del usuario
     current_user_roles = set(current_user.get_roles())
+
     # Si es administrador, usar list_admin.jinja2
     if current_user.can_admin(MODULO) and ROL_ADMINISTRADOR in current_user_roles:
-        print("Usuario Admin")
         return render_template(
             "cid_procedimientos/list_admin.jinja2",
+            # cid_procedimiento=procedimientos_archivados_list,
             titulo="Procedimientos propios",
-            filtros=json.dumps({"estatus": "A", "usuario_id": current_user.id}),
+            filtros=json.dumps({"estatus": "A", "usuario_id": current_user.id, "seguimiento_posterior": "ARCHIVADO"}),
             estatus="A",
             show_button_list_owned=current_user_roles.intersection(ROLES_CON_PROCEDIMIENTOS_PROPIOS),
             show_button_list_all=ROL_COORDINADOR in current_user_roles,
@@ -280,11 +286,11 @@ def list_owned():
             show_button_my_autorized=True,
         )
     # De lo contrario, usar list.jinja2
-    print("Usuario normal")
     return render_template(
         "cid_procedimientos/list.jinja2",
+        # cid_procedimiento=procedimientos_archivados_list,
         titulo="Procedimientos propios",
-        filtros=json.dumps({"estatus": "A", "usuario_id": current_user.id}),
+        filtros=json.dumps({"estatus": "A", "usuario_id": current_user.id, "seguimiento_posterior": "ARCHIVADO"}),
         estatus="A",
         show_button_list_owned=current_user_roles.intersection(ROLES_CON_PROCEDIMIENTOS_PROPIOS),
         show_button_list_all=ROL_COORDINADOR in current_user_roles,
@@ -971,8 +977,16 @@ def copiar_procedimiento_con_revision(cid_procedimiento_id):
     """Copiar CID Procedimiento con nueva revisión"""
     # Obtener el CID Procedimiento correspondiente o devolver error 404 si no existe
     cid_procedimiento = CIDProcedimiento.query.get_or_404(cid_procedimiento_id)
+    # Verificar que tanto seguimiento como seguimiento_posterior sean AUTORIZADO
+    if cid_procedimiento.seguimiento != "AUTORIZADO" or cid_procedimiento.seguimiento_posterior != "AUTORIZADO":
+        flash("No se puede copiar el procedimiento hasta que ambos seguimientos estén en 'AUTORIZADO'.", "danger")
+        return redirect(url_for("cid_procedimientos.detail", cid_procedimiento_id=cid_procedimiento.id))
     # Obtener la última revisión
     ultima_revision = CIDProcedimiento.query.filter_by(id=cid_procedimiento.id).order_by(CIDProcedimiento.revision.desc()).first()
+
+    # Obtener el número de revisión actual
+    numero_revision_actual = cid_procedimiento.revision
+
     # Crear un formulario para la nueva revisión
     form = CIDProcedimientosNewReview()
     # Si el formulario ha sido enviado y es válido
@@ -1053,6 +1067,15 @@ def copiar_procedimiento_con_revision(cid_procedimiento_id):
                     url=cid_formato.url,  # Establecer la URL del nuevo formato como la misma URL del formato anterior
                     cid_area=cid_formato.cid_area,  # Establecer el área del nuevo formato como la misma área del formato anterior
                 ).save()
+
+        # Actualizar el estado de los procedimientos relacionados a "AUTORIZADO"
+        relacionados_a_archivar = CIDProcedimiento.query.filter((CIDProcedimiento.codigo == cid_procedimiento.codigo) & ((CIDProcedimiento.seguimiento == "AUTORIZADO") | (CIDProcedimiento.seguimiento_posterior == "AUTORIZADO"))).all()
+
+        for relacionado in relacionados_a_archivar:
+            relacionado.seguimiento_posterior = "ARCHIVADO"
+            relacionado.revision = numero_revision_actual  # Mantener la revisión del procedimiento anterior
+            relacionado.save()
+
         # Bitácora y redirección a la vista de detalle
         bitacora = Bitacora(
             modulo=Modulo.query.filter_by(nombre=MODULO).first(),
@@ -1067,11 +1090,7 @@ def copiar_procedimiento_con_revision(cid_procedimiento_id):
     # Llenar el formulario con los datos del procedimiento original
     form.titulo_procedimiento.data = cid_procedimiento.titulo_procedimiento
     form.codigo.data = cid_procedimiento.codigo
-    # Incrementar la revisión
-    if ultima_revision:
-        form.revision.data = ultima_revision.revision + 1
-    else:
-        form.revision.data = 1  # Si no hay revisiones anteriores, inicia desde 1
+    form.revision.data = (ultima_revision.revision + 1) if ultima_revision else 1
     form.fecha.data = datetime.now(timezone.utc)
     form.reviso_nombre.data = cid_procedimiento.reviso_nombre
     form.reviso_puesto.data = cid_procedimiento.reviso_puesto

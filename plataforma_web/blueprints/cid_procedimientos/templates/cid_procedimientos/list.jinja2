@@ -59,6 +59,7 @@
                     <th>Fecha</th>
                     <th>Usuario</th>
                     <th>Seguimiento</th>
+                    <th>Seguimiento posterior</th>
                     <th>Área</th>
                 </tr>
             </thead>
@@ -81,6 +82,7 @@
             { data: 'fecha' },
             { data: 'usuario' },
             { data: 'seguimiento' },
+            { data: 'seguimiento_posterior' },
             { data: 'cid_area' },
         ];
         configDTCidProcedimientos['columnDefs'] = [
@@ -116,7 +118,7 @@
                 }
             },
             {
-                targets: 5, // cid_area
+                targets: 6, // cid_area
                 data: null,
                 render: function(data, type, row, meta) {
                     if (data.url == '') {
