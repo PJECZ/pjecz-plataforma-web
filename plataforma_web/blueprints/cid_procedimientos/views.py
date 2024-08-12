@@ -524,10 +524,9 @@ def edit(cid_procedimiento_id):
         codigo = form.codigo.data
         if not codigo:  # Verificar si es None o una cadena vacía
             codigo = cid_procedimiento.codigo  # Mantener el valor original si no se envió uno nuevo
-            print("se ejecuto")
         cid_procedimiento.titulo_procedimiento = safe_string(form.titulo_procedimiento.data)
         cid_procedimiento.codigo = safe_clave(codigo)
-        cid_procedimiento.revion = revision
+        cid_procedimiento.revision = revision
         cid_procedimiento.fecha = form.fecha.data
         cid_procedimiento.objetivo = form.objetivo.data
         cid_procedimiento.alcance = form.alcance.data

@@ -3,7 +3,7 @@ CID Procedimientos, formularios
 """
 
 from flask_wtf import FlaskForm
-from wtforms import BooleanField, DateField, IntegerField, StringField, SubmitField, SelectField
+from wtforms import DateField, IntegerField, StringField, SubmitField, SelectField
 from wtforms.ext.sqlalchemy.fields import QuerySelectField
 from wtforms.validators import DataRequired, Length, Optional
 
@@ -30,7 +30,6 @@ class CIDProcedimientoForm(FlaskForm):
     titulo_procedimiento = StringField("Título", validators=[DataRequired(), Length(max=256)])
     codigo = StringField("Código", validators=[DataRequired(), Length(max=16)])
     revision = IntegerField("Revisión (Número entero apartir de 1)", validators=[DataRequired()])
-    # es_nueva_revision = BooleanField("Es nueva revisión")
     fecha = DateField("Fecha de elaboración", validators=[DataRequired()])
     cid_area = StringField("Área")  # Read Only
     # Step Objetivo
