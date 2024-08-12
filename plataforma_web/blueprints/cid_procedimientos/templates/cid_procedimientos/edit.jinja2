@@ -218,6 +218,30 @@
 {% endblock %}
 
 {% block custom_javascript %}
+    <!-- Nueva revision -->
+    <script>
+        document.addEventListener('DOMContentLoaded', function() {
+            const form = document.querySelector('form');
+            const revisionField = document.getElementById('revision');
+            const codigoField = document.getElementById('codigo');
+            const revisionValue = {{ form.revision.data }};
+            
+            // Verifica que el campo no se oculte cuando revision es igual a 1
+            if (revisionValue > 1) {
+                revisionField.disabled = true; // Deshabilitar 'revision'
+                codigoField.disabled = true;  // Deshabilitar 'codigo'
+            }
+
+            form.addEventListener('submit', function() {
+                revisionField.disabled = false; // Habilitar campo antes de enviar
+                codigoField.disabled = false; // Habilitar campo antes de enviar
+            });
+
+            // Asegúrate de que los campos esten visibles
+            revisionField.style.display = 'block';
+            codigoField.style.display = 'block';
+        });
+    </script>
     <!-- Quill -->
     {{ quill.library() }}
     {{ quill.editor(instance='objetivoQuill', div_id='objetivo_quill') }}

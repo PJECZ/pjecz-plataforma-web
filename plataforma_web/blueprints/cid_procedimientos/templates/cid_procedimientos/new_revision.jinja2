@@ -62,13 +62,14 @@
                 </div>
             </div>
             <div class="row">          
-                <div class="col-md-2">              
-                    {% call f.form_group(form.guardar) %}{% endcall %}
+                <div class="d-grid gap-2 d-md-flex justify-content-md-end">            
+                    <div class="me-md-4">              
+                        {% call f.form_group(form.guardar) %}{% endcall %}
+                    </div>
+                    <div> 
+                        <a href="{{url_for('cid_procedimientos.list_active')}}" class="btn btn-danger">Cancelar</a>
+                    </div>
                 </div>
-                <div class="col-md-4"> 
-                    <a href="{{url_for('cid_procedimientos.list_active')}}" class="btn btn-danger">Cancelar</a>
-                </div>
-                <div class="col-md-6"></div>              
             </div>
         {% endcall %}
     {% endcall %}

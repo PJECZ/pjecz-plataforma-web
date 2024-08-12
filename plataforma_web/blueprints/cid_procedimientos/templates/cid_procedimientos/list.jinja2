@@ -1,5 +1,6 @@
 {% extends 'layouts/app.jinja2' %}
 {% import 'macros/list.jinja2' as list %}
+{% import 'macros/modals.jinja2' as modals %}
 {% import 'macros/topbar.jinja2' as topbar %}
 
 {% block title %}{{ titulo }}{% endblock %}
@@ -41,6 +42,9 @@
         {% endif %}
         {% if current_user.can_insert('CID PROCEDIMIENTOS') %}
             {{ topbar.button_new('Nuevo Procedimiento', url_for('cid_procedimientos.new')) }}
+        {% endif %}
+        {% if show_lista_maestra %}
+            {{ modals.button_modal('Exportar Lista Maestra a XLSX', url_for('cid_procedimientos.exportar_xlsx'), 'ExportXLSX', 'mdi:download', "¿Quiere exportar la Lista Maestra un archivo XLSX?") }}
         {% endif %}
     {% endcall %}
 {% endblock %}
@@ -88,6 +92,7 @@
 {% endblock %}
 
 {% block custom_javascript %}
+    {{ modals.custom_javascript('Exportar a XLSX', '', 'ExportXLSX') }}
     <script src="/static/js/datatables-constructor.js"></script>
     <script src="/static/js/datatables-filtros.js"></script>
     <script>
@@ -142,12 +147,27 @@
                 data: null,
                 render: function(data, type, row, meta) {
                     switch (data)    {
-                        case "EN ELABORACION": return '<span class="badge rounded-pill bg-yellow text-dark">EN ELABORACION <span class="iconify" data-icon="mdi:account-edit"></span></span>';   break;
-                        case "ELABORADO":     return '<span class="badge rounded-pill bg-warning text-dark">ELABORADO <span class="iconify" data-icon="mdi:account-check"></span></span>';   break;
-                        case "EN REVISION":     return '<span class="badge rounded-pill bg-blue">EN REVISION <span class="iconify" data-icon="mdi:account-search"></span></span>';   break;
-                        case "REVISADO":      return '<span class="badge rounded-pill bg-primary">REVISADO <span class="iconify" data-icon="mdi:file-check"></span></span>';   break;
-                        case "EN AUTORIZACION":  return '<span class="badge rounded-pill bg-green">EN AUTORIZACION <span class="iconify" data-icon="mdi:file-document-check"></span></span>';  break;
-                        case "AUTORIZADO":       return '<span class="badge rounded-pill bg-success">AUTORIZADO <span class="iconify" data-icon="mdi:shield-check"></span></span>';  break;
+                        case "EN ELABORACION": return '<span class="badge rounded-pill bg-yellow text-dark"><span class="iconify" data-icon="mdi:account-edit"></span> EN ELABORACION </span>';   break;
+                        case "ELABORADO":     return '<span class="badge rounded-pill bg-warning text-dark"><span class="iconify" data-icon="mdi:account-check"></span> ELABORADO </span>';   break;
+                        case "EN REVISION":     return '<span class="badge rounded-pill bg-blue"><span class="iconify" data-icon="mdi:account-search"></span> EN REVISION </span>';   break;
+                        case "REVISADO":      return '<span class="badge rounded-pill bg-primary"><span class="iconify" data-icon="mdi:file-check"></span> REVISADO </span>';   break;
+                        case "EN AUTORIZACION":  return '<span class="badge rounded-pill bg-green"><span class="iconify" data-icon="mdi:file-document-check"></span> EN AUTORIZACION </span>';  break;
+                        case "AUTORIZADO":       return '<span class="badge rounded-pill bg-success"><span class="iconify" data-icon="mdi:shield-check"></span> AUTORIZADO </span>';  break;
+                    }
+                    return data;
+                }
+            },
+            {
+                targets: 5, // seguimiento posterior
+                data: null,
+                render: function(data, type, row, meta) {
+                    switch (data)    {
+                        case "EN ELABORACION": return '<span class="badge rounded-pill bg-yellow text-dark"><span class="iconify" data-icon="mdi:account-edit"></span> EN ELABORACION </span>';   break;
+                        case "ELABORADO":     return '<span class="badge rounded-pill bg-warning text-dark"><span class="iconify" data-icon="mdi:account-check"></span> ELABORADO </span>';   break;
+                        case "EN REVISION":     return '<span class="badge rounded-pill bg-blue"><span class="iconify" data-icon="mdi:account-search"></span> EN REVISION </span>';   break;
+                        case "REVISADO":      return '<span class="badge rounded-pill bg-primary"><span class="iconify" data-icon="mdi:file-check"></span> REVISADO </span>';   break;
+                        case "EN AUTORIZACION":  return '<span class="badge rounded-pill bg-green"><span class="iconify" data-icon="mdi:file-document-check"></span> EN AUTORIZACION </span>';  break;
+                        case "AUTORIZADO":       return '<span class="badge rounded-pill bg-success"><span class="iconify" data-icon="mdi:shield-check"></span> AUTORIZADO </span>';  break;
                     }
                     return data;
                 }

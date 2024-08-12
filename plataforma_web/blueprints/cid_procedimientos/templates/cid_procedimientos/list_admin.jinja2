@@ -88,6 +88,7 @@
                     <th>Fecha</th>
                     <th>Usuario</th>
                     <th>Seguimiento</th>
+                    <th>Seguimiento posterior</th>
                     <th>Área</th>
                 </tr>
             </thead>
@@ -112,6 +113,7 @@
             { data: 'fecha' },
             { data: 'usuario' },
             { data: 'seguimiento' },
+            { data: 'seguimiento_posterior' },
             { data: 'cid_area' },
         ];
         configDTCidProcedimientos['columnDefs'] = [
@@ -151,18 +153,33 @@
                 data: null,
                 render: function(data, type, row, meta) {
                     switch (data)    {
-                        case "EN ELABORACION": return '<span class="badge rounded-pill bg-yellow text-dark">EN ELABORACION <span class="iconify" data-icon="mdi:account-edit"></span></span>';   break;
-                        case "ELABORADO":     return '<span class="badge rounded-pill bg-warning text-dark">ELABORADO <span class="iconify" data-icon="mdi:account-check"></span></span>';   break;
-                        case "EN REVISION":     return '<span class="badge rounded-pill bg-blue">EN REVISION <span class="iconify" data-icon="mdi:account-search"></span></span>';   break;
-                        case "REVISADO":      return '<span class="badge rounded-pill bg-primary">REVISADO <span class="iconify" data-icon="mdi:file-check"></span></span>';   break;
-                        case "EN AUTORIZACION":  return '<span class="badge rounded-pill bg-green">EN AUTORIZACION <span class="iconify" data-icon="mdi:file-document-check"></span></span>';  break;
-                        case "AUTORIZADO":       return '<span class="badge rounded-pill bg-success">AUTORIZADO <span class="iconify" data-icon="mdi:shield-check"></span></span>';  break;
+                        case "EN ELABORACION": return '<span class="badge rounded-pill bg-yellow text-dark"><span class="iconify" data-icon="mdi:account-edit"></span>EN ELABORACION </span>';   break;
+                        case "ELABORADO":     return '<span class="badge rounded-pill bg-warning text-dark"><span class="iconify" data-icon="mdi:account-check"></span> ELABORADO </span>';   break;
+                        case "EN REVISION":     return '<span class="badge rounded-pill bg-blue"><span class="iconify" data-icon="mdi:account-search"></span> EN REVISION </span>';   break;
+                        case "REVISADO":      return '<span class="badge rounded-pill bg-primary"><span class="iconify" data-icon="mdi:file-check"></span> REVISADO </span>';   break;
+                        case "EN AUTORIZACION":  return '<span class="badge rounded-pill bg-green"><span class="iconify" data-icon="mdi:file-document-check"></span> EN AUTORIZACION </span>';  break;
+                        case "AUTORIZADO":       return '<span class="badge rounded-pill bg-success"><span class="iconify" data-icon="mdi:shield-check"></span> AUTORIZADO </span>';  break;
                     }
                     return data;
                 }
             },
             {
-                targets: 6, // cid_area
+                targets: 6, // seguimiento posterior
+                data: null,
+                render: function(data, type, row, meta) {
+                    switch (data)    {
+                        case "EN ELABORACION": return '<span class="badge rounded-pill bg-yellow text-dark"><span class="iconify" data-icon="mdi:account-edit"></span> EN ELABORACION </span>';   break;
+                        case "ELABORADO":     return '<span class="badge rounded-pill bg-warning text-dark"><span class="iconify" data-icon="mdi:account-check"></span> ELABORADO </span>';   break;
+                        case "EN REVISION":     return '<span class="badge rounded-pill bg-blue"><span class="iconify" data-icon="mdi:account-search"></span> EN REVISION </span>';   break;
+                        case "REVISADO":      return '<span class="badge rounded-pill bg-primary"><span class="iconify" data-icon="mdi:file-check"></span> REVISADO </span>';   break;
+                        case "EN AUTORIZACION":  return '<span class="badge rounded-pill bg-green"><span class="iconify" data-icon="mdi:file-document-check"></span> EN AUTORIZACION </span>';  break;
+                        case "AUTORIZADO":       return '<span class="badge rounded-pill bg-success"><span class="iconify" data-icon="mdi:shield-check"></span> AUTORIZADO </span>';  break;
+                    }
+                    return data;
+                }
+            },
+            {
+                targets: 7, // cid_area
                 data: null,
                 render: function(data, type, row, meta) {
                     if (data.url == '') {
