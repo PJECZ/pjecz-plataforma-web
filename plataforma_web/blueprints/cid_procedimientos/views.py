@@ -396,6 +396,17 @@ def new():
     """Nuevo CID Procedimiento"""
     form = CIDProcedimientoForm()
     if form.validate_on_submit():
+        # Obtener la autoridad del usuario actual
+        autoridad = current_user.autoridad
+        # Consultar la tablaCIDAreaAutoridad para obtener las relación entre la autoridad y el área correspondiente
+        area_autoridad = CIDAreaAutoridad.query.filter_by(autoridad_id=autoridad.id).first()
+        # Verificar si se encontró un registro válido en la tabla CIDAreaAutoridad y si el área relacionada está definida
+        if not area_autoridad or not area_autoridad.cid_area:
+            # Mostrar un mensaje de error si no se encontró un área asociada a la autoridad del usuario
+            flash("No se encontró un área asociada a la autoridad del usuario.", "error")
+            # Redirigir al usuario a la página para crear un nuevo procedimiento
+            return redirect(url_for("cid_procedimientos.new"))
+        area = area_autoridad.cid_area  # Obtener el área relacionada
         elaboro = form.elaboro_email.data
         if elaboro is None:
             elaboro_nombre = ""
@@ -458,7 +469,7 @@ def new():
             firma="",
             archivo="",
             url="",
-            cid_area_id=1,
+            cid_area_id=area.id,  # Asignar el área obtenida
         )
         cid_procedimiento.save()
         bitacora = Bitacora(
@@ -524,10 +535,9 @@ def edit(cid_procedimiento_id):
         codigo = form.codigo.data
         if not codigo:  # Verificar si es None o una cadena vacía
             codigo = cid_procedimiento.codigo  # Mantener el valor original si no se envió uno nuevo
-            print("se ejecuto")
         cid_procedimiento.titulo_procedimiento = safe_string(form.titulo_procedimiento.data)
         cid_procedimiento.codigo = safe_clave(codigo)
-        cid_procedimiento.revion = revision
+        cid_procedimiento.revision = revision
         cid_procedimiento.fecha = form.fecha.data
         cid_procedimiento.objetivo = form.objetivo.data
         cid_procedimiento.alcance = form.alcance.data
