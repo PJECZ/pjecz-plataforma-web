@@ -7,18 +7,20 @@
 
 {% block topbar_actions %}
     {% call topbar.page_buttons('Formato ' + cid_formato.descripcion) %}
-        {{ topbar.button('Autorizados', url_for('cid_procedimientos.list_authorized'), 'mdi:table-star') }}
+        {{ topbar.button('Autorizados', url_for('cid_formatos.list_authorized'), 'mdi:table-star') }}
          {% if show_button_edit_admin %}
             {{ topbar.button_edit('Editar Autoridad', url_for('cid_formatos.edit_admin', cid_formato_id=cid_formato.id)) }}
         {% endif %}
         {% if current_user.can_edit('CID PROCEDIMIENTOS') %}
-            {{ topbar.button('Propios', url_for('cid_procedimientos.list_owned'), 'mdi:table-heart') }}
+            {{ topbar.button('Propios', url_for('cid_formatos.list_owned'), 'mdi:table-heart') }}
         {% endif %}
         {% if current_user.can_admin('CID PROCEDIMIENTOS') %}
-            {{ topbar.button('Todos', url_for('cid_procedimientos.list_active'), 'mdi:table') }}
+            {{ topbar.button('Todos', url_for('cid_formatos.list_active'), 'mdi:table') }}
         {% endif %}
-        {% if current_user.can_edit('CID FORMATOS') %}
+        {% if current_user.id == cid_formato.procedimiento.usuario_id %}
             {{ topbar.button_edit('Editar', url_for('cid_formatos.edit', cid_formato_id=cid_formato.id)) }}
+        {% endif %}
+        {% if current_user.can_admin('CID FORMATOS') %}
             {% if cid_formato.estatus == 'A' %}{{ topbar.button_delete('Eliminar', url_for('cid_formatos.delete', cid_formato_id=cid_formato.id)) }}{% endif %}
             {% if cid_formato.estatus == 'B' %}{{ topbar.button_recover('Recuperar', url_for('cid_formatos.recover', cid_formato_id=cid_formato.id)) }}{% endif %}
         {% endif %}
@@ -27,7 +29,8 @@
 
 {% block content %}
     {% call detail.card(estatus=cid_formato.estatus) %}
-        {{ detail.label_value('Procedimiento', cid_formato.procedimiento.titulo_procedimiento, url_for('cid_procedimientos.detail', cid_procedimiento_id=cid_formato.procedimiento_id)) }}
+        {{ detail.label_value('Titulo procedimiento', cid_formato.procedimiento.titulo_procedimiento, url_for('cid_procedimientos.detail', cid_procedimiento_id=cid_formato.procedimiento_id)) }}
+        {{ detail.label_value('Código', cid_formato.codigo) }}
         {{ detail.label_value('Descripción', cid_formato.descripcion) }}
         {{ detail.label_value_new_tab('URL', cid_formato.archivo, cid_formato.url) }}
         {{ detail.label_value('Distrito', cid_formato.procedimiento.autoridad.distrito.nombre_corto) }}

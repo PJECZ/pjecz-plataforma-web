@@ -1,6 +1,7 @@
 """
 CID Formatos, modelos
 """
+
 from plataforma_web.extensions import db
 from lib.universal_mixin import UniversalMixin
 
@@ -21,6 +22,7 @@ class CIDFormato(db.Model, UniversalMixin):
     cid_area = db.relationship("CIDArea", back_populates="cid_formatos")
 
     # Columnas
+    codigo = db.Column(db.String(16), nullable=False)
     descripcion = db.Column(db.String(256), nullable=False)
     archivo = db.Column(db.String(256), nullable=False, default="", server_default="")
     url = db.Column(db.String(512), nullable=False, default="", server_default="")

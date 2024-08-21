@@ -19,6 +19,9 @@
             {% if estatus == 'A' %}{{ topbar.button_list_inactive('Inactivos', url_for('cid_formatos.list_all_inactive')) }}{% endif %}
             {% if estatus == 'B' %}{{ topbar.button_list_active('Activos', url_for('cid_formatos.list_all_active')) }}{% endif %}
         {% endif %}
+        {% if show_lista_maestra %}
+            {{ modals.button_modal('Exportar Lista Maestra a XLSX', url_for('cid_procedimientos.exportar_xlsx'), 'ExportXLSX', 'mdi:download', "¿Quiere exportar la Lista Maestra un archivo XLSX?") }}
+        {% endif %}
     {% endcall %}
 {% endblock %}
 
@@ -30,14 +33,14 @@
                 <form class="row g-1 mb-3" id="filtradorForm" onsubmit="filtrosCidFormatos.buscar(); return false;">
                     <div class="col-2">
                         <div class="form-floating">
-                            <input id="filtroId" type="text" class="form-control" aria-label="Id">
-                            <label for="filtroId">ID</label>
+                            <input id="filtroCodigo" type="text" class="form-control" aria-label="Codigo">
+                            <label for="filtroCodigo">Código</label>
                         </div>
                     </div>
                     <div class="col-4">
                         <div class="form-floating">
                             <input id="filtroDescripcion" type="text" class="form-control" aria-label="Descripcion" style="text-transform: uppercase;">
-                            <label for="filtroDescripcion">Descripcion</label>
+                            <label for="filtroDescripcion">Descripción</label>
                         </div>
                     </div>
                     <div class="col-6 text-end">
@@ -51,9 +54,9 @@
         <table id="cid_formatos_datatable" class="table {% if estatus == 'B'%}table-dark{% endif %} display nowrap" style="width:100%">
             <thead>
                 <tr>
-                    <th>ID</th>
-                    <th>Procedimiento</th>
-                    <th>Descripcion</th>
+                    <th>Código</th>
+                    <th>Descripción</th>
+                    <th>Titulo procedimiento</th>
                     <th>Descargar</th>
                 </tr>
             </thead>
@@ -65,15 +68,15 @@
     <script src="/static/js/datatables-constructor.js"></script>
     <script src="/static/js/datatables-filtros.js"></script>
     <script>
-        // DataTable Cid Procedimientos
+        // DataTable Cid Formatos
         const constructorDataTable = new ConfigDataTable( '{{ csrf_token() }}' );
         let configDTCidFormatos = constructorDataTable.config();
         configDTCidFormatos['ajax']['url'] = '/cid_formatos/datatable_json';
         configDTCidFormatos['ajax']['data'] = {{ filtros }};
         configDTCidFormatos['columns'] = [
             { data: 'detalle' },
-            { data: 'cid_procedimiento' },
             { data: 'descripcion' },
+            { data: 'cid_procedimiento' },
             { data: 'descargar' },
         ];
         configDTCidFormatos['columnDefs'] = [
@@ -81,11 +84,22 @@
                 targets: 0, // detalle
                 data: null,
                 render: function(data, type, row, meta) {
-                    return '<a href="' + data.url + '">' + data.id + '</a>';
+                    return '<a href="' + data.url + '">' + data.codigo + '</a>';
                 }
             },
             {
-                targets: 1, // cid_procedimiento
+                targets: 1, // descripcion
+                data: null,
+                render: function(data, type, row, meta) {
+                    if (data.length > 32) {
+                        return '<span title="' + data + '">' + data.substring(0, 32) + '…' + '</span>';
+                    } else {
+                        return data;
+                    }
+                }
+            },
+            {
+                targets: 2, // titulo procedimiento
                 data: null,
                 render: function(data, type, row, meta) {
                     if (data.titulo_procedimiento.length > 32) {
@@ -97,17 +111,6 @@
                         return interior;
                     }
                     return '<a href="' + data.url + '">' + interior + '</a>';
-                }
-            },
-            {
-                targets: 2, // descripcion
-                data: null,
-                render: function(data, type, row, meta) {
-                    if (data.length > 32) {
-                        return '<span title="' + data + '">' + data.substring(0, 32) + '…' + '</span>';
-                    } else {
-                        return data;
-                    }
                 }
             },
             {
@@ -125,7 +128,7 @@
         ];
         // Filtros Cid Procedimientos
         const filtrosCidFormatos = new FiltrosDataTable('#cid_formatos_datatable', configDTCidFormatos);
-        filtrosCidFormatos.agregarInput('filtroId', 'cid_formato_id');
+        filtrosCidFormatos.agregarInput('filtroCodigo', 'codigo');
         filtrosCidFormatos.agregarInput('filtroDescripcion', 'descripcion');
         filtrosCidFormatos.precargar();
     </script>

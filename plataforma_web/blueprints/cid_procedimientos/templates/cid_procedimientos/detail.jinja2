@@ -197,6 +197,7 @@
             <table id="formatos_datatable" class="table display nowrap" style="width:100%">
                 <thead>
                     <tr>
+                        <th>Código</th>
                         <th>Descripciones</th>
                         <th>URLs</th>
                     </tr>
@@ -204,7 +205,8 @@
                 <tbody>
                 {% for cid_formato in cid_procedimiento.formatos %}
                     {% if cid_formato.estatus == "A" %}
-                    <tr>
+                    <tr>                        
+                        <td>{{ cid_formato.codigo if cid_formato.codigo is not none else "-" }}</td>
                         <td><a href="{{ url_for('cid_formatos.detail', cid_formato_id=cid_formato.id) }}">{{ cid_formato.descripcion }}</a></td>
                         <td><a href="{{ cid_formato.url }}" target="_blank">Abrir</a></td>
                     </tr>
