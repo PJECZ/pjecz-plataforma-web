@@ -26,9 +26,6 @@
 {% block topbar_actions %}
     {% call topbar.page_buttons('Procedimiento') %}
         {{ topbar.button_previous('Procedimientos', url_for('cid_procedimientos.list_active')) }}
-        {% if show_button_cambiar_area %}
-            {{ topbar.button_edit('Editar Área', url_for('cid_procedimientos.cambiar_area', cid_procedimiento_id=cid_procedimiento.id)) }}
-        {% endif %}
         <!-- Muestra el botón de NUEVA REVISION solo si esta dentro de los roles seleccionados y tambien si el procedimientos esta AUTORIZADO -->
         {% if show_buttom_new_revision and cid_procedimiento.seguimiento == "AUTORIZADO" %}
             {{topbar.button('Nueva revisión', url_for('cid_procedimientos.copiar_procedimiento_con_revision', cid_procedimiento_id=cid_procedimiento.id),'mdi:content-copy')}}
@@ -58,25 +55,42 @@
     {% set accordion_id = 'procedimiento_accordion' %}
     {% call accordion.div(accordion_id, estatus=cid_procedimiento.estatus) %}
         {# Muestra el área actual como un pill #}
-        <a href="{{url_for('cid_procedimientos.cambiar_area', cid_procedimiento_id=cid_procedimiento.id)}}">
-            <div class="mb-3 d-inline-flex align-items-center">
-                <span class="badge rounded-pill
-                    {% if cid_procedimiento.cid_area.estatus == 'A' %}
-                        bg-success
-                    {% elif cid_procedimiento.cid_area.estatus == 'B' %}
-                        bg-warning
-                    {% else %}
-                        bg-secondary
-                    {% endif %}
-                    p-2
-                "
-                 data-bs-toggle="tooltip" data-bs-placement="top" title="Modifica el área si es necesario dando clic en este botón"
-                >
-                    <i class="iconify ms-2" data-icon="mdi:file-document-edit" style="font-size: 20px;"></i>
-                    {{ cid_procedimiento.cid_area.nombre }}
-                </span>
-            </div>
-        </a>
+        {% if show_cambiar_area %}
+            <a href="{{url_for('cid_procedimientos.cambiar_area', cid_procedimiento_id=cid_procedimiento.id)}}">
+                <div class="mb-3 d-inline-flex align-items-center">
+                    <span class="badge rounded-pill
+                        {% if cid_procedimiento.cid_area.estatus == 'A' %}
+                            bg-success
+                        {% elif cid_procedimiento.cid_area.estatus == 'B' %}
+                            bg-warning
+                        {% else %}
+                            bg-secondary
+                        {% endif %}
+                        p-2
+                    "
+                    data-bs-toggle="tooltip" data-bs-placement="top" title="Modifica el área si es necesario dando clic en este botón"
+                    >
+                        <i class="iconify ms-2" data-icon="mdi:file-document-edit" style="font-size: 20px;"></i>
+                        {{ cid_procedimiento.cid_area.nombre }}
+                    </span>
+                </div>
+            </a>
+        {% else %}
+            <span class="badge rounded-pill
+                {% if cid_procedimiento.cid_area.estatus == 'A' %}
+                    bg-success
+                {% elif cid_procedimiento.cid_area.estatus == 'B' %}
+                    bg-warning
+                {% else %}
+                    bg-secondary
+                {% endif %}
+                p-2
+            "
+            >
+                <i class="iconify ms-2" data-icon="mdi:file" style="font-size: 20px;"></i>
+                {{ cid_procedimiento.cid_area.nombre }}
+            </span>
+        {% endif%}
         {% call accordion.item('generales_item', 'Generales', accordion_id, expanded=True, estatus=cid_procedimiento.estatus) %}
             {{ detail.label_value('ID', cid_procedimiento.id) }}
             {{ detail.label_value('Título', cid_procedimiento.titulo_procedimiento) }}
