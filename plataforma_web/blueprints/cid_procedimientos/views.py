@@ -371,6 +371,9 @@ def detail(cid_procedimiento_id):
     current_user_roles = set(current_user.get_roles())
     cid_procedimiento = CIDProcedimiento.query.get_or_404(cid_procedimiento_id)
     cid_formatos = CIDFormato.query.filter(CIDFormato.procedimiento == cid_procedimiento).filter(CIDFormato.estatus == "A").order_by(CIDFormato.id).all()
+    # Habilitar o deshabilitar poder cambiar área
+    show_cambiar_area = (current_user.id == cid_procedimiento.usuario_id) or (ROL_COORDINADOR in current_user_roles)
+
     return render_template(
         "cid_procedimientos/detail.jinja2",
         cid_procedimiento=cid_procedimiento,
@@ -385,7 +388,7 @@ def detail(cid_procedimiento_id):
         control_cambios=cid_procedimiento.control_cambios,
         cid_formatos=cid_formatos,
         show_button_edit_admin=current_user.can_admin(MODULO) or ROL_COORDINADOR in current_user.get_roles(),
-        show_button_cambiar_area=current_user.can_admin(MODULO) or ROL_COORDINADOR in current_user.get_roles(),
+        show_cambiar_area=show_cambiar_area,
         show_buttom_new_revision=current_user_roles.intersection(ROLES_NUEVA_REVISION),
     )
 
