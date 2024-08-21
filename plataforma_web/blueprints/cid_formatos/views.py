@@ -8,7 +8,7 @@ from flask_login import current_user, login_required
 from werkzeug.datastructures import CombinedMultiDict
 
 from lib.datatables import get_datatable_parameters, output_datatable_json
-from lib.safe_string import safe_message, safe_string
+from lib.safe_string import safe_clave, safe_message, safe_string
 from lib.storage import GoogleCloudStorage, NotAllowedExtesionError, UnknownExtesionError, NotConfiguredError
 
 from plataforma_web.blueprints.autoridades.models import Autoridad
@@ -30,6 +30,7 @@ MODULO = "CID FORMATOS"
 SUBDIRECTORIO = "cid_formatos"
 
 # Roles que deben estar en la base de datos
+ROL_ADMINISTRADOR = "ADMINISTRADOR"
 ROL_COORDINADOR = "SICGD COORDINADOR"
 ROL_DIRECTOR_JEFE = "SICGD DIRECTOR O JEFE"
 ROL_DUENO_PROCESO = "SICGD DUENO DE PROCESO"
@@ -52,7 +53,7 @@ def datatable_json():
     # Consultar
     consulta = CIDFormato.query
     # Primero hacer el join si se necesita
-    if "cid_areas[]" in request.form or "seguimiento" in request.form:
+    if "cid_areas[]" in request.form or "seguimiento" in request.form or "usuario_id" in request.form:
         consulta = consulta.join(CIDProcedimiento)
     # Si viene el filtro con un listado de ids de areas, filtrar por ellas
     if "cid_areas[]" in request.form:
@@ -68,15 +69,18 @@ def datatable_json():
     if "cid_formato_id" in request.form:
         try:
             cid_formato_id = int(request.form["cid_formato_id"])
-            consulta = consulta.filter_by(id=cid_formato_id)
+            consulta = consulta.filter(CIDFormato.id == cid_formato_id)
         except ValueError:
             pass
+    if "codigo" in request.form:
+        consulta = consulta.filter(CIDFormato.codigo.contains(safe_clave(request.form["codigo"])))
     if "descripcion" in request.form:
         consulta = consulta.filter(CIDFormato.descripcion.contains(safe_string(request.form["descripcion"])))
     if "seguimiento" in request.form:
         consulta = consulta.filter(CIDProcedimiento.seguimiento == request.form["seguimiento"])
     if "usuario_id" in request.form:
-        consulta = consulta.filter(CIDProcedimiento.usuario_id == request.form["usuario_id"])
+        usuario_id = request.form["usuario_id"]
+        consulta = consulta.filter(CIDProcedimiento.usuario_id == usuario_id)
     registros = consulta.order_by(CIDFormato.descripcion).offset(start).limit(rows_per_page).all()
     total = consulta.count()
     # Elaborar datos para DataTable
@@ -85,7 +89,7 @@ def datatable_json():
         data.append(
             {
                 "detalle": {
-                    "id": resultado.id,
+                    "codigo": resultado.codigo,
                     "url": url_for("cid_formatos.detail", cid_formato_id=resultado.id),
                 },
                 "cid_procedimiento": {
@@ -116,7 +120,7 @@ def datatable_json_admin():
     # Consultar
     consulta = CIDFormato.query
     # Primero hacer el join si se necesita
-    if "cid_areas[]" in request.form or "seguimiento" in request.form:
+    if "cid_areas[]" in request.form or "seguimiento" in request.form or "usuario_id" in request.form:
         consulta = consulta.join(CIDProcedimiento)
     # Si viene el filtro con un listado de ids de areas, filtrar por ellas
     if "cid_areas[]" in request.form:
@@ -132,20 +136,24 @@ def datatable_json_admin():
     if "cid_formato_id" in request.form:
         try:
             cid_formato_id = int(request.form["cid_formato_id"])
-            consulta = consulta.filter_by(id=cid_formato_id)
+            consulta = consulta.filter(CIDFormato.id == cid_formato_id)
         except ValueError:
             pass
+    if "codigo" in request.form:
+        consulta = consulta.filter(CIDFormato.codigo.contains(safe_clave(request.form["codigo"])))
     if "descripcion" in request.form:
         consulta = consulta.filter(CIDFormato.descripcion.contains(safe_string(request.form["descripcion"])))
     if "seguimiento" in request.form:
         consulta = consulta.filter(CIDProcedimiento.seguimiento == request.form["seguimiento"])
     if "usuario_id" in request.form:
-        consulta = consulta.filter(CIDProcedimiento.usuario_id == request.form["usuario_id"])
+        usuario_id = request.form["usuario_id"]
+        consulta = consulta.filter(CIDProcedimiento.usuario_id == usuario_id)
     registros = consulta.order_by(CIDFormato.id.desc()).offset(start).limit(rows_per_page).all()
     total = consulta.count()
     # Elaborar datos para DataTable
     data = []
     for resultado in registros:
+        print(resultado.procedimiento.usuario_id)
         data.append(
             {
                 "detalle": {
@@ -156,6 +164,7 @@ def datatable_json_admin():
                     "titulo_procedimiento": resultado.procedimiento.titulo_procedimiento,
                     "url": url_for("cid_procedimientos.detail", cid_procedimiento_id=resultado.procedimiento.id) if current_user.can_view("CID PROCEDIMIENTOS") else "",
                 },
+                "codigo": resultado.codigo,
                 "descripcion": resultado.descripcion,
                 "descargar": {
                     "archivo": resultado.archivo,
@@ -185,16 +194,17 @@ def list_active():
     # Consultar los roles del usuario
     current_user_roles = set(current_user.get_roles())
     # Si es administrador, usar list_admin.jinja2
-    if current_user.can_admin(MODULO):
+    if current_user.can_admin(MODULO) and ROL_ADMINISTRADOR in current_user_roles:
         return render_template(
             "cid_formatos/list_admin.jinja2",
             titulo="Formatos autorizados de mis áreas",
             filtros=json.dumps({"estatus": "A", "seguimiento": "AUTORIZADO", "cid_areas": cid_areas_ids}),
             estatus="A",
             show_button_list_owned=current_user_roles.intersection(ROLES_CON_FORMATOS_PROPIOS),
-            show_button_list_all=True,
+            show_button_list_all=ROL_COORDINADOR in current_user_roles,
             show_button_list_all_autorized=True,
-            show_button_my_autorized=True,
+            show_button_my_autorized=False,
+            show_lista_maestra=ROL_COORDINADOR in current_user_roles,
         )
     # De lo contrario, usar list.jinja2
     return render_template(
@@ -205,7 +215,8 @@ def list_active():
         show_button_list_owned=current_user_roles.intersection(ROLES_CON_FORMATOS_PROPIOS),
         show_button_list_all=ROL_COORDINADOR in current_user_roles,
         show_button_list_all_autorized=True,
-        show_button_my_autorized=True,
+        show_button_my_autorized=False,
+        show_lista_maestra=current_user.can_admin(MODULO) or ROL_COORDINADOR in current_user_roles,
     )
 
 
@@ -216,7 +227,7 @@ def list_authorized():
     # Consultar los roles del usuario
     current_user_roles = set(current_user.get_roles())
     # Si es administrador, usar list_admin.jinja2
-    if current_user.can_admin(MODULO):
+    if current_user.can_admin(MODULO) and ROL_ADMINISTRADOR in current_user_roles:
         return render_template(
             "cid_formatos/list_admin.jinja2",
             titulo="Todos los formatos autorizados",
@@ -243,30 +254,34 @@ def list_authorized():
 @cid_formatos.route("/cid_formatos/propios")
 def list_owned():
     """Listado de formatos propios"""
+
     # Consultar los roles del usuario
     current_user_roles = set(current_user.get_roles())
+
     # Si es administrador, usar list_admin.jinja2
-    if current_user.can_admin(MODULO):
+    if current_user.can_admin(MODULO) and ROL_ADMINISTRADOR in current_user_roles:
         return render_template(
             "cid_formatos/list_admin.jinja2",
+            titulo="formatos propios",
             filtros=json.dumps({"estatus": "A", "usuario_id": current_user.id}),
-            titulo="Formatos propios",
             estatus="A",
-            show_button_list_owned=current_user_roles.intersection(ROLES_CON_FORMATOS_PROPIOS),
+            show_button_list_owned=False,
             show_button_list_all=ROL_COORDINADOR in current_user_roles,
             show_button_list_all_autorized=True,
             show_button_my_autorized=True,
+            show_lista_maestra=ROL_COORDINADOR in current_user_roles,
         )
     # De lo contrario, usar list.jinja2
     return render_template(
         "cid_formatos/list.jinja2",
-        titulo="Formatos propios",
+        titulo="formatos propios",
         filtros=json.dumps({"estatus": "A", "usuario_id": current_user.id}),
         estatus="A",
-        show_button_list_owned=current_user_roles.intersection(ROLES_CON_FORMATOS_PROPIOS),
-        show_button_list_all=ROL_COORDINADOR in current_user_roles,
+        show_button_list_owned=False,
+        show_button_list_all=current_user.can_admin(MODULO) or ROL_COORDINADOR in current_user_roles,
         show_button_list_all_autorized=True,
         show_button_my_autorized=True,
+        show_lista_maestra=current_user.can_admin(MODULO) or ROL_COORDINADOR in current_user_roles,
     )
 
 
@@ -347,6 +362,7 @@ def new(cid_procedimiento_id):
             # Insertar el registro, para obtener el ID
             cid_formato = CIDFormato(
                 procedimiento=cid_procedimiento,
+                codigo=safe_clave(form.codigo.data),
                 descripcion=descripcion,
                 cid_area_id=1,
             )
@@ -384,6 +400,7 @@ def edit(cid_formato_id):
     cid_formato = CIDFormato.query.get_or_404(cid_formato_id)
     form = CIDFormatoEdit()
     if form.validate_on_submit():
+        cid_formato.codigo = safe_clave(form.codigo.data)
         cid_formato.descripcion = safe_string(form.descripcion.data)
         cid_formato.save()
         bitacora = Bitacora(
@@ -396,6 +413,7 @@ def edit(cid_formato_id):
         flash(bitacora.descripcion, "success")
         return redirect(bitacora.url)
     form.procedimiento_titulo.data = cid_formato.procedimiento.titulo_procedimiento  # Read only
+    form.codigo.data = cid_formato.codigo
     form.descripcion.data = cid_formato.descripcion
     return render_template("cid_formatos/edit.jinja2", form=form, cid_formato=cid_formato)
 

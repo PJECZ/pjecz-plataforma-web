@@ -36,13 +36,19 @@
                             <label for="filtroId">ID</label>
                         </div>
                     </div>
+                    <div class="col-2">
+                        <div class="form-floating">
+                            <input id="filtroCodigo" type="text" class="form-control" aria-label="Codigo">
+                            <label for="filtroCodigo">Código</label>
+                        </div>
+                    </div>
                     <div class="col-4">
                         <div class="form-floating">
                             <input id="filtroDescripcion" type="text" class="form-control" aria-label="Descripcion" style="text-transform: uppercase;">
-                            <label for="filtroDescripcion">Descripcion</label>
+                            <label for="filtroDescripcion">Descripción</label>
                         </div>
                     </div>
-                    <div class="col-6 text-end">
+                    <div class="col-4 text-end">
                         <button title="Buscar" class="btn btn-primary btn-lg" onclick="filtrosCidFormatos.buscar(); return false;" id="button-buscar"><span class="iconify" data-icon="mdi:magnify"></span></button>
                         <button title="Limpiar" class="btn btn-warning btn-lg" type="reset" onclick="filtrosCidFormatos.limpiar();" id="button-limpiar"><span class="iconify" data-icon="mdi:broom"></span></button>
                     </div>
@@ -55,7 +61,8 @@
                 <tr>
                     <th>ID</th>
                     <th>Procedimiento</th>
-                    <th>Descripcion</th>
+                    <th>Código Formato</th>
+                    <th>Descripción</th>
                     <th>Descargar</th>
                 </tr>
             </thead>
@@ -76,6 +83,7 @@
         configDTCidFormatos['columns'] = [
             { data: 'detalle' },
             { data: 'cid_procedimiento' },
+            { data: 'codigo' },
             { data: 'descripcion' },
             { data: 'descargar' },
         ];
@@ -103,7 +111,7 @@
                 }
             },
             {
-                targets: 2, // descripcion
+                targets: 3, // descripcion
                 data: null,
                 render: function(data, type, row, meta) {
                     if (data.length > 32) {
@@ -114,7 +122,7 @@
                 }
             },
             {
-                targets: 3, // descargar
+                targets: 4, // descargar
                 data: null,
                 render: function(data, type, row, meta) {
                     if (data.archivo.length > 32) {
@@ -129,6 +137,7 @@
         // Filtros Cid Procedimientos
         const filtrosCidFormatos = new FiltrosDataTable('#cid_formatos_datatable', configDTCidFormatos);
         filtrosCidFormatos.agregarInput('filtroId', 'cid_formato_id');
+        filtrosCidFormatos.agregarInput('filtroCodigo', 'codigo');
         filtrosCidFormatos.agregarInput('filtroDescripcion', 'descripcion');
         filtrosCidFormatos.precargar();
     </script>

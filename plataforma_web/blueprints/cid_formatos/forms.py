@@ -12,6 +12,7 @@ class CIDFormatoForm(FlaskForm):
     """Formulario CID Formato"""
 
     procedimiento_titulo = StringField("Procedimiento")  # Read only
+    codigo = StringField("Código", validators=[DataRequired(), Length(max=16)])
     descripcion = StringField("Descripción", validators=[DataRequired(), Length(max=256)])
     archivo = FileField("Archivo PDF", validators=[FileRequired()])
     guardar = SubmitField("Guardar")
@@ -21,6 +22,7 @@ class CIDFormatoEdit(FlaskForm):
     """Editar Formulario CID Formato"""
 
     procedimiento_titulo = StringField("Procedimiento")  # Read only
+    codigo = StringField("Código", validators=[DataRequired(), Length(max=16)])
     descripcion = StringField("Descripción", validators=[DataRequired(), Length(max=256)])
     guardar = SubmitField("Guardar")
 
