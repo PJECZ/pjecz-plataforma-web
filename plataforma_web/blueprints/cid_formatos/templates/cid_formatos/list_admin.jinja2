@@ -60,9 +60,9 @@
             <thead>
                 <tr>
                     <th>ID</th>
-                    <th>Procedimiento</th>
-                    <th>Código Formato</th>
+                    <th>Código</th>
                     <th>Descripción</th>
+                    <th>Titulo procedimiento</th>
                     <th>Descargar</th>
                 </tr>
             </thead>
@@ -82,9 +82,9 @@
         configDTCidFormatos['ajax']['data'] = {{ filtros }};
         configDTCidFormatos['columns'] = [
             { data: 'detalle' },
-            { data: 'cid_procedimiento' },
             { data: 'codigo' },
             { data: 'descripcion' },
+            { data: 'cid_procedimiento' },
             { data: 'descargar' },
         ];
         configDTCidFormatos['columnDefs'] = [
@@ -96,7 +96,18 @@
                 }
             },
             {
-                targets: 1, // cid_procedimiento
+                targets: 2, // descripcion
+                data: null,
+                render: function(data, type, row, meta) {
+                    if (data.length > 32) {
+                        return '<span title="' + data + '">' + data.substring(0, 32) + '…' + '</span>';
+                    } else {
+                        return data;
+                    }
+                }
+            },
+            {
+                targets: 3, // titulo procedimiento
                 data: null,
                 render: function(data, type, row, meta) {
                     if (data.titulo_procedimiento.length > 32) {
@@ -108,17 +119,6 @@
                         return interior;
                     }
                     return '<a href="' + data.url + '">' + interior + '</a>';
-                }
-            },
-            {
-                targets: 3, // descripcion
-                data: null,
-                render: function(data, type, row, meta) {
-                    if (data.length > 32) {
-                        return '<span title="' + data + '">' + data.substring(0, 32) + '…' + '</span>';
-                    } else {
-                        return data;
-                    }
                 }
             },
             {
