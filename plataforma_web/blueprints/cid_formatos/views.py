@@ -237,6 +237,7 @@ def list_authorized():
             show_button_list_all=True,
             show_button_list_all_autorized=True,
             show_button_my_autorized=True,
+            show_lista_maestra=ROL_COORDINADOR in current_user_roles,
         )
     # De lo contrario, usar list.jinja2
     return render_template(
@@ -248,6 +249,7 @@ def list_authorized():
         show_button_list_all=ROL_COORDINADOR in current_user_roles,
         show_button_list_all_autorized=True,
         show_button_my_autorized=True,
+        show_lista_maestra=current_user.can_admin(MODULO) or ROL_COORDINADOR in current_user_roles,
     )
 
 
@@ -289,6 +291,8 @@ def list_owned():
 @permission_required(MODULO, Permiso.ADMINISTRAR)
 def list_all_active():
     """Listado de formatos activos, solo para administrador"""
+    # Consultar los roles del usuario
+    current_user_roles = set(current_user.get_roles())
     return render_template(
         "cid_formatos/list_admin.jinja2",
         filtros=json.dumps({"estatus": "A"}),
@@ -298,6 +302,7 @@ def list_all_active():
         show_button_list_all=True,
         show_button_list_all_autorized=True,
         show_button_my_autorized=True,
+        show_lista_maestra=current_user.can_admin(MODULO) or ROL_COORDINADOR in current_user_roles,
     )
 
 
@@ -305,6 +310,8 @@ def list_all_active():
 @permission_required(MODULO, Permiso.ADMINISTRAR)
 def list_all_inactive():
     """Listado de formatos eliminados, solo para administrador"""
+    # Consultar los roles del usuario
+    current_user_roles = set(current_user.get_roles())
     return render_template(
         "cid_formatos/list_admin.jinja2",
         filtros=json.dumps({"estatus": "B"}),
@@ -314,6 +321,7 @@ def list_all_inactive():
         show_button_list_all=True,
         show_button_list_all_autorized=True,
         show_button_my_autorized=True,
+        show_lista_maestra=current_user.can_admin(MODULO) or ROL_COORDINADOR in current_user_roles,
     )
 
 
