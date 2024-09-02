@@ -791,7 +791,7 @@ def accept_reject(cid_procedimiento_id):
         return redirect(url_for("cid_procedimientos.detail", cid_procedimiento_id=original.id))
     # Validar que NO haya sido YA aceptado
     if original.seguimiento_posterior in ["EN REVISION", "EN AUTORIZACION"]:
-        flash("Este procedimiento ya fue aceptado.", "warning")
+        flash("Este procedimiento ya fue aceptado. Por favor vaya al listado de procedimientos PROPIOS para que pueda continuar con su proceso .", "warning")
         return redirect(url_for("cid_procedimientos.detail", cid_procedimiento_id=original.id))
     # Validación para procedimientos AUTORIZADO y no poder aceptar de nuevo
     if original.seguimiento == "REVISADO" and original.seguimiento_posterior == "AUTORIZADO":
