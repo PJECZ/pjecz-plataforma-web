@@ -1,12 +1,23 @@
 """
 Requisiciones registros, modelos
 """
+from collections import OrderedDict
 from plataforma_web.extensions import db
 from lib.universal_mixin import UniversalMixin
 
 
 class ReqRequisicionRegistro(db.Model, UniversalMixin):
     """ReqRequisionRegistro"""
+
+    CLAVES = OrderedDict(
+        [
+            ("INS", "INSUFICIENCIA"),
+            ("REP", "REPOSICION DE BIENES"),
+            ("OBS", "OBSOLESENCIA"),
+            ("AMP", "AMPLIACION COBERTURA DEL SERVICIO"),
+            ("NUE", "NUEVO PROYECTO"),
+        ]
+    )
 
     # Nombre de la tabla
     __tablename__ = "req_requisiciones_registros"
@@ -22,6 +33,12 @@ class ReqRequisicionRegistro(db.Model, UniversalMixin):
 
     # Columnas
     cantidad = db.Column(db.Integer, nullable=False)
+    clave = db.Column(
+        db.Enum(*CLAVES, name="claves", native_enum=False),
+        index=True,
+        nullable=False,
+    )
+    detalle = db.Column(db.String)
 
     def __repr__(self):
         """Representación"""

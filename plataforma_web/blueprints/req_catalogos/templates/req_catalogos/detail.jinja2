@@ -1,0 +1,32 @@
+{% extends 'layouts/app.jinja2' %}
+{% import 'macros/detail.jinja2' as detail %}
+{% import 'macros/modals.jinja2' as modals %}
+{% import 'macros/topbar.jinja2' as topbar %}
+
+{% block title %}Catalogo{% endblock %}
+
+{% block topbar_actions %}
+    {% call topbar.page_buttons(req_catalogo.descripcion) %}
+        {{ topbar.button_previous('Catalogo', url_for('req_catalogos.list_active')) }}
+        {# if current_user.can_edit('ESTADISTICAS VARIABLES') #}
+            {# topbar.button_edit('Editar', url_for('req_catalogos.edit', req_catalogo_id=req_catalogo.id)) #}
+            {# if req_catalogo.estatus == 'A' %}{{ topbar.button_delete('Eliminar', url_for('req_catalogos.delete', req_catalogo_id=req_catalogo.id)) }}{% endif #}
+            {# if req_catalogo.estatus == 'B' %}{{ topbar.button_recover('Recuperar', url_for('req_catalogos.recover', req_catalogo_id=req_catalogo.id)) }}{% endif #}
+        {# endif #}
+    {% endcall %}
+{% endblock %}
+
+{% block content %}
+    {% call detail.card(estatus=req_catalogo.estatus) %}
+        {{ detail.label_value_big('Clave', req_catalogo.clave) }}
+        {{ detail.label_value('Descripción', req_catalogo.descripcion) }}
+    {% endcall %}
+{% endblock %}
+
+{% block custom_javascript %}
+    {# if current_user.can_edit('ESTADISTICAS VARIABLES') %}
+        {% if req_catalogo.estatus == 'A' %}{{ modals.custom_javascript_delete('Eliminar', '¿Eliminar a ' + req_catalogo.descripcion + '?') }}{% endif %}
+        {% if req_catalogo.estatus == 'B' %}{{ modals.custom_javascript_recover('Recuperar', '¿Recuperar a ' + req_catalogo.descripcion + '?') }}{% endif %}
+    {% endif #}
+    {{ detail.moment_js(moment) }}
+{% endblock %}

@@ -1,0 +1,24 @@
+{% extends 'layouts/app.jinja2' %}
+{% import 'macros/detail.jinja2' as detail %}
+{% import 'macros/modals.jinja2' as modals %}
+{% import 'macros/topbar.jinja2' as topbar %}
+
+{% block title %}Catalogo{% endblock %}
+
+{% block topbar_actions %}
+    {% call topbar.page_buttons(req_catalogo.descripcion) %}
+        {{ topbar.button_previous('Catalogo', url_for('req_catalogos.list_active')) }}
+       
+    {% endcall %}
+{% endblock %}
+
+{% block content %}
+    {% call detail.card(estatus=req_catalogo.estatus) %}
+        {{ detail.label_value_big('Clave', req_catalogo.clave) }}
+        {{ detail.label_value('Descripción', req_catalogo.descripcion) }}
+    {% endcall %}
+{% endblock %}
+
+{% block custom_javascript %}
+    {{ detail.moment_js(moment) }}
+{% endblock %}
