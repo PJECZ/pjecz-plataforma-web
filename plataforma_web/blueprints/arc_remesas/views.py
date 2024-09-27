@@ -1,6 +1,7 @@
 """
 Archivo - Remesas, vistas
 """
+
 import json
 from datetime import date, datetime, timedelta
 from flask import Blueprint, flash, redirect, render_template, request, url_for, current_app
@@ -652,7 +653,7 @@ def add_document(documento_id):
     # Buscar si el documento ya está en otra remesa pendiente
     documento_en_otra_remesa = ArcRemesaDocumento.query.join(ArcRemesa)
     documento_en_otra_remesa = documento_en_otra_remesa.filter(ArcRemesaDocumento.arc_documento_id == documento_id)
-    documento_en_otra_remesa = documento_en_otra_remesa.filter(ArcRemesa.estatus == 'A')
+    documento_en_otra_remesa = documento_en_otra_remesa.filter(ArcRemesa.estatus == "A")
     documento_en_otra_remesa = documento_en_otra_remesa.filter(ArcRemesa.estado != "CANCELADO").filter(ArcRemesa.estado != "ARCHIVADO").filter(ArcRemesa.estado != "RECHAZADO").first()
     if documento_en_otra_remesa:
         if documento_en_otra_remesa.arc_remesa.estado not in ("CANCELADO", "ARCHIVADO", "RECHAZADO", "ARCHIVADO CON ANOMALIA"):
@@ -763,7 +764,7 @@ def refuse(remesa_id):
                 documento.save()
 
             remesa.anomalia_general = safe_string(form.anomalia_general.data)
-            remesa.observaciones_archivista = safe_message(form.observaciones_archivista.data, default_output_str=None)
+            remesa.observaciones_archivista = safe_message(form.observaciones_archivista.data, max_len=2048, default_output_str=None)
             remesa.estado = "RECHAZADO"
             remesa.save()
             # Guardado de acción en bitacora de la remesa
@@ -813,7 +814,7 @@ def anomalia(remesa_id):
                 ).save()
             else:
                 remesa.anomalia_general = safe_string(form.anomalia_general.data)
-                remesa.observaciones_archivista = safe_message(form.observaciones_archivista.data, max_len=1024, default_output_str=None)
+                remesa.observaciones_archivista = safe_message(form.observaciones_archivista.data, max_len=2048, default_output_str=None)
                 remesa.save()
                 # Guardado de acción en bitacora de la remesa
                 ArcRemesaBitacora(
