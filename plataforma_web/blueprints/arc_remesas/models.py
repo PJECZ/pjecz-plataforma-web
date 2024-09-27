@@ -1,6 +1,7 @@
 """
 Archivo - Remesas, modelos
 """
+
 from collections import OrderedDict
 from plataforma_web.extensions import db
 from lib.universal_mixin import UniversalMixin
@@ -54,7 +55,7 @@ class ArcRemesa(db.Model, UniversalMixin):
     num_oficio = db.Column(db.String(16))
     # rechazo = db.Column(db.String(256))
     observaciones_solicitante = db.Column(db.String(256))
-    observaciones_archivista = db.Column(db.String(1024))
+    observaciones_archivista = db.Column(db.String(2048))
     anomalia_general = db.Column(db.Enum(*ANOMALIAS, name="anamolia", native_enum=False))
     tiempo_enviado = db.Column(db.DateTime)
     num_documentos = db.Column(db.Integer, nullable=False)
