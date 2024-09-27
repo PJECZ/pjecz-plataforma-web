@@ -764,7 +764,7 @@ def refuse(remesa_id):
                 documento.save()
 
             remesa.anomalia_general = safe_string(form.anomalia_general.data)
-            remesa.observaciones_archivista = safe_message(form.observaciones_archivista.data, max_len=2048, default_output_str=None)
+            remesa.observaciones_archivista = safe_string(form.observaciones_archivista.data, max_len=2048)
             remesa.estado = "RECHAZADO"
             remesa.save()
             # Guardado de acción en bitacora de la remesa
@@ -814,7 +814,7 @@ def anomalia(remesa_id):
                 ).save()
             else:
                 remesa.anomalia_general = safe_string(form.anomalia_general.data)
-                remesa.observaciones_archivista = safe_message(form.observaciones_archivista.data, max_len=2048, default_output_str=None)
+                remesa.observaciones_archivista = safe_string(form.observaciones_archivista.data, max_len=2048)
                 remesa.save()
                 # Guardado de acción en bitacora de la remesa
                 ArcRemesaBitacora(
