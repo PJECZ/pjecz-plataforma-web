@@ -1,6 +1,7 @@
 """
 Archivo - Remesas, formularios
 """
+
 from flask_wtf import FlaskForm
 from flask_login import current_user
 from wtforms import IntegerField, StringField, SubmitField, TextAreaField, SelectField
@@ -55,7 +56,7 @@ class ArcRemesaRefuseForm(FlaskForm):
     """Formulario Rechazo"""
 
     anomalia_general = SelectField("Anomalía General", choices=ArcRemesa.ANOMALIAS, validators=[DataRequired()])
-    observaciones_archivista = TextAreaField("Observaciones por parte de Archivo", validators=[Optional(), Length(max=256)])
+    observaciones_archivista = TextAreaField("Observaciones por parte de Archivo", validators=[Optional(), Length(max=2048)])
     rechazar = SubmitField("Rechazar")
 
 
@@ -63,6 +64,6 @@ class ArcRemesaAnomaliaForm(FlaskForm):
     """Formulario Rechazo"""
 
     anomalia_general = SelectField("Anomalía General", choices=ArcRemesa.ANOMALIAS, validators=[DataRequired()])
-    observaciones_archivista = TextAreaField("Observaciones por parte de Archivo", validators=[Optional(), Length(max=1024)])
+    observaciones_archivista = TextAreaField("Observaciones por parte de Archivo", validators=[Optional(), Length(max=2048)])
     guardar = SubmitField("Guardar")
     eliminar = SubmitField("Eliminar")
