@@ -1,0 +1,39 @@
+{% extends 'layouts/app.jinja2' %}
+{% import 'macros/form.jinja2' as f with context %}
+{% import 'macros/list.jinja2' as list %}
+{% import 'macros/topbar.jinja2' as topbar %}
+
+{% block title %}{{ titulo }}{% endblock %}
+
+{% block topbar_actions %}
+    {% call topbar.page_buttons(titulo) %}
+        {% if current_user.can_edit('REQ CATEGORIAS') %}
+            {{ topbar.button_list_inactive('Inactivas', url_for('req_categorias.list_inactive')) }}
+            {{ topbar.button_list_active('Activas', url_for('req_categorias.list_active')) }}
+        {% endif %}
+    {% endcall %}
+{% endblock %}
+
+{% block content %}
+    {% call f.form_tag('req_categorias.new', fid='new_form') %}
+       
+        {% call list.card() %}                 
+            <div class="container-fluid">
+                <div class="row">
+                    <div class="col-md-12">
+                        {% call f.form_group(form.descripcion) %}{% endcall %} 
+                    </div>
+                    <div class="row">
+                        <div class="col-md-12 text-center mt-5">
+                            {% call f.form_group(form.guardar) %}{% endcall %}
+                        </div>
+                    </div>
+                </div>
+            </div>
+    
+        {% endcall %}
+
+    
+    {% endcall %}
+{% endblock %}
+

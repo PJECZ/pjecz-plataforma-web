@@ -1,0 +1,32 @@
+{% extends 'layouts/app.jinja2' %}
+{% import 'macros/detail.jinja2' as detail %}
+{% import 'macros/modals.jinja2' as modals %}
+{% import 'macros/topbar.jinja2' as topbar %}
+
+{% block title %}Resguardo{% endblock %}
+
+{% block topbar_actions %}
+    {% call topbar.page_buttons(req_resguardo.archivo) %}
+        {{ topbar.button_previous('Resguardo', url_for('req_resguardos.list_active')) }}
+        {# if current_user.can_edit('REQUISICIONES RESGUARDOS') #}
+            {# topbar.button_edit('Editar', url_for('req_resguardos.edit', req_resguardo_id=req_resguardo.id)) #}
+            {# if req_resguardo.estatus == 'A' %}{{ topbar.button_delete('Eliminar', url_for('req_resguardos.delete', req_resguardo_id=req_resguardo.id)) }}{% endif #}
+            {# if req_resguardo.estatus == 'B' %}{{ topbar.button_recover('Recuperar', url_for('req_resguardos.recover', req_resguardo_id=req_resguardo.id)) }}{% endif #}
+        {# endif #}
+    {% endcall %}
+{% endblock %}
+
+{% block content %}
+    {% call detail.card(estatus=req_resguardo.estatus) %}
+        {{ detail.label_value_big('Id', req_resguardo.id) }}
+        {{ detail.label_value('archivo', req_resguardo.archivo) }}
+    {% endcall %}
+{% endblock %}
+
+{% block custom_javascript %}
+    {# if current_user.can_edit('REQUISICIONES RESGUARDOS') %}
+        {% if req_resguardo.estatus == 'A' %}{{ modals.custom_javascript_delete('Eliminar', '¿Eliminar a ' + req_resguardo.descripcion + '?') }}{% endif %}
+        {% if req_resguardo.estatus == 'B' %}{{ modals.custom_javascript_recover('Recuperar', '¿Recuperar a ' + req_resguardo.descripcion + '?') }}{% endif %}
+    {% endif #}
+    {{ detail.moment_js(moment) }}
+{% endblock %}

@@ -76,6 +76,7 @@ from plataforma_web.blueprints.repsvm_agresores.views import repsvm_agresores
 from plataforma_web.blueprints.repsvm_agresores_delitos.views import repsvm_agresores_delitos
 from plataforma_web.blueprints.repsvm_delitos.views import repsvm_delitos
 from plataforma_web.blueprints.req_catalogos.views import req_catalogos
+from plataforma_web.blueprints.req_categorias.views import req_categorias
 from plataforma_web.blueprints.req_requisiciones.views import req_requisiciones
 from plataforma_web.blueprints.req_requisiciones_registros.views import req_requisiciones_registros
 from plataforma_web.blueprints.req_resguardos.views import req_resguardos
@@ -183,6 +184,7 @@ def create_app():
     app.register_blueprint(repsvm_agresores_delitos)
     app.register_blueprint(repsvm_delitos)
     app.register_blueprint(req_catalogos)
+    app.register_blueprint(req_categorias)
     app.register_blueprint(req_requisiciones)
     app.register_blueprint(req_requisiciones_registros)
     app.register_blueprint(req_resguardos)

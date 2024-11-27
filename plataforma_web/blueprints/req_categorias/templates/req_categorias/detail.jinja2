@@ -1,0 +1,23 @@
+{% extends 'layouts/app.jinja2' %}
+{% import 'macros/detail.jinja2' as detail %}
+{% import 'macros/modals.jinja2' as modals %}
+{% import 'macros/topbar.jinja2' as topbar %}
+
+{% block title %}Categorias{% endblock %}
+
+{% block topbar_actions %}
+    {% call topbar.page_buttons(req_categoria.descripcion) %}
+        {{ topbar.button_previous('Categorías', url_for('req_categorias.list_active')) }}
+    {% endcall %}
+{% endblock %}
+
+{% block content %}
+    {% call detail.card(estatus=req_categoria.estatus) %}
+        {{ detail.label_value_big('ID', req_categoria.id) }}
+        {{ detail.label_value('Descripción', req_categoria.descripcion) }}
+    {% endcall %}
+{% endblock %}
+
+{% block custom_javascript %}
+    {{ detail.moment_js(moment) }}
+{% endblock %}
